@@ -646,6 +646,7 @@ def process_category(
     config: dict[str, Any],
     state: dict[str, Any],
     args: argparse.Namespace,
+    report: list[str] | None = None,
 ) -> int:
     key = category["key"]
     LOG.info("[%s] Hole %s", key, category["url"])
@@ -693,6 +694,11 @@ def process_category(
     elif should_post and not webhook_url and not args.dry_run:
         LOG.error("[%s] %s nicht gesetzt — es wird nichts gepostet", key, category["webhook_env"])
         should_post = False
+
+    if report is not None:
+        for event in events:
+            fields = ", ".join(event.details) or "KEINE FELDER"
+            report.append(f"[{key}] {event.title} -> {fields}")
 
     discord_config = config.get("discord", {})
     delay = float(discord_config.get("delay_between_posts", 1.5))
@@ -842,15 +848,19 @@ def main(argv: list[str] | None = None) -> int:
 
     total_posted = 0
     failed: list[str] = []
+    report: list[str] | None = [] if args.dry_run else None
     for category in categories:
         try:
-            total_posted += process_category(category, config, state, args)
+            total_posted += process_category(category, config, state, args, report)
         except Exception as error:  # eine kaputte Kategorie darf die anderen nicht stoppen
             failed.append(category["key"])
             LOG.exception("[%s] Fehler: %s", category["key"], error)
 
     if not args.dry_run:
         save_state(args.state, state)
+
+    if report:
+        LOG.info("Übersicht des Probelaufs:\n%s", "\n".join(report))
 
     LOG.info(
         "Fertig: %s Event(s) gepostet, %s/%s Kategorie(n) ok",
