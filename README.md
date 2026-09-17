@@ -4,24 +4,29 @@ Prüft einmal täglich die Event-Seiten von [twomoons.ch](https://www.twomoons.c
 **neue** Events pro Themenkategorie in einen eigenen Discord-Kanal — per Webhook, ohne Bot,
 ohne eigenen Server. Der tägliche Lauf passiert komplett über GitHub Actions.
 
-Aktuell ist nur **Magic: The Gathering** aktiv. Die übrigen Kategorien (Pokémon, Star Wars
-Unlimited, Yu-Gi-Oh, Lorcana, One Piece, Flesh & Blood, Riftbound, Unterhaltung) sind in
-`config.json` bereits vorbereitet und lassen sich später mit einem Handgriff dazuschalten
-(siehe [Schritt 4](#4-weitere-kategorien-aktivieren)).
+**Eine Kategorie läuft, sobald ihr Webhook-Secret im Repo hinterlegt ist** — mehr ist nicht
+zu tun. Alle neun Kategorien (Magic, Pokémon, Star Wars Unlimited, Yu-Gi-Oh, Lorcana,
+One Piece, Flesh & Blood, Riftbound, Unterhaltung) stehen in `config.json` bereit; ohne
+Secret werden sie übersprungen und nur im Log erwähnt.
 
 ## Wie es funktioniert
 
 1. Für jede aktive Kategorie wird die Übersichtsseite geladen und jede Event-Karte geparst
-   (Titel, Datum, Ort, freie Plätze, Buchungslink, Bild, Kurzbeschreibung sowie alle
-   Zusatzinfos aus dem Detail-Modal, z. B. Format, Eintritt, SUL, Turniersystem, Preispool).
-2. Jedes Event bekommt eine ID: den Buchungslink, oder — falls das Event keinen eigenen Link
+   (Titel, Datum, Ort, freie Plätze, Buchungslink, Bild, Kurzbeschreibung).
+2. Die Zusatzinfos — Format, Eintritt, SUL, Turniersystem, Preispool und was sonst noch
+   dabeisteht — stehen je nach Event entweder in einem Detail-Modal oder erst auf der
+   Detailseite des Events; fehlt das Modal, wird diese Seite nachgeladen. Nennt ein Turnier
+   keinen Eintritt, gilt der Ticketpreis der Seite. Gelesen wird nach dem Muster
+   "Label: Wert" sowie "Überschrift + Text", also ohne feste Feldnamen — deshalb erscheinen
+   auch Angaben wie `MAX Teilnehmer` oder `Decklist` automatisch im Embed.
+3. Jedes Event bekommt eine ID: den Buchungslink, oder — falls das Event keinen eigenen Link
    hat — `Titel|Datum`.
-3. Alle bereits gesehenen IDs stehen in `state.json`. Nur Events, deren ID dort **noch nicht**
+4. Alle bereits gesehenen IDs stehen in `state.json`. Nur Events, deren ID dort **noch nicht**
    steht, werden nach Discord gepostet.
-4. Für bereits gepostete Events wird geprüft, ob sich etwas geändert hat (typisch: die freien
+5. Für bereits gepostete Events wird geprüft, ob sich etwas geändert hat (typisch: die freien
    Plätze). Wenn ja, wird **die bestehende Discord-Nachricht bearbeitet** — es wird nichts
    doppelt gepostet. Dafür merkt sich `state.json` zu jedem Event die Message-ID.
-5. Danach wird `state.json` vom Workflow automatisch zurück ins Repo committet, damit der
+6. Danach wird `state.json` vom Workflow automatisch zurück ins Repo committet, damit der
    Verlauf erhalten bleibt.
 
 Beim allerersten Lauf einer Kategorie wird **nichts** gepostet — der aktuelle Stand wird nur
@@ -72,21 +77,20 @@ Wiederhole das später pro Kanal/Kategorie, die du dazuschalten willst.
 
 Zuordnung Kategorie → Secret-Name (so, wie es in `config.json` hinterlegt ist):
 
-| Kategorie            | Secret-Name                   | Status        |
-| -------------------- | ----------------------------- | ------------- |
-| Magic: The Gathering | `DISCORD_WEBHOOK_MAGIC`       | aktiv         |
-| Pokémon              | `DISCORD_WEBHOOK_POKEMON`     | vorbereitet   |
-| Star Wars Unlimited  | `DISCORD_WEBHOOK_STAR_WARS`   | vorbereitet   |
-| Yu-Gi-Oh!            | `DISCORD_WEBHOOK_YUGIOH`      | vorbereitet   |
-| Lorcana              | `DISCORD_WEBHOOK_LORCANA`     | vorbereitet   |
-| One Piece            | `DISCORD_WEBHOOK_ONE_PIECE`   | vorbereitet   |
-| Flesh & Blood        | `DISCORD_WEBHOOK_FLESH_BLOOD` | vorbereitet   |
-| Riftbound            | `DISCORD_WEBHOOK_RIFTBOUND`   | vorbereitet   |
-| Unterhaltung         | `DISCORD_WEBHOOK_UNTERHALTUNG`| vorbereitet   |
+| Kategorie            | Secret-Name                    |
+| -------------------- | ------------------------------ |
+| Magic: The Gathering | `DISCORD_WEBHOOK_MAGIC`        |
+| Pokémon              | `DISCORD_WEBHOOK_POKEMON`      |
+| Star Wars Unlimited  | `DISCORD_WEBHOOK_STAR_WARS`    |
+| Yu-Gi-Oh!            | `DISCORD_WEBHOOK_YUGIOH`       |
+| Lorcana              | `DISCORD_WEBHOOK_LORCANA`      |
+| One Piece            | `DISCORD_WEBHOOK_ONE_PIECE`    |
+| Flesh & Blood        | `DISCORD_WEBHOOK_FLESH_BLOOD`  |
+| Riftbound            | `DISCORD_WEBHOOK_RIFTBOUND`    |
+| Unterhaltung         | `DISCORD_WEBHOOK_UNTERHALTUNG` |
 
-Du musst nur Secrets für die Kategorien anlegen, die du auch aktivierst. Fehlt ein Secret zu
-einer aktiven Kategorie, protokolliert der Lauf das und überspringt sie — die anderen laufen
-normal weiter.
+Lege nur die Secrets an, deren Kategorien du haben willst — alle übrigen werden schlicht
+übersprungen und im Log erwähnt. Ein Fehler in einer Kategorie hält die anderen nie auf.
 
 ## 3. Kategorien in `config.json`
 
@@ -98,8 +102,7 @@ Kategorien sind frei konfigurierbar, nichts ist im Code fest verdrahtet:
   "name": "Magic: The Gathering",
   "url": "https://www.twomoons.ch/events/magic-the-gathering-events/",
   "webhook_env": "DISCORD_WEBHOOK_MAGIC",
-  "color": "#E67E22",
-  "enabled": true
+  "color": "#E67E22"
 }
 ```
 
@@ -108,9 +111,9 @@ Kategorien sind frei konfigurierbar, nichts ist im Code fest verdrahtet:
 | `key`         | Kurzname, auch für `--category` / das Workflow-Feld `categories`       |
 | `name`        | Anzeigename in der Embed-Fusszeile                                     |
 | `url`         | Übersichtsseite; zugleich Fallback-Link, wenn ein Event keinen hat     |
-| `webhook_env` | **Name** der Umgebungsvariable — nie die URL selbst                    |
+| `webhook_env` | **Name** der Umgebungsvariable — nie die URL selbst; ist das zugehörige Secret gesetzt, läuft die Kategorie |
 | `color`       | Farbbalken des Embeds (Hex)                                            |
-| `enabled`     | `false` = wird beim täglichen Lauf übersprungen                        |
+| `enabled`     | optional; `false` schaltet eine Kategorie trotz Secret ab              |
 
 Ausserdem in `config.json`:
 
@@ -118,22 +121,26 @@ Ausserdem in `config.json`:
 - `discord.delay_between_posts` — Pause zwischen zwei Nachrichten (Rate-Limit-freundlich).
 - `discord.max_posts_per_run` — Obergrenze pro Kategorie und Lauf, als Spam-Bremse.
 - `discord.update_existing` — `false` schaltet das tägliche Nachführen der Plätze ab.
+- `detail_pages.selectors` — welcher Bereich der Detailseite ausgewertet wird (die
+  Beschreibung statt Menü und Fusszeile); `price_selectors` bestimmt, woher der
+  Ticketpreis als Eintritt kommt.
 
 ## 4. Weitere Kategorien aktivieren
 
-Wenn die anderen TCGs dazukommen sollen:
+Wenn die anderen TCGs dazukommen sollen, sind es nur zwei Schritte:
 
 1. Discord-Webhook für den Kanal erstellen (Schritt 1).
 2. Secret unter dem passenden Namen aus der Tabelle anlegen (Schritt 2).
-3. In `config.json` bei der Kategorie `"enabled": false` auf `"enabled": true` ändern und committen.
 
-Beim nächsten Lauf wird diese Kategorie zuerst still eingelesen (kein Spam) und ab dem
-darauffolgenden Lauf werden neue Events gepostet.
+Das war's — `config.json` muss dafür nicht angefasst werden. Beim nächsten Lauf wird die
+Kategorie zuerst still eingelesen (kein Spam), ab dem darauffolgenden Lauf werden neue
+Events gepostet. Willst du den aktuellen Stand sofort im Kanal haben, starte den Workflow
+einmal von Hand mit `post_existing` = true.
 
 ## 5. Workflow manuell testen (ohne auf den Cron zu warten)
 
 1. Im Repo auf **Actions** → links **TwoMoons Event Notifier**.
-2. Rechts **Run workflow** — es erscheinen vier Felder:
+2. Rechts **Run workflow** — es erscheinen diese Felder:
 
 | Feld            | Bedeutung                                                                        |
 | --------------- | -------------------------------------------------------------------------------- |
@@ -154,7 +161,19 @@ Empfohlene Reihenfolge beim ersten Mal:
   die aktuell gelisteten Magic-Events werden einmalig gepostet, danach läuft alles im
   Normalmodus (nur noch Neues).
 
-## 6. Zeitplan
+## 6. Probelauf ohne Knopfdruck
+
+Wer keinen Zugriff auf den „Run workflow"-Knopf hat oder nur schnell sehen will, was der
+Notifier erkennt, ändert `debug-run.txt` (eine Zeile genügt) und committet. Das startet
+einen Lauf, der **zwingend** im Dry-Run läuft: Er ruft alle Kategorien ab — auch die ohne
+Secret —, protokolliert pro Event die erkannten Felder und schliesst mit einer Übersicht,
+postet aber nichts und ändert `state.json` nicht.
+
+> **Nicht „Re-run jobs" benutzen.** Ein Re-run wiederholt den Commit, mit dem der Lauf
+> ursprünglich gestartet wurde — also alten Code und einen alten `state.json`-Stand, was
+> Events erneut posten würde. Der Workflow bricht solche Läufe inzwischen von selbst ab.
+
+## 7. Zeitplan
 
 Der Cron steht auf `0 7 * * *` (UTC), also **09:00 Sommerzeit / 08:00 Winterzeit**. GitHub-Cron
 kennt keine Zeitzonen mit Sommerzeitumstellung, daher die Verschiebung im Winter. Wenn du
@@ -167,7 +186,7 @@ schedule:
   - cron: "0 8 * * *"
 ```
 
-## 7. `state.json`
+## 8. `state.json`
 
 Wird vom Workflow automatisch erzeugt und committet — du musst sie nicht anfassen. Aufbau:
 
@@ -197,7 +216,7 @@ Wird vom Workflow automatisch erzeugt und committet — du musst sie nicht anfas
 - Einen Eintrag aus `seen` löschen ⇒ das Event gilt wieder als neu und wird erneut gepostet.
 - Den ganzen Kategorie-Block löschen ⇒ die Kategorie startet wieder mit einem stillen Erstlauf.
 
-## 8. Lokal ausführen (optional)
+## 9. Lokal ausführen (optional)
 
 ```bash
 pip install -r requirements.txt
@@ -210,7 +229,8 @@ export DISCORD_WEBHOOK_MAGIC="https://discord.com/api/webhooks/…"
 python notifier.py --category magic
 ```
 
-Weitere Optionen: `--post-existing`, `--limit N`, `--config`, `--state`, `--verbose`.
+Weitere Optionen: `--post-existing`, `--reset`, `--limit N`, `--include-inactive`
+(auch Kategorien ohne Secret verarbeiten), `--config`, `--state`, `--verbose`.
 
 Tests (prüfen Parser, Embed-Format und die state-Logik gegen ein gespeichertes Seitenabbild):
 
@@ -218,7 +238,7 @@ Tests (prüfen Parser, Embed-Format und die state-Logik gegen ein gespeichertes 
 python -m unittest discover -s tests
 ```
 
-## 9. Kanal oder Server wechseln
+## 10. Kanal oder Server wechseln
 
 Jede Kategorie hat ihr eigenes Secret und damit ihren eigenen Kanal — die Kanäle dürfen auch
 auf verschiedenen Servern liegen. Der Notifier kennt weder Server noch Kanal, er postet an die
@@ -238,7 +258,7 @@ werden nicht mehr aktualisiert; lösch sie einfach in Discord.
 Ohne `post_existing` wirkt `reset` als stiller Neustart: der aktuelle Stand wird nur als
 bekannt gespeichert und erst künftige Events werden gepostet.
 
-## 10. Wenn etwas nicht klappt
+## 11. Wenn etwas nicht klappt
 
 | Symptom im Log                                    | Ursache / Lösung                                                              |
 | ------------------------------------------------- | ----------------------------------------------------------------------------- |
