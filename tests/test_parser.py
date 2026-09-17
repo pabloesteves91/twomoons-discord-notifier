@@ -121,12 +121,22 @@ class StateTest(unittest.TestCase):
         self.assertEqual(posted, 2)
         self.assertEqual(post.call_count, 2)
 
-    def test_missing_webhook_does_not_post(self):
+    def test_missing_webhook_keeps_events_new(self):
         state = {"categories": {"magic": {"seen": {}, "initialized": True}}}
         with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": ""}):
             posted, post = self.run_category(state)
         self.assertEqual(posted, 0)
         post.assert_not_called()
+        # Nichts als bekannt markieren, sonst wären die Events nach dem Nachtragen
+        # des Secrets für immer verloren.
+        self.assertEqual(state["categories"]["magic"]["seen"], {})
+
+    def test_limit_keeps_unposted_events_new(self):
+        state = {"categories": {"magic": {"seen": {}, "initialized": True}}}
+        with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}):
+            posted, post = self.run_category(state, limit=1)
+        self.assertEqual(posted, 1)
+        self.assertEqual(list(state["categories"]["magic"]["seen"]), [parse()[0].event_id])
 
     def test_failing_category_does_not_block_others(self):
         state = {"categories": {}}

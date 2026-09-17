@@ -432,7 +432,7 @@ def process_category(
         LOG.error("[%s] %s nicht gesetzt — es wird nichts gepostet", key, category["webhook_env"])
         should_post = False
 
-    posted = 0
+    posted: list[Event] = []
     if should_post:
         limit = args.limit or int(config.get("discord", {}).get("max_posts_per_run", 25))
         delay = float(config.get("discord", {}).get("delay_between_posts", 1.5))
@@ -446,7 +446,7 @@ def process_category(
                 post_embed(webhook_url, embed, username)
                 LOG.info("[%s] Gepostet: %s", key, event.title)
                 time.sleep(delay)
-            posted += 1
+            posted.append(event)
 
         if len(new_events) > limit:
             LOG.warning(
@@ -457,13 +457,17 @@ def process_category(
 
     if args.dry_run:
         LOG.info("[%s] DRY-RUN — state.json bleibt unverändert", key)
-        return posted
+        return len(posted)
 
-    for event in events:
+    # Nur der Erstlauf merkt sich alles ungesehen; sonst gilt ein Event erst als bekannt,
+    # wenn es wirklich gepostet wurde — sonst ginge es bei fehlendem Webhook oder
+    # erreichtem Limit stillschweigend verloren.
+    remembered = events if (first_run and not args.post_existing) else posted
+    for event in remembered:
         seen[event.event_id] = {"title": event.title, "date": event.date_text}
     category_state["initialized"] = True
     category_state["last_run"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    return posted
+    return len(posted)
 
 
 def select_categories(config: dict[str, Any], args: argparse.Namespace) -> list[dict[str, Any]]:
