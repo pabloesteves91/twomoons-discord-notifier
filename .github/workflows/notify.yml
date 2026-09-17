@@ -4,6 +4,11 @@ on:
   schedule:
     # 07:00 UTC = 09:00 Sommerzeit (CEST) / 08:00 Winterzeit (CET)
     - cron: "0 7 * * *"
+  # Diagnose ohne Knopfdruck: eine Änderung an debug-run.txt startet einen Lauf,
+  # der zwingend im Dry-Run läuft — er kann nichts posten und nichts speichern.
+  push:
+    paths:
+      - "debug-run.txt"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -81,8 +86,14 @@ jobs:
           LIMIT: ${{ inputs.limit }}
           DEBUG: ${{ inputs.debug }}
           RESET: ${{ inputs.reset }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           args=()
+          if [ "$EVENT_NAME" = "push" ]; then
+            # Von debug-run.txt ausgelöst: nur analysieren, niemals posten.
+            python notifier.py --dry-run --verbose
+            exit $?
+          fi
           if [ "$DRY_RUN" = "true" ]; then
             args+=(--dry-run)
           fi
@@ -112,7 +123,7 @@ jobs:
       # always(): auch wenn eine Kategorie gescheitert ist, muss der Stand der
       # erfolgreichen Kategorien gesichert werden — sonst wird alles erneut gepostet.
       - name: state.json zurück ins Repo committen
-        if: ${{ always() && inputs.dry_run != true }}
+        if: ${{ always() && github.event_name != 'push' && inputs.dry_run != true }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: state.json aktualisiert [skip ci]"
