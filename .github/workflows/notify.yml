@@ -80,8 +80,10 @@ jobs:
           fi
           python notifier.py ${args[@]+"${args[@]}"}
 
+      # always(): auch wenn eine Kategorie gescheitert ist, muss der Stand der
+      # erfolgreichen Kategorien gesichert werden — sonst wird alles erneut gepostet.
       - name: state.json zurück ins Repo committen
-        if: ${{ inputs.dry_run != true }}
+        if: ${{ always() && inputs.dry_run != true }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: state.json aktualisiert [skip ci]"
