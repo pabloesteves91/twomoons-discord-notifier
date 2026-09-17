@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import itertools
 import json
 import logging
 import os
@@ -53,6 +54,12 @@ LABEL_RE = re.compile(r"^\s*([^:\n]{2,30}?)\s*:\s*(.+?)\s*$")
 
 # Auszeichnung, die eine Zeile nicht umbricht ("<b>Format:</b> Draft" ist eine Zeile).
 INLINE_TAGS = {"a", "b", "code", "em", "font", "i", "label", "small", "span", "strong", "sub", "sup", "u"}
+EMPHASIS_TAGS = {"b", "strong"}
+HEADING_TAGS = {"h1", "h2", "h3", "h4", "h5", "h6", "dt", "th", "legend", "caption"}
+
+# Bedienelemente des Modals ("Schliessen", "Jetzt anmelden") sind kein Inhalt.
+SKIP_TAGS = {"button", "form", "input", "script", "select", "style", "svg", "textarea"}
+SKIP_CLASSES = {"modal-footer", "btn", "btn-close", "close", "visually-hidden", "sr-only"}
 
 # Diese Angaben stehen schon auf der Karte — aus dem Modal nicht doppelt anzeigen.
 CARD_LABELS = {
@@ -84,6 +91,7 @@ class Event:
     image_url: str = ""
     summary: str = ""
     details: dict[str, str] = field(default_factory=dict)
+    notes: list[str] = field(default_factory=list)
 
     @property
     def has_booking_link(self) -> bool:
@@ -145,68 +153,123 @@ def text_after(node: Tag) -> str:
     return clean_text("".join(parts)).lstrip("|").strip()
 
 
-def extract_lines(root: Tag) -> list[str]:
+@dataclass
+class Line:
+    text: str
+    heading: bool
+    block: int
+
+
+def is_skippable(node: Tag) -> bool:
+    if node.name in SKIP_TAGS:
+        return True
+    classes = set(node.get("class") or [])
+    return bool(classes & SKIP_CLASSES)
+
+
+def extract_lines(root: Tag) -> list[Line]:
     """Sichtbare Zeilen eines Elements.
 
     Inline-Auszeichnung bleibt in derselben Zeile, damit `<b>Format:</b> Draft`
     als eine Zeile "Format: Draft" ankommt; `<br>` und Block-Elemente trennen.
+    Eine Zeile gilt als Überschrift, wenn ihr gesamter Text aus einem Titel-Tag
+    oder einer Fett-Auszeichnung stammt ("Preispool" über dem Fliesstext).
     """
-    lines: list[str] = []
-    buffer: list[str] = []
+    lines: list[Line] = []
+    buffer: list[tuple[str, bool]] = []
+    blocks = itertools.count()
+    block = next(blocks)
 
     def flush() -> None:
-        line = clean_text(" ".join(buffer))
-        if line:
-            lines.append(line)
+        pieces = [(text, emphasised) for text, emphasised in buffer if clean_text(text)]
         buffer.clear()
+        text = clean_text(" ".join(piece for piece, _ in pieces))
+        if text:
+            heading = bool(pieces) and all(flag for _, flag in pieces)
+            lines.append(Line(text=text, heading=heading, block=block))
 
-    def walk(node: Tag) -> None:
+    def walk(node: Tag, emphasis: int) -> None:
+        nonlocal block
         for child in node.children:
             if isinstance(child, NavigableString):
-                buffer.append(str(child))
+                buffer.append((str(child), emphasis > 0))
             elif isinstance(child, Tag):
+                if is_skippable(child):
+                    continue
                 if child.name == "br":
                     flush()
                 elif child.name in INLINE_TAGS:
-                    walk(child)
+                    walk(child, emphasis + (1 if child.name in EMPHASIS_TAGS else 0))
                 else:
+                    # Ein Block-Element beginnt einen neuen Absatz — eine Überschrift
+                    # darf ihren Wert nur aus dem unmittelbar folgenden Absatz ziehen.
                     flush()
-                    walk(child)
+                    block = next(blocks)
+                    walk(child, emphasis + (1 if child.name in HEADING_TAGS else 0))
                     flush()
+                    block = next(blocks)
 
-    walk(root)
+    walk(root, 0)
     flush()
     return lines
 
 
-def parse_label_lines(lines: list[str]) -> dict[str, str]:
-    """Generisches "Label: Wert" — unabhängig von festen Labels oder Sprache."""
+def is_usable_label(label: str) -> bool:
+    return bool(label) and label.lower() not in LABEL_DENYLIST and len(label.split()) <= 3 and len(label) <= 30
+
+
+def add_detail(found: dict[str, str], label: str, value: str) -> None:
+    previous = found.get(label)
+    if previous is None:
+        found[label] = value
+    elif value not in previous:
+        # Manche Events führen dasselbe Label zweimal (z. B. zwei Prizepool-Zeilen).
+        found[label] = f"{previous} · {value}"
+
+
+def parse_details(lines: list[Line]) -> tuple[dict[str, str], list[str]]:
+    """Trennt "Label: Wert" und "Überschrift + Fliesstext" vom restlichen Text.
+
+    Liefert (Felder, übriger Fliesstext) — sprachunabhängig, ohne feste Labels,
+    damit auch andere Kategorien mit anderen Feldern funktionieren.
+    """
     found: dict[str, str] = {}
+    notes: list[str] = []
+    index = 0
 
-    # "Format:" und "Draft" in getrennten Block-Elementen (z. B. dt/dd) zusammenziehen.
-    merged: list[str] = []
-    for line in lines:
-        if merged and merged[-1].endswith(":") and ":" not in line:
-            merged[-1] = f"{merged[-1]} {line}"
-        else:
-            merged.append(line)
+    while index < len(lines):
+        line = lines[index]
+        index += 1
+        if not line.text or len(line.text) > 500:
+            continue
 
-    for line in merged:
-        if not line or len(line) > 500:
+        match = LABEL_RE.match(line.text)
+        if match and is_usable_label(match.group(1).strip()):
+            add_detail(found, match.group(1).strip(), match.group(2).strip())
             continue
-        match = LABEL_RE.match(line)
-        if not match:
-            continue
-        label, value = match.group(1).strip(), match.group(2).strip()
-        if not value or label.lower() in LABEL_DENYLIST or len(label.split()) > 3:
-            continue
-        previous = found.get(label)
-        if previous is None:
-            found[label] = value
-        elif value not in previous:
-            # Manche Events führen dasselbe Label zweimal (z. B. zwei Prizepool-Zeilen).
-            found[label] = f"{previous} · {value}"
-    return found
+
+        # Überschrift ("Preispool") — der folgende Fliesstext ist ihr Wert.
+        label = line.text.rstrip(":").strip()
+        if (line.heading or line.text.endswith(":")) and is_usable_label(label):
+            value: list[str] = []
+            value_block: int | None = None
+            while index < len(lines):
+                following = lines[index]
+                if following.heading or LABEL_RE.match(following.text):
+                    break
+                if value_block is None:
+                    value_block = following.block
+                elif following.block != value_block:
+                    break
+                value.append(following.text)
+                index += 1
+            if value:
+                add_detail(found, label, " ".join(value))
+                continue
+
+        notes.append(line.text)
+
+    return found, notes
 
 
 def modal_candidate_ids(card: Tag) -> list[str]:
@@ -315,18 +378,25 @@ def parse_card(soup: BeautifulSoup, card: Tag, page_url: str) -> Event | None:
     slot_id = slot_match.group(1) if slot_match else ""
 
     details: dict[str, str] = {}
+    notes: list[str] = []
     modal = find_modal(soup, card, slot_id)
     if modal is not None:
         body = modal.select_one(".modal-body") or modal
         modal_lines = extract_lines(body)
-        details = parse_label_lines(modal_lines)
-        LOG.debug("Modal '%s' für '%s': %s Zeile(n) -> %s", modal.get("id"), title, len(modal_lines), modal_lines)
+        details, notes = parse_details(modal_lines)
+        LOG.debug(
+            "Modal '%s' für '%s': %s Zeile(n) -> %s",
+            modal.get("id"),
+            title,
+            len(modal_lines),
+            [(line.text, line.heading) for line in modal_lines],
+        )
     else:
         LOG.debug("Kein Modal für '%s' gefunden", title)
 
     # Manche Karten tragen die Zusatzinfos direkt in der Karte statt im Modal.
     if not details:
-        details = parse_label_lines(extract_lines(card))
+        details, _ = parse_details(extract_lines(card))
 
     event_id = booking_url or f"{title}|{date_text}"
 
@@ -341,6 +411,7 @@ def parse_card(soup: BeautifulSoup, card: Tag, page_url: str) -> Event | None:
         image_url=image_url,
         summary=summary,
         details=details,
+        notes=notes,
     )
 
 
@@ -420,9 +491,13 @@ def build_embed(event: Event, category: dict[str, Any], locations: dict[str, Any
         seats_text = f"{seats_number.group(1)} verfügbar" if seats_number else event.seats
         lines.append(f"**Plätze:** {seats_text}")
 
-    if event.summary:
-        summary = event.summary if len(event.summary) <= 300 else event.summary[:297] + "..."
-        lines.append(f"\n{summary}")
+    text_parts: list[str] = []
+    for part in [event.summary, *event.notes]:
+        if part and part.lower() not in " ".join(text_parts).lower():
+            text_parts.append(part)
+    free_text = "\n".join(text_parts)
+    if free_text:
+        lines.append(f"\n{free_text if len(free_text) <= 600 else free_text[:597] + '...'}")
 
     if event.has_booking_link:
         lines.append(f"\n**Link:** [Zur Buchung]({event.booking_url})")

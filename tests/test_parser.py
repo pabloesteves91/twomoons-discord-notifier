@@ -27,7 +27,7 @@ class ParserTest(unittest.TestCase):
         events = parse()
         self.assertEqual(
             [event.title for event in events],
-            ["MTG The Hobbit Draft", "MTG Modern SUL District", "Commander Abend"],
+            ["MTG The Hobbit Draft", "MTG Modern SUL District", "MTG Modern Weekly", "Commander Abend"],
         )
 
     def test_card_fields(self):
@@ -67,8 +67,34 @@ class ParserTest(unittest.TestCase):
             "They will be distributed among the players with more wins than losses.",
         )
 
-    def test_event_id_falls_back_to_title_and_date(self):
+    def test_heading_with_prose_becomes_a_field(self):
         event = parse()[2]
+        self.assertEqual(event.details["Eintritt"], "CHF 15.00")
+        self.assertEqual(event.details["SUL"], "League (Infos zu League)")
+        self.assertEqual(
+            event.details["Preispool"],
+            "Pro Person gehen 14 CHF als Moons in den Preispool. "
+            "Ab 7 erreichten Punkten erhältst du Moons.",
+        )
+
+    def test_unlabelled_prose_is_kept_as_notes(self):
+        event = parse()[2]
+        self.assertEqual(
+            event.notes,
+            [
+                "Weekly Magic the Gathering Turnier im TwoMoons - Zürichstrasse 137a "
+                "direkt am Bahnhof Stettbach.",
+                "4 Runden werden gespielt, 45 Minuten pro Runde.",
+            ],
+        )
+
+    def test_modal_buttons_are_ignored(self):
+        event = parse()[2]
+        self.assertNotIn("Schliessen", " ".join(event.notes))
+        self.assertNotIn("Schliessen", " ".join(event.details.values()))
+
+    def test_event_id_falls_back_to_title_and_date(self):
+        event = parse()[3]
         self.assertEqual(event.booking_url, "")
         self.assertEqual(event.event_id, "Commander Abend|Mittwoch, 26. November 2025, 18:30 Uhr")
 
@@ -90,6 +116,7 @@ class EmbedTest(unittest.TestCase):
                 "**Plätze:** 12 verfügbar",
                 "",
                 "Draft mit Karten aus dem Herrn-der-Ringe-Universum.",
+                "Magic: The Gathering Draft-Abend in Stettbach.",
                 "",
                 "**Link:** [Zur Buchung](https://www.twomoons.ch/events/anmeldung/?slotId=98765)",
             ]
@@ -120,8 +147,30 @@ class EmbedTest(unittest.TestCase):
         # "Place" steht schon als Ort auf der Karte und darf nicht doppelt erscheinen.
         self.assertNotIn("**Place:**", embed["description"])
 
-    def test_event_without_booking_link_uses_category_page(self):
+    def test_modern_weekly_embed_keeps_fields_and_prose(self):
         embed = notifier.build_embed(parse()[2], MAGIC, CONFIG["locations"])
+        expected = "\n".join(
+            [
+                "**Datum:** Mi., 23.09.26, 19:00 - 22:30",
+                "**Eintritt:** CHF 15.00",
+                "**Ort:** [TwoMoons Stettbach]"
+                "(https://www.twomoons.ch/twomoons/standort-oeffnungszeiten/stettbach/) direkt am Bahnhof Stettbach",
+                "**SUL:** League (Infos zu League)",
+                "**Preispool:** Pro Person gehen 14 CHF als Moons in den Preispool. "
+                "Ab 7 erreichten Punkten erhältst du Moons.",
+                "**Plätze:** 24 verfügbar",
+                "",
+                "Weekly Magic the Gathering Turnier im TwoMoons - Zürichstrasse 137a "
+                "direkt am Bahnhof Stettbach.",
+                "4 Runden werden gespielt, 45 Minuten pro Runde.",
+                "",
+                "**Link:** [Zur Buchung](https://www.twomoons.ch/mtg-weekly-entry-modern?slotId=019f193b)",
+            ]
+        )
+        self.assertEqual(embed["description"], expected)
+
+    def test_event_without_booking_link_uses_category_page(self):
+        embed = notifier.build_embed(parse()[3], MAGIC, CONFIG["locations"])
         self.assertIn(f"**Link:** [Zu den Events]({MAGIC['url']})", embed["description"])
         self.assertIn("weinfelden/) Marktstrasse 3 8570 Weinfelden", embed["description"])
         self.assertIn("**Mitbringen:** eigenes Deck", embed["description"])
@@ -154,7 +203,7 @@ class StateTest(unittest.TestCase):
             posted, post = self.run_category(state)
         self.assertEqual(posted, 0)
         post.assert_not_called()
-        self.assertEqual(len(state["categories"]["magic"]["seen"]), 3)
+        self.assertEqual(len(state["categories"]["magic"]["seen"]), 4)
         self.assertTrue(state["categories"]["magic"]["initialized"])
 
     def test_second_run_posts_only_new_events(self):
@@ -171,8 +220,8 @@ class StateTest(unittest.TestCase):
         state = {"categories": {}}
         with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}):
             posted, post = self.run_category(state, post_existing=True)
-        self.assertEqual(posted, 3)
-        self.assertEqual(post.call_count, 3)
+        self.assertEqual(posted, 4)
+        self.assertEqual(post.call_count, 4)
         self.assertEqual(
             state["categories"]["magic"]["seen"][parse()[0].event_id]["message_id"], "msg-1"
         )
@@ -231,8 +280,8 @@ class StateTest(unittest.TestCase):
         with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}):
             self.run_category(state, post_existing=True)
             posted, post = self.run_category(state, reset=True, post_existing=True)
-        self.assertEqual(posted, 3)
-        self.assertEqual(post.call_count, 3)
+        self.assertEqual(posted, 4)
+        self.assertEqual(post.call_count, 4)
         self.edit.assert_not_called()
 
     def test_reset_without_post_existing_seeds_silently(self):
@@ -242,7 +291,7 @@ class StateTest(unittest.TestCase):
             posted, post = self.run_category(state, reset=True)
         self.assertEqual(posted, 0)
         post.assert_not_called()
-        self.assertEqual(len(state["categories"]["magic"]["seen"]), 3)
+        self.assertEqual(len(state["categories"]["magic"]["seen"]), 4)
 
     def test_reset_in_dry_run_keeps_state(self):
         state = {"categories": {}}
