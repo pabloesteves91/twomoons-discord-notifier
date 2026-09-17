@@ -51,15 +51,23 @@ jobs:
 
       # "Re-run jobs" wiederholt den ursprünglichen Commit: alter Code und ein
       # state.json-Stand von damals, wodurch bereits gepostete Events erneut als
-      # neu gelten. Lieber hier abbrechen, bevor Duplikate im Kanal landen.
-      - name: Aktuellen Branch-Stand sicherstellen
+      # neu gelten. Abbrechen, bevor Duplikate im Kanal landen.
+      - name: Re-runs abweisen
+        if: ${{ github.run_attempt != 1 }}
+        run: |
+          echo "::error::Dieser Lauf ist ein Re-run des Commits ${GITHUB_SHA} und würde alten Code mit altem Stand ausführen. Bitte stattdessen über 'Run workflow' neu starten."
+          exit 1
+
+      # Jeder Lauf committet state.json. Wurde kurz zuvor einer ausgeführt, hat der
+      # Checkout einen älteren Stand — ohne Abgleich würden dessen Events erneut
+      # gepostet. Deshalb hier den aktuellen Stand nachziehen statt abzubrechen.
+      - name: Aktuellen state.json-Stand holen
         run: |
           git fetch --quiet origin "$GITHUB_REF_NAME"
-          checked_out="$(git rev-parse HEAD)"
-          branch_head="$(git rev-parse "origin/$GITHUB_REF_NAME")"
-          if [ "$checked_out" != "$branch_head" ]; then
-            echo "::error::Dieser Lauf nutzt den veralteten Commit ${checked_out}, aktuell ist ${branch_head}. Bitte über 'Run workflow' neu starten statt 'Re-run jobs'."
-            exit 1
+          if git checkout "origin/$GITHUB_REF_NAME" -- state.json 2>/dev/null; then
+            echo "state.json vom Branch übernommen"
+          else
+            echo "Noch keine state.json im Repo — erster Lauf"
           fi
 
       - uses: actions/setup-python@v5
