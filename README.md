@@ -240,25 +240,53 @@ Tests (prüfen Parser, Embed-Format und die state-Logik gegen ein gespeichertes 
 python -m unittest discover -s tests
 ```
 
-## 10. Kanal oder Server wechseln
+## 10. Umstellung vom Test- auf den richtigen Server
 
 Jede Kategorie hat ihr eigenes Secret und damit ihren eigenen Kanal — die Kanäle dürfen auch
 auf verschiedenen Servern liegen. Der Notifier kennt weder Server noch Kanal, er postet an die
-URL im jeweiligen Secret. Ein Umzug (z. B. vom Test-Server auf den richtigen) geht so:
+URL im jeweiligen Secret. Am Programm ist für den Wechsel **nichts** zu ändern.
 
-1. Im Ziel-Kanal einen Webhook erstellen (Schritt 1) und die URL kopieren.
-2. Das bestehende Secret aktualisieren: **Settings → Secrets and variables → Actions →**
-   Secret anklicken → **Update**. Kein Code-Deploy nötig.
-3. Workflow manuell starten mit `reset` = **true**, `post_existing` = **true** und
-   `categories` = der umgezogenen Kategorie.
+### Vorher
 
-`reset` löscht die gemerkten Events dieser Kategorie, `post_existing` postet den aktuellen
-Stand einmalig in den neuen Kanal — inklusive neuer Message-IDs, damit die Plätze dort wieder
-täglich nachgeführt werden. Die alten Nachrichten im vorherigen Kanal bleiben stehen und
-werden nicht mehr aktualisiert; lösch sie einfach in Discord.
+- [ ] Pro Spielsystem einen Kanal auf dem Ziel-Server anlegen und dort je einen Webhook
+      erstellen (Schritt 1), URLs bereithalten.
+- [ ] Entscheiden, wie der Absender heissen soll: ein Name für alle über `discord.username`
+      in `config.json`, oder `""` setzen — dann gilt der Name, den du dem Webhook je Kanal
+      in Discord gegeben hast (inklusive eigenem Avatar).
+- [ ] Farben und Anzeigenamen der Kategorien in `config.json` durchsehen.
+- [ ] Unter **Settings → Actions → General → Workflow permissions** prüfen, dass
+      **Read and write permissions** aktiv ist — sonst kann `state.json` nicht zurückgeschrieben
+      werden und es entstehen Doppelposts.
+- [ ] Überlegen, ob das Repository öffentlich bleiben soll. Die Secrets sind in jedem Fall
+      geschützt, aber `config.json` und der Event-Verlauf in `state.json` sind öffentlich
+      mitlesbar. Umstellen unter **Settings → General → Danger Zone → Change visibility**.
 
-Ohne `post_existing` wirkt `reset` als stiller Neustart: der aktuelle Stand wird nur als
-bekannt gespeichert und erst künftige Events werden gepostet.
+### Beim Wechsel
+
+- [ ] Secrets setzen bzw. ersetzen: **Settings → Secrets and variables → Actions**, je
+      Kategorie den Namen aus der Tabelle in Schritt 2. Ein neues Secret genügt, damit eine
+      Kategorie mitläuft — `config.json` bleibt unangetastet.
+- [ ] Für **jede** umgezogene Kategorie den Workflow manuell starten mit `reset` = **true**,
+      `post_existing` = **true**, `categories` = ihr Kurzname (z. B. `magic`). Ohne `reset`
+      gelten die Events als bereits gemeldet und im neuen Kanal erscheint nichts.
+- [ ] Danach den Lauf im Log kontrollieren: Er sollte pro Kategorie „N Event(s) gepostet"
+      melden und `state.json` committen.
+
+### Danach
+
+- [ ] Alte Nachrichten im Testkanal löschen oder den Testkanal entfernen. Sie werden nicht
+      mehr aktualisiert, weil ihre Message-IDs beim `reset` verworfen wurden.
+- [ ] Die Webhooks des Testkanals in Discord löschen — besonders den, dessen URL du beim
+      Einrichten irgendwo eingefügt oder verschickt hast.
+- [ ] Chef oder weitere Personen einladen: **Settings → Collaborators and teams**. Eine
+      Collaborator-Rolle darf Einstellungen ändern und Läufe starten, aber keine Secrets
+      auslesen.
+
+> **Hintergrund zu `reset`:** Der Schalter verwirft die gemerkten Events einer Kategorie.
+> Das ist beim Wechsel nötig, weil die gespeicherten Message-IDs zum alten Kanal gehören —
+> der neue Webhook darf sie nicht bearbeiten, und ohne Reset gelten alle Termine als längst
+> gemeldet. Ohne `post_existing` wirkt `reset` als stiller Neustart: der aktuelle Stand wird
+> nur als bekannt gespeichert, gepostet wird erst, was danach neu dazukommt.
 
 ## 11. Wenn etwas nicht klappt
 
