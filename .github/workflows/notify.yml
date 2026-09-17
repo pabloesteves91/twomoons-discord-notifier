@@ -2,8 +2,10 @@ name: TwoMoons Event Notifier
 
 on:
   schedule:
-    # 07:00 UTC = 09:00 Sommerzeit (CEST) / 08:00 Winterzeit (CET)
-    - cron: "0 7 * * *"
+    # GitHub-Cron kennt keine Sommerzeit. Beide Zeitpunkte entsprechen 09:00 in
+    # der Schweiz — je nach Jahreszeit einer davon; der andere bricht unten ab.
+    - cron: "0 7 * * *" # 09:00 Sommerzeit (CEST)
+    - cron: "0 8 * * *" # 09:00 Winterzeit (CET)
   # Diagnose ohne Knopfdruck: eine Änderung an debug-run.txt startet einen Lauf,
   # der zwingend im Dry-Run läuft — er kann nichts posten und nichts speichern.
   push:
@@ -44,7 +46,30 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Von den beiden Cron-Zeiten ist immer nur eine 09:00 in der Schweiz; die
+  # andere endet hier. Manuelle Läufe laufen unabhängig davon.
+  zeitfenster:
+    runs-on: ubuntu-latest
+    outputs:
+      los: ${{ steps.pruefen.outputs.los }}
+    steps:
+      - id: pruefen
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "los=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          stunde="$(TZ=Europe/Zurich date +%H)"
+          echo "In der Schweiz ist es ${stunde} Uhr."
+          if [ "$stunde" = "09" ]; then
+            echo "los=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "los=false" >> "$GITHUB_OUTPUT"
+          fi
+
   notify:
+    needs: zeitfenster
+    if: needs.zeitfenster.outputs.los == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

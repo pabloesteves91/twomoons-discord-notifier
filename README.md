@@ -26,7 +26,10 @@ Secret werden sie übersprungen und nur im Log erwähnt.
 5. Für bereits gepostete Events wird geprüft, ob sich etwas geändert hat (typisch: die freien
    Plätze). Wenn ja, wird **die bestehende Discord-Nachricht bearbeitet** — es wird nichts
    doppelt gepostet. Dafür merkt sich `state.json` zu jedem Event die Message-ID.
-6. Danach wird `state.json` vom Workflow automatisch zurück ins Repo committet, damit der
+6. Ist ein Event vorbei und von der Übersichtsseite verschwunden, wird seine Nachricht
+   24 Stunden später aus dem Kanal **gelöscht** und der Eintrag aus `state.json` entfernt.
+   Solange ein Event noch gelistet ist, bleibt es unangetastet.
+7. Danach wird `state.json` vom Workflow automatisch zurück ins Repo committet, damit der
    Verlauf erhalten bleibt.
 
 Beim allerersten Lauf einer Kategorie wird **nichts** gepostet — der aktuelle Stand wird nur
@@ -121,6 +124,8 @@ Ausserdem in `config.json`:
 - `discord.delay_between_posts` — Pause zwischen zwei Nachrichten (Rate-Limit-freundlich).
 - `discord.max_posts_per_run` — Obergrenze pro Kategorie und Lauf, als Spam-Bremse.
 - `discord.update_existing` — `false` schaltet das tägliche Nachführen der Plätze ab.
+- `cleanup.delete_after_hours` — wie lange nach Event-Ende die Nachricht stehen bleibt
+  (Standard 24 Stunden); `cleanup.enabled: false` lässt alte Nachrichten für immer stehen.
 - `detail_pages.selectors` — welcher Bereich der Detailseite ausgewertet wird (die
   Beschreibung statt Menü und Fusszeile); `price_selectors` bestimmt, woher der
   Ticketpreis als Eintritt kommt.
@@ -175,16 +180,13 @@ postet aber nichts und ändert `state.json` nicht.
 
 ## 7. Zeitplan
 
-Der Cron steht auf `0 7 * * *` (UTC), also **09:00 Sommerzeit / 08:00 Winterzeit**. GitHub-Cron
-kennt keine Zeitzonen mit Sommerzeitumstellung, daher die Verschiebung im Winter. Wenn du
-ganzjährig 09:00 Uhr treffen willst, trag in `.github/workflows/notify.yml` beide Zeiten ein —
-doppelte Läufe posten nichts doppelt, weil `state.json` das verhindert:
+Der Lauf startet **täglich um 09:00 Schweizer Zeit**, das ganze Jahr über.
 
-```yaml
-schedule:
-  - cron: "0 7 * * *"
-  - cron: "0 8 * * *"
-```
+GitHub-Cron kennt keine Sommerzeit, deshalb sind zwei Zeiten eingetragen: `0 7 * * *` und
+`0 8 * * *` (UTC). Der Workflow prüft als Erstes, wie spät es in `Europe/Zurich` gerade ist,
+und bricht ab, wenn es nicht 09:00 ist — pro Tag arbeitet also genau ein Lauf, der andere
+endet nach wenigen Sekunden. Willst du eine andere Uhrzeit, verschiebe beide Cron-Zeiten um
+denselben Betrag und passe im Job `zeitfenster` die Stunde an.
 
 ## 8. `state.json`
 

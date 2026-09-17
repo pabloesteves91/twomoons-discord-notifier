@@ -386,6 +386,88 @@ class StateTest(unittest.TestCase):
             self.run_category(state, reset=True, dry_run=True)
         self.assertEqual(state["categories"]["magic"]["seen"], before)
 
+    def cleanup_state(self, date_text):
+        return {
+            "categories": {
+                "magic": {
+                    "initialized": True,
+                    "seen": {
+                        "https://example.invalid/vorbei?slotId=1": {
+                            "title": "Altes Event",
+                            "date": date_text,
+                            "message_id": "msg-alt",
+                            "digest": "x",
+                        }
+                    },
+                }
+            }
+        }
+
+    def run_cleanup(self, state, **flags):
+        defaults = {
+            "dry_run": False,
+            "post_existing": False,
+            "reset": False,
+            "limit": 0,
+            "category": None,
+            "verbose": False,
+        }
+        args = Namespace(**{**defaults, **flags})
+        with mock.patch.object(notifier, "fetch_html", return_value=FIXTURE), mock.patch.object(
+            notifier, "post_embed", return_value="msg-1"
+        ), mock.patch.object(notifier, "edit_embed", return_value=True), mock.patch.object(
+            notifier, "delete_message", return_value=True
+        ) as delete, mock.patch.object(notifier.time, "sleep"):
+            notifier.process_category(MAGIC, CONFIG, state, args)
+        return delete
+
+    def test_past_event_is_deleted_after_the_grace_period(self):
+        state = self.cleanup_state("Fr., 01.01.20, 18:00 - 22:00")
+        with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}):
+            delete = self.run_cleanup(state)
+        delete.assert_called_once()
+        self.assertEqual(delete.call_args.args[1], "msg-alt")
+        self.assertNotIn("https://example.invalid/vorbei?slotId=1", state["categories"]["magic"]["seen"])
+
+    def test_future_event_is_kept(self):
+        state = self.cleanup_state("Fr., 31.12.99, 18:00 - 22:00")
+        with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}):
+            delete = self.run_cleanup(state)
+        delete.assert_not_called()
+        self.assertIn("https://example.invalid/vorbei?slotId=1", state["categories"]["magic"]["seen"])
+
+    def test_event_still_listed_is_never_deleted(self):
+        # Steht das Event trotz vergangenem Datum noch auf der Seite, bleibt es.
+        listed_id = parse()[0].event_id
+        state = {
+            "categories": {
+                "magic": {
+                    "initialized": True,
+                    "seen": {
+                        listed_id: {
+                            "title": "Noch gelistet",
+                            "date": "Fr., 01.01.20, 18:00 - 22:00",
+                            "message_id": "msg-alt",
+                            "digest": notifier.embed_digest(
+                                notifier.build_embed(parse()[0], MAGIC, CONFIG["locations"])
+                            ),
+                        }
+                    },
+                }
+            }
+        }
+        with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}):
+            delete = self.run_cleanup(state)
+        delete.assert_not_called()
+        self.assertIn(listed_id, state["categories"]["magic"]["seen"])
+
+    def test_dry_run_deletes_nothing(self):
+        state = self.cleanup_state("Fr., 01.01.20, 18:00 - 22:00")
+        with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}):
+            delete = self.run_cleanup(state, dry_run=True)
+        delete.assert_not_called()
+        self.assertIn("https://example.invalid/vorbei?slotId=1", state["categories"]["magic"]["seen"])
+
     def test_failing_category_does_not_block_others(self):
         state = {"categories": {}}
         args = Namespace(

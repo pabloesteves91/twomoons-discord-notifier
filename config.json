@@ -10,6 +10,10 @@
     "max_posts_per_run": 25,
     "update_existing": true
   },
+  "cleanup": {
+    "enabled": true,
+    "delete_after_hours": 24
+  },
   "detail_pages": {
     "enabled": true,
     "delay_between_requests": 1.0,

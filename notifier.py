@@ -13,9 +13,11 @@ import re
 import sys
 import time
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 from urllib.parse import urljoin
+from zoneinfo import ZoneInfo
 
 import requests
 from bs4 import BeautifulSoup, Comment, NavigableString, Tag
@@ -53,6 +55,12 @@ LABEL_DENYLIST = {
 }
 
 LABEL_RE = re.compile(r"^\s*([^:\n]{2,30}?)\s*:\s*(.+?)\s*$")
+
+# "Sa., 19.09.26, 11:00 - 20:00" — für das Aufräumen zählt das letzte Datum
+# und die letzte Uhrzeit, also das Ende auch bei mehrtägigen Events.
+DATE_RE = re.compile(r"(\d{1,2})\.(\d{1,2})\.(\d{2,4})")
+TIME_RE = re.compile(r"(\d{1,2}):(\d{2})")
+LOCAL_ZONE = ZoneInfo("Europe/Zurich")
 
 # Auszeichnung, die eine Zeile nicht umbricht ("<b>Format:</b> Draft" ist eine Zeile).
 INLINE_TAGS = {"a", "b", "code", "em", "font", "i", "label", "small", "span", "strong", "sub", "sup", "u"}
@@ -645,6 +653,36 @@ def edit_embed(webhook_url: str, message_id: str, embed: dict[str, Any]) -> bool
     return True
 
 
+def parse_event_end(date_text: str) -> datetime | None:
+    """Ende eines Events aus dem Datumstext der Karte."""
+    dates = DATE_RE.findall(date_text or "")
+    if not dates:
+        return None
+
+    day, month, year = (int(part) for part in dates[-1])
+    if year < 100:
+        year += 2000
+
+    times = TIME_RE.findall(date_text)
+    hour, minute = (int(times[-1][0]), int(times[-1][1])) if times else (23, 59)
+
+    try:
+        return datetime(year, month, day, hour, minute, tzinfo=LOCAL_ZONE)
+    except ValueError:
+        return None
+
+
+def delete_message(webhook_url: str, message_id: str) -> bool:
+    """Löscht eine gepostete Nachricht. False = war schon weg."""
+    base = webhook_url.split("?")[0].rstrip("/")
+    response = discord_request("DELETE", f"{base}/messages/{message_id}", {})
+    if response.status_code == 404:
+        return False
+    if response.status_code not in (200, 204):
+        raise RuntimeError(f"Discord lehnte das Löschen ab ({response.status_code}): {response.text[:300]}")
+    return True
+
+
 # --------------------------------------------------------------------------- #
 # State
 # --------------------------------------------------------------------------- #
@@ -777,6 +815,33 @@ def process_category(
             else:
                 record["message_id"] = ""
             time.sleep(delay)
+
+    # Vergangene Events aufräumen: Sie stehen nicht mehr auf der Übersichtsseite,
+    # ihre Nachricht bleibt aber im Kanal stehen.
+    cleanup_config = config.get("cleanup", {})
+    if cleanup_config.get("enabled", True) and webhook_url:
+        grace = timedelta(hours=float(cleanup_config.get("delete_after_hours", 24)))
+        now = datetime.now(LOCAL_ZONE)
+        listed = {event.event_id for event in events}
+
+        for event_id, record in list(seen.items()):
+            if event_id in listed or not isinstance(record, dict):
+                continue
+            end = parse_event_end(record.get("date", ""))
+            if end is None or now < end + grace:
+                continue
+
+            title = record.get("title", event_id)
+            if args.dry_run:
+                LOG.info("[%s] DRY-RUN Löschen: %s (vorbei seit %s)", key, title, end)
+                continue
+
+            message_id = record.get("message_id", "")
+            if message_id:
+                delete_message(webhook_url, message_id)
+                time.sleep(delay)
+            LOG.info("[%s] Vergangenes Event entfernt: %s", key, title)
+            del seen[event_id]
 
     if args.dry_run:
         LOG.info("[%s] DRY-RUN — state.json bleibt unverändert", key)
