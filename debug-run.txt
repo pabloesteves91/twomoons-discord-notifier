@@ -5,4 +5,4 @@ Er ruft die Event-Seiten ab, zeigt pro Event die im Detail-Modal gefundenen
 Zeilen und das fertige Embed — postet aber nichts nach Discord und ändert
 state.json nicht.
 
-Letzter Anstoss: 2026-09-17 — Shop-Ballast der Detailseiten aussperren.
+Letzter Anstoss: 2026-09-17 — Eintritt aus Shop-Preis, Texte in der Übersicht.

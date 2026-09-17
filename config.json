@@ -20,6 +20,11 @@
       ".product-detail-tabs",
       ".cms-page",
       "main"
+    ],
+    "price_selectors": [
+      ".product-detail-price",
+      ".product-price",
+      "meta[itemprop='price']"
     ]
   },
   "locations": {

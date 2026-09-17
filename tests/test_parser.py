@@ -137,6 +137,30 @@ class DetailPageTest(unittest.TestCase):
         self.assertEqual(event.details["Preispool"], "Pro Person gehen 14 CHF als Moons in den Preispool.")
         self.assertEqual(event.notes, ["Weekly Magic the Gathering Turnier im TwoMoons."])
 
+    def test_shop_price_fills_in_a_missing_entry_fee(self):
+        page = """
+        <html><body>
+          <main><p><b>SUL:</b> League</p></main>
+          <div class="product-detail-price">CHF 15.00</div>
+        </body></html>
+        """
+        event = notifier.Event(event_id="x", title="T", booking_url="https://example.invalid/e")
+        with mock.patch.object(notifier, "fetch_html", return_value=page):
+            notifier.fetch_event_details(event, {}, ["main"], [".product-detail-price"])
+        self.assertEqual(event.details["Eintritt"], "CHF 15.00")
+
+    def test_stated_entry_fee_beats_the_shop_price(self):
+        page = """
+        <html><body>
+          <main><p><b>Entry Fee:</b> CHF 55</p></main>
+          <div class="product-detail-price">CHF 15.00</div>
+        </body></html>
+        """
+        event = notifier.Event(event_id="x", title="T", booking_url="https://example.invalid/e")
+        with mock.patch.object(notifier, "fetch_html", return_value=page):
+            notifier.fetch_event_details(event, {}, ["main"], [".product-detail-price"])
+        self.assertEqual(event.details, {"Entry Fee": "CHF 55"})
+
     def test_html_comments_are_not_content(self):
         page = """
         <html><body><main>

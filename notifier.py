@@ -27,9 +27,11 @@ DEFAULT_STATE = Path("state.json")
 
 # Reihenfolge der Felder im Embed. Pro Eintrag: Anzeige-Label + erkannte Varianten
 # (klein geschrieben) aus dem Modal, deutsch wie englisch.
+ENTRY_VARIANTS = ("eintritt", "entry fee", "entryfee", "entry", "startgeld", "fee")
+
 FIELD_ORDER: list[tuple[str, tuple[str, ...]]] = [
     ("Format", ("format",)),
-    ("Eintritt", ("eintritt", "entry fee", "entryfee", "entry", "startgeld", "fee")),
+    ("Eintritt", ENTRY_VARIANTS),
     ("SUL", ("sul", "sul level", "sul-level")),
     ("Turniersystem", ("turniersystem", "tournament system", "system", "modus")),
     ("Preispool", ("preispool", "prizepool", "prize pool", "preise", "prizes")),
@@ -362,8 +364,14 @@ def fetch_html(url: str, request_config: dict[str, Any]) -> str:
     raise RuntimeError(f"Konnte {url} nicht laden: {last_error}")
 
 
-def fetch_event_details(event: Event, request_config: dict[str, Any], selectors: list[str]) -> None:
+def fetch_event_details(
+    event: Event,
+    request_config: dict[str, Any],
+    selectors: list[str],
+    price_selectors: list[str] | None = None,
+) -> None:
     """Holt die Detailseite eines Events — nicht jede Karte hat ein Modal."""
+    price_selectors = price_selectors or []
     html = fetch_html(event.booking_url, request_config)
     soup = BeautifulSoup(html, "html.parser")
 
@@ -383,6 +391,17 @@ def fetch_event_details(event: Event, request_config: dict[str, Any], selectors:
 
     lines = extract_lines(container)
     event.details, event.notes = parse_details(lines, event.title)
+
+    # Bei Turnieren ohne Eintritts-Zeile ist der Ticketpreis der Shop-Preis.
+    if pick_detail(event.details, ENTRY_VARIANTS) is None:
+        for selector in price_selectors:
+            node = soup.select_one(selector)
+            if node is None:
+                continue
+            price = clean_text(str(node.get("content") or "") or node.get_text())
+            if price:
+                event.details["Eintritt"] = price
+                break
     LOG.debug("Detailseite '%s': Felder=%s Notizen=%s", event.title, event.details, event.notes[:3])
     if not event.details:
         LOG.debug("  keine Felder erkannt, Zeilen: %s", [line.text for line in lines][:20])
@@ -673,7 +692,7 @@ def process_category(
             if event.details or not event.booking_url:
                 continue
             try:
-                fetch_event_details(event, request_config, selectors)
+                fetch_event_details(event, request_config, selectors, detail_config.get('price_selectors', []))
                 time.sleep(pause)
             except Exception as error:  # ohne Detailseite bleibt wenigstens die Karte
                 LOG.warning("[%s] Detailseite für '%s' nicht lesbar: %s", key, event.title, error)
@@ -707,7 +726,8 @@ def process_category(
     if report is not None:
         for event in events:
             fields = ", ".join(event.details) or "KEINE FELDER"
-            report.append(f"[{key}] {event.title} -> {fields}")
+            note = f" | Text: {event.notes[0][:70]}" if event.notes else ""
+            report.append(f"[{key}] {event.title} -> {fields}{note}")
 
     discord_config = config.get("discord", {})
     delay = float(discord_config.get("delay_between_posts", 1.5))
