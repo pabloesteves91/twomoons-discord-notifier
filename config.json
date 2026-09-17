@@ -1,0 +1,101 @@
+{
+  "request": {
+    "timeout": 30,
+    "retries": 3,
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+  },
+  "discord": {
+    "username": "TwoMoons Events",
+    "delay_between_posts": 1.5,
+    "max_posts_per_run": 25
+  },
+  "locations": {
+    "default_url": "https://www.twomoons.ch/twomoons/standort-oeffnungszeiten/",
+    "branches": [
+      {
+        "match": ["stettbach", "zürichstrasse 137", "zurichstrasse 137", "8600"],
+        "url": "https://www.twomoons.ch/twomoons/standort-oeffnungszeiten/stettbach/",
+        "note": "direkt am Bahnhof Stettbach"
+      },
+      {
+        "match": ["weinfelden", "8570"],
+        "url": "https://www.twomoons.ch/twomoons/standort-oeffnungszeiten/weinfelden/",
+        "note": ""
+      }
+    ]
+  },
+  "categories": [
+    {
+      "key": "magic",
+      "name": "Magic: The Gathering",
+      "url": "https://www.twomoons.ch/events/magic-the-gathering-events/",
+      "webhook_env": "DISCORD_WEBHOOK_MAGIC",
+      "color": "#E67E22",
+      "enabled": true
+    },
+    {
+      "key": "pokemon",
+      "name": "Pokémon",
+      "url": "https://www.twomoons.ch/events/pokemon-events/",
+      "webhook_env": "DISCORD_WEBHOOK_POKEMON",
+      "color": "#FFCB05",
+      "enabled": false
+    },
+    {
+      "key": "star-wars-unlimited",
+      "name": "Star Wars Unlimited",
+      "url": "https://www.twomoons.ch/events/star-wars-unlimited-events/",
+      "webhook_env": "DISCORD_WEBHOOK_STAR_WARS",
+      "color": "#1F6FEB",
+      "enabled": false
+    },
+    {
+      "key": "yu-gi-oh",
+      "name": "Yu-Gi-Oh!",
+      "url": "https://www.twomoons.ch/events/yu-gi-oh-events/",
+      "webhook_env": "DISCORD_WEBHOOK_YUGIOH",
+      "color": "#8E44AD",
+      "enabled": false
+    },
+    {
+      "key": "lorcana",
+      "name": "Lorcana",
+      "url": "https://www.twomoons.ch/events/lorcana-events/",
+      "webhook_env": "DISCORD_WEBHOOK_LORCANA",
+      "color": "#00A9A5",
+      "enabled": false
+    },
+    {
+      "key": "one-piece",
+      "name": "One Piece",
+      "url": "https://www.twomoons.ch/events/one-piece-events/",
+      "webhook_env": "DISCORD_WEBHOOK_ONE_PIECE",
+      "color": "#D62828",
+      "enabled": false
+    },
+    {
+      "key": "flesh-blood",
+      "name": "Flesh & Blood",
+      "url": "https://www.twomoons.ch/events/flesh-blood-events/",
+      "webhook_env": "DISCORD_WEBHOOK_FLESH_BLOOD",
+      "color": "#7A1F1F",
+      "enabled": false
+    },
+    {
+      "key": "riftbound",
+      "name": "Riftbound",
+      "url": "https://www.twomoons.ch/events/riftbound-events/",
+      "webhook_env": "DISCORD_WEBHOOK_RIFTBOUND",
+      "color": "#C89B3C",
+      "enabled": false
+    },
+    {
+      "key": "unterhaltung",
+      "name": "Unterhaltung",
+      "url": "https://www.twomoons.ch/events/unterhaltung/",
+      "webhook_env": "DISCORD_WEBHOOK_UNTERHALTUNG",
+      "color": "#95A5A6",
+      "enabled": false
+    }
+  ]
+}

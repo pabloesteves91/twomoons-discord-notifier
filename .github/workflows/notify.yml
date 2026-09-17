@@ -1,0 +1,88 @@
+name: TwoMoons Event Notifier
+
+on:
+  schedule:
+    # 07:00 UTC = 09:00 Sommerzeit (CEST) / 08:00 Winterzeit (CET)
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Nur loggen, nichts posten und state.json nicht ändern"
+        type: boolean
+        default: false
+      post_existing:
+        description: "Beim ersten Lauf alle aktuellen Events posten (statt nur zu merken)"
+        type: boolean
+        default: false
+      categories:
+        description: "Optional: einzelne Kategorien, mit Komma getrennt (z. B. magic,pokemon)"
+        type: string
+        default: ""
+      limit:
+        description: "Optional: maximale Anzahl Posts pro Kategorie (0 = Wert aus config.json)"
+        type: string
+        default: "0"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: twomoons-notifier
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Notifier ausführen
+        env:
+          DISCORD_WEBHOOK_MAGIC: ${{ secrets.DISCORD_WEBHOOK_MAGIC }}
+          DISCORD_WEBHOOK_POKEMON: ${{ secrets.DISCORD_WEBHOOK_POKEMON }}
+          DISCORD_WEBHOOK_STAR_WARS: ${{ secrets.DISCORD_WEBHOOK_STAR_WARS }}
+          DISCORD_WEBHOOK_YUGIOH: ${{ secrets.DISCORD_WEBHOOK_YUGIOH }}
+          DISCORD_WEBHOOK_LORCANA: ${{ secrets.DISCORD_WEBHOOK_LORCANA }}
+          DISCORD_WEBHOOK_ONE_PIECE: ${{ secrets.DISCORD_WEBHOOK_ONE_PIECE }}
+          DISCORD_WEBHOOK_FLESH_BLOOD: ${{ secrets.DISCORD_WEBHOOK_FLESH_BLOOD }}
+          DISCORD_WEBHOOK_RIFTBOUND: ${{ secrets.DISCORD_WEBHOOK_RIFTBOUND }}
+          DISCORD_WEBHOOK_UNTERHALTUNG: ${{ secrets.DISCORD_WEBHOOK_UNTERHALTUNG }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          POST_EXISTING: ${{ inputs.post_existing }}
+          CATEGORIES: ${{ inputs.categories }}
+          LIMIT: ${{ inputs.limit }}
+        run: |
+          args=()
+          if [ "$DRY_RUN" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          if [ "$POST_EXISTING" = "true" ]; then
+            args+=(--post-existing)
+          fi
+          if [ -n "$LIMIT" ] && [ "$LIMIT" != "0" ]; then
+            args+=(--limit "$LIMIT")
+          fi
+          if [ -n "$CATEGORIES" ]; then
+            IFS=',' read -ra keys <<< "$CATEGORIES"
+            for key in "${keys[@]}"; do
+              trimmed="$(echo "$key" | xargs)"
+              if [ -n "$trimmed" ]; then
+                args+=(--category "$trimmed")
+              fi
+            done
+          fi
+          python notifier.py ${args[@]+"${args[@]}"}
+
+      - name: state.json zurück ins Repo committen
+        if: ${{ inputs.dry_run != true }}
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: state.json aktualisiert [skip ci]"
+          file_pattern: state.json
