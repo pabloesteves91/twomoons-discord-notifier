@@ -1,0 +1,46 @@
+{
+  "categories": {
+    "magic": {
+      "initialized": true,
+      "last_run": "2026-09-17T18:08:43Z",
+      "seen": {
+        "Commander Night Weinfelden|Fr., 18.09.26, 18:00 - 22:00": {
+          "date": "Fr., 18.09.26, 18:00 - 22:00",
+          "digest": "d1583e2be251992c",
+          "message_id": "1550206823246856273",
+          "title": "Commander Night Weinfelden"
+        },
+        "https://www.twomoons.ch/modern-sul-district?slotId=01a042e7cd64796e834521689b0c9553": {
+          "date": "Sa., 19.09.26, 11:00 - 20:00",
+          "digest": "1bbe30d20d68bf4b",
+          "message_id": "1550206847531884697",
+          "title": "MTG Modern SUL District"
+        },
+        "https://www.twomoons.ch/mtg-reality-fracture-prerelease?slotId=01a0438f957d7703813bc3c931d96087": {
+          "date": "Fr., 25.09.26, 18:00 - 22:30",
+          "digest": "d57a148b429c16da",
+          "message_id": "1550206878682845316",
+          "title": "MTG Prerelease Reality Fracture"
+        },
+        "https://www.twomoons.ch/mtg-the-hobbit-draft?slotId=019feb7bcbfb7e1ab480d16af75dac0d": {
+          "date": "Fr., 18.09.26, 18:30 - 22:30",
+          "digest": "a0a52bd4e2ca9e53",
+          "message_id": "1550206834512756769",
+          "title": "MTG The Hobbit Draft"
+        },
+        "https://www.twomoons.ch/mtg-weekly-entry-modern?slotId=019f193b0ce4720ea554190be5553bf2": {
+          "date": "Mi., 23.09.26, 19:00 - 22:30",
+          "digest": "35cb4d1fec0ee3f6",
+          "message_id": "1550206870101295235",
+          "title": "MTG Modern Weekly"
+        },
+        "https://www.twomoons.ch/mtg-weekly-entry-standard?slotId=019f1930bb1471a3b89afab7b79f6ebd": {
+          "date": "Mo., 21.09.26, 19:00 - 22:30",
+          "digest": "d2c6111b94c0d8d2",
+          "message_id": "1550206860970434561",
+          "title": "MTG Standard Weekly"
+        }
+      }
+    }
+  }
+}
