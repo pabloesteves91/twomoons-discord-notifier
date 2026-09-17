@@ -90,8 +90,8 @@ jobs:
         run: |
           args=()
           if [ "$EVENT_NAME" = "push" ]; then
-            # Von debug-run.txt ausgelöst: nur analysieren, niemals posten.
-            python notifier.py --dry-run --verbose
+            # Von debug-run.txt ausgelöst: alle Kategorien analysieren, niemals posten.
+            python notifier.py --dry-run --verbose --include-inactive
             exit $?
           fi
           if [ "$DRY_RUN" = "true" ]; then

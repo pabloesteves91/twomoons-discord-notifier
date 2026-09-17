@@ -57,9 +57,32 @@ INLINE_TAGS = {"a", "b", "code", "em", "font", "i", "label", "small", "span", "s
 EMPHASIS_TAGS = {"b", "strong"}
 HEADING_TAGS = {"h1", "h2", "h3", "h4", "h5", "h6", "dt", "th", "legend", "caption"}
 
-# Bedienelemente des Modals ("Schliessen", "Jetzt anmelden") sind kein Inhalt.
-SKIP_TAGS = {"button", "form", "input", "script", "select", "style", "svg", "textarea"}
-SKIP_CLASSES = {"modal-footer", "btn", "btn-close", "close", "visually-hidden", "sr-only"}
+# Bedienelemente und Seitenrahmen ("Schliessen", Navigation, Footer) sind kein Inhalt.
+SKIP_TAGS = {
+    "aside",
+    "button",
+    "footer",
+    "form",
+    "header",
+    "input",
+    "nav",
+    "script",
+    "select",
+    "style",
+    "svg",
+    "textarea",
+}
+SKIP_CLASSES = {
+    "modal-footer",
+    "btn",
+    "btn-close",
+    "close",
+    "visually-hidden",
+    "sr-only",
+    "breadcrumb",
+    "cookie-permission",
+    "offcanvas",
+}
 
 # Diese Angaben stehen schon auf der Karte — aus dem Modal nicht doppelt anzeigen.
 CARD_LABELS = {
@@ -227,20 +250,24 @@ def add_detail(found: dict[str, str], label: str, value: str) -> None:
         found[label] = f"{previous} · {value}"
 
 
-def parse_details(lines: list[Line]) -> tuple[dict[str, str], list[str]]:
+def parse_details(lines: list[Line], title: str = "") -> tuple[dict[str, str], list[str]]:
     """Trennt "Label: Wert" und "Überschrift + Fliesstext" vom restlichen Text.
 
     Liefert (Felder, übriger Fliesstext) — sprachunabhängig, ohne feste Labels,
-    damit auch andere Kategorien mit anderen Feldern funktionieren.
+    damit auch andere Kategorien mit anderen Feldern funktionieren. `title`
+    unterdrückt die Titelzeile der Detailseite, die sonst als Label gälte.
     """
     found: dict[str, str] = {}
     notes: list[str] = []
+    normalised_title = clean_text(title).casefold()
     index = 0
 
     while index < len(lines):
         line = lines[index]
         index += 1
         if not line.text or len(line.text) > 500:
+            continue
+        if normalised_title and line.text.casefold() == normalised_title:
             continue
 
         match = LABEL_RE.match(line.text)
@@ -329,6 +356,30 @@ def fetch_html(url: str, request_config: dict[str, Any]) -> str:
     raise RuntimeError(f"Konnte {url} nicht laden: {last_error}")
 
 
+def fetch_event_details(event: Event, request_config: dict[str, Any], selectors: list[str]) -> None:
+    """Holt die Detailseite eines Events — nicht jede Karte hat ein Modal."""
+    html = fetch_html(event.booking_url, request_config)
+    soup = BeautifulSoup(html, "html.parser")
+
+    container: Tag | None = None
+    for selector in selectors:
+        container = soup.select_one(selector)
+        if container is not None:
+            break
+    if container is None:
+        container = soup.body or soup
+
+    lines = extract_lines(container)
+    LOG.debug(
+        "Detailseite '%s' (%s): %s Zeile(n) -> %s",
+        event.title,
+        event.booking_url,
+        len(lines),
+        [(line.text, line.heading) for line in lines][:40],
+    )
+    event.details, event.notes = parse_details(lines, event.title)
+
+
 def parse_events(html: str, page_url: str) -> list[Event]:
     soup = BeautifulSoup(html, "html.parser")
 
@@ -389,7 +440,7 @@ def parse_card(soup: BeautifulSoup, card: Tag, page_url: str) -> Event | None:
     if modal is not None:
         body = modal.select_one(".modal-body") or modal
         modal_lines = extract_lines(body)
-        details, notes = parse_details(modal_lines)
+        details, notes = parse_details(modal_lines, title)
         LOG.debug(
             "Modal '%s' für '%s': %s Zeile(n) -> %s",
             modal.get("id"),
@@ -402,7 +453,7 @@ def parse_card(soup: BeautifulSoup, card: Tag, page_url: str) -> Event | None:
 
     # Manche Karten tragen die Zusatzinfos direkt in der Karte statt im Modal.
     if not details:
-        details, _ = parse_details(extract_lines(card))
+        details, _ = parse_details(extract_lines(card), title)
 
     event_id = booking_url or f"{title}|{date_text}"
 
@@ -604,9 +655,23 @@ def process_category(
     key = category["key"]
     LOG.info("[%s] Hole %s", key, category["url"])
 
-    html = fetch_html(category["url"], config.get("request", {}))
+    request_config = config.get("request", {})
+    html = fetch_html(category["url"], request_config)
     events = parse_events(html, category["url"])
     LOG.info("[%s] %s Event(s) auf der Seite gefunden", key, len(events))
+
+    detail_config = config.get("detail_pages", {})
+    if detail_config.get("enabled", True):
+        selectors = detail_config.get("selectors", ["main"])
+        pause = float(detail_config.get("delay_between_requests", 1.0))
+        for event in events:
+            if event.details or not event.booking_url:
+                continue
+            try:
+                fetch_event_details(event, request_config, selectors)
+                time.sleep(pause)
+            except Exception as error:  # ohne Detailseite bleibt wenigstens die Karte
+                LOG.warning("[%s] Detailseite für '%s' nicht lesbar: %s", key, event.title, error)
 
     if not events:
         LOG.warning("[%s] Keine Events geparst — HTML-Struktur womöglich geändert", key)
@@ -630,7 +695,7 @@ def process_category(
 
     if first_run and not args.post_existing:
         LOG.info("[%s] Erster Lauf — %s Event(s) werden nur als bekannt gespeichert", key, len(new_events))
-    elif should_post and not webhook_url:
+    elif should_post and not webhook_url and not args.dry_run:
         LOG.error("[%s] %s nicht gesetzt — es wird nichts gepostet", key, category["webhook_env"])
         should_post = False
 
@@ -708,7 +773,14 @@ def process_category(
 
 
 def select_categories(config: dict[str, Any], args: argparse.Namespace) -> list[dict[str, Any]]:
+    """Aktiv ist, wofür ein Webhook-Secret hinterlegt ist.
+
+    Damit genügt es, das Secret im Repo zu setzen, um eine Kategorie in Betrieb
+    zu nehmen — `"enabled": false` in der config.json schaltet sie bei Bedarf
+    trotzdem ab.
+    """
     categories = config.get("categories", [])
+
     if args.category:
         wanted = set(args.category)
         selected = [category for category in categories if category["key"] in wanted]
@@ -716,7 +788,19 @@ def select_categories(config: dict[str, Any], args: argparse.Namespace) -> list[
         if missing:
             LOG.error("Unbekannte Kategorie(n): %s", ", ".join(sorted(missing)))
         return selected
-    return [category for category in categories if category.get("enabled", True)]
+
+    if args.include_inactive:
+        return list(categories)
+
+    selected = []
+    for category in categories:
+        if not category.get("enabled", True):
+            LOG.info("[%s] In config.json abgeschaltet", category["key"])
+        elif os.environ.get(category["webhook_env"], "").strip():
+            selected.append(category)
+        else:
+            LOG.info("[%s] Kein %s hinterlegt — übersprungen", category["key"], category["webhook_env"])
+    return selected
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -734,6 +818,11 @@ def main(argv: list[str] | None = None) -> int:
         "--reset",
         action="store_true",
         help="Gemerkte Events der gewählten Kategorien vergessen (z. B. beim Kanalwechsel)",
+    )
+    parser.add_argument(
+        "--include-inactive",
+        action="store_true",
+        help="Auch Kategorien ohne hinterlegtes Webhook-Secret verarbeiten (für Testläufe)",
     )
     parser.add_argument("--limit", type=int, default=0, help="Maximale Anzahl Posts pro Kategorie")
     parser.add_argument("--verbose", action="store_true")

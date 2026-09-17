@@ -99,6 +99,43 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(event.event_id, "Commander Abend|Mittwoch, 26. November 2025, 18:30 Uhr")
 
 
+DETAIL_PAGE = """
+<html><body>
+  <nav><a href="/">Startseite</a><a href="/events/">Events</a></nav>
+  <main>
+    <h1>MTG Modern Weekly</h1>
+    <p>Weekly Magic the Gathering Turnier im TwoMoons.</p>
+    <p><b>Eintritt:</b> CHF 15.00<br><b>SUL:</b> League</p>
+    <h3>Preispool</h3>
+    <p>Pro Person gehen 14 CHF als Moons in den Preispool.</p>
+    <button>In den Warenkorb</button>
+  </main>
+  <footer>Impressum | AGB</footer>
+</body></html>
+"""
+
+
+class DetailPageTest(unittest.TestCase):
+    def test_details_are_loaded_from_the_event_page(self):
+        event = notifier.Event(event_id="x", title="MTG Modern Weekly", booking_url="https://example.invalid/e")
+        with mock.patch.object(notifier, "fetch_html", return_value=DETAIL_PAGE):
+            notifier.fetch_event_details(event, {}, [".cms-page", "main"])
+
+        self.assertEqual(event.details["Eintritt"], "CHF 15.00")
+        self.assertEqual(event.details["SUL"], "League")
+        self.assertEqual(event.details["Preispool"], "Pro Person gehen 14 CHF als Moons in den Preispool.")
+        self.assertEqual(event.notes, ["Weekly Magic the Gathering Turnier im TwoMoons."])
+
+    def test_navigation_and_footer_are_ignored(self):
+        event = notifier.Event(event_id="x", title="MTG Modern Weekly", booking_url="https://example.invalid/e")
+        with mock.patch.object(notifier, "fetch_html", return_value=DETAIL_PAGE):
+            notifier.fetch_event_details(event, {}, ["main"])
+
+        everything = " ".join([*event.notes, *event.details.values()])
+        for unwanted in ("Startseite", "Impressum", "AGB", "Warenkorb"):
+            self.assertNotIn(unwanted, everything)
+
+
 class EmbedTest(unittest.TestCase):
     def test_hobbit_embed_matches_target_format(self):
         embed = notifier.build_embed(parse()[0], MAGIC, CONFIG["locations"])
