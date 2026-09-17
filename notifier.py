@@ -338,6 +338,12 @@ def parse_events(html: str, page_url: str) -> list[Event]:
     if not cards:
         cards = soup.select("div.events-card")
 
+    if LOG.isEnabledFor(logging.DEBUG):
+        modal_ids = [
+            str(tag.get("id")) for tag in soup.find_all(id=True) if "modal" in str(tag.get("id")).lower()
+        ]
+        LOG.debug("%s Element(e) mit 'modal' in der ID: %s", len(modal_ids), modal_ids[:25])
+
     events: list[Event] = []
     for card in cards:
         event = parse_card(soup, card, page_url)
@@ -392,7 +398,7 @@ def parse_card(soup: BeautifulSoup, card: Tag, page_url: str) -> Event | None:
             [(line.text, line.heading) for line in modal_lines],
         )
     else:
-        LOG.debug("Kein Modal für '%s' gefunden", title)
+        LOG.debug("Kein Modal für '%s' gefunden — Karte:\n%s", title, str(card)[:1500])
 
     # Manche Karten tragen die Zusatzinfos direkt in der Karte statt im Modal.
     if not details:
