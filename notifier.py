@@ -18,7 +18,7 @@ from typing import Any
 from urllib.parse import urljoin
 
 import requests
-from bs4 import BeautifulSoup, NavigableString, Tag
+from bs4 import BeautifulSoup, Comment, NavigableString, Tag
 
 LOG = logging.getLogger("twomoons")
 
@@ -214,6 +214,9 @@ def extract_lines(root: Tag) -> list[Line]:
     def walk(node: Tag, emphasis: int) -> None:
         nonlocal block
         for child in node.children:
+            if isinstance(child, Comment):
+                # Kommentare sind ebenfalls NavigableString, gehören aber nicht zum Text.
+                continue
             if isinstance(child, NavigableString):
                 buffer.append((str(child), emphasis > 0))
             elif isinstance(child, Tag):
@@ -368,8 +371,14 @@ def fetch_event_details(event: Event, request_config: dict[str, Any], selectors:
     for selector in selectors:
         container = soup.select_one(selector)
         if container is not None:
+            LOG.debug("Detailseite '%s': Bereich '%s'", event.title, selector)
             break
     if container is None:
+        LOG.debug(
+            "Detailseite '%s': kein bekannter Bereich; Klassen: %s",
+            event.title,
+            sorted({c for tag in soup.find_all(True) for c in (tag.get("class") or []) if "descr" in c or "detail" in c})[:15],
+        )
         container = soup.body or soup
 
     lines = extract_lines(container)

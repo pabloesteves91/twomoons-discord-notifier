@@ -137,6 +137,19 @@ class DetailPageTest(unittest.TestCase):
         self.assertEqual(event.details["Preispool"], "Pro Person gehen 14 CHF als Moons in den Preispool.")
         self.assertEqual(event.notes, ["Weekly Magic the Gathering Turnier im TwoMoons."])
 
+    def test_html_comments_are_not_content(self):
+        page = """
+        <html><body><main>
+          <!-- @deprecated tag:v6.8.0 - block will be moved into buy-widget.html.twig -->
+          <p><b>Format:</b> Modern</p>
+        </main></body></html>
+        """
+        event = notifier.Event(event_id="x", title="Test", booking_url="https://example.invalid/e")
+        with mock.patch.object(notifier, "fetch_html", return_value=page):
+            notifier.fetch_event_details(event, {}, ["main"])
+        self.assertEqual(event.details, {"Format": "Modern"})
+        self.assertEqual(event.notes, [])
+
     def test_navigation_and_footer_are_ignored(self):
         event = notifier.Event(event_id="x", title="MTG Modern Weekly", booking_url="https://example.invalid/e")
         with mock.patch.object(notifier, "fetch_html", return_value=DETAIL_PAGE):

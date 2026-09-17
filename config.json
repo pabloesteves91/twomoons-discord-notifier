@@ -14,11 +14,12 @@
     "enabled": true,
     "delay_between_requests": 1.0,
     "selectors": [
+      ".product-detail-description-text",
+      ".product-detail-description",
+      ".cms-element-product-description-reviews",
+      ".product-detail-tabs",
       ".cms-page",
-      "main",
-      "#content-main",
-      ".content-main",
-      "article"
+      "main"
     ]
   },
   "locations": {
