@@ -238,7 +238,10 @@ def extract_lines(root: Tag) -> list[Line]:
 
 
 def is_usable_label(label: str) -> bool:
-    return bool(label) and label.lower() not in LABEL_DENYLIST and len(label.split()) <= 3 and len(label) <= 30
+    if not label or len(label) > 30 or len(label.split()) > 3:
+        return False
+    # Ziffern im Label heisst fast immer Datum oder Uhrzeit ("Mi., 23.09.26, 19:00").
+    return not any(char.isdigit() for char in label) and label.lower() not in LABEL_DENYLIST
 
 
 def add_detail(found: dict[str, str], label: str, value: str) -> None:
@@ -385,10 +388,22 @@ def parse_events(html: str, page_url: str) -> list[Event]:
     if not cards:
         cards = soup.select("div.events-card")
 
+    if not cards and LOG.isEnabledFor(logging.DEBUG):
+        classes = {
+            css_class
+            for tag in soup.find_all(True)
+            for css_class in (tag.get("class") or [])
+            if "event" in css_class.lower()
+        }
+        LOG.debug("Keine Event-Karten gefunden; Klassen mit 'event': %s", sorted(classes)[:20])
+
     events: list[Event] = []
+    seen_ids: set[str] = set()
     for card in cards:
         event = parse_card(soup, card, page_url)
-        if event is not None:
+        # Dieselbe Karte taucht bei verschachtelten Listen mehrfach auf.
+        if event is not None and event.event_id not in seen_ids:
+            seen_ids.add(event.event_id)
             events.append(event)
     return events
 
@@ -434,10 +449,6 @@ def parse_card(soup: BeautifulSoup, card: Tag, page_url: str) -> Event | None:
         LOG.debug("Modal '%s' für '%s': Felder=%s", modal.get("id"), title, details)
     else:
         LOG.debug("Kein Modal für '%s' — Detailseite wird nachgeladen", title)
-
-    # Manche Karten tragen die Zusatzinfos direkt in der Karte statt im Modal.
-    if not details:
-        details, _ = parse_details(extract_lines(card), title)
 
     event_id = booking_url or f"{title}|{date_text}"
 

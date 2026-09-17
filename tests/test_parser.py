@@ -88,6 +88,17 @@ class ParserTest(unittest.TestCase):
             ],
         )
 
+    def test_date_line_is_not_mistaken_for_a_field(self):
+        # "Mi., 23.09.26, 19:00 - 22:30" sieht aus wie "Label: Wert", ist aber ein Datum.
+        lines = [notifier.Line(text="Mi., 23.09.26, 19:00 - 22:30", heading=False, block=0)]
+        details, notes = notifier.parse_details(lines)
+        self.assertEqual(details, {})
+        self.assertEqual(notes, ["Mi., 23.09.26, 19:00 - 22:30"])
+
+    def test_duplicate_cards_are_collapsed(self):
+        doubled = FIXTURE.replace("</body>", FIXTURE.split("<body>")[1].split("</body>")[0] + "</body>")
+        self.assertEqual(len(notifier.parse_events(doubled, PAGE_URL)), len(parse()))
+
     def test_modal_buttons_are_ignored(self):
         event = parse()[2]
         self.assertNotIn("Schliessen", " ".join(event.notes))
