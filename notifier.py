@@ -370,14 +370,10 @@ def fetch_event_details(event: Event, request_config: dict[str, Any], selectors:
         container = soup.body or soup
 
     lines = extract_lines(container)
-    LOG.debug(
-        "Detailseite '%s' (%s): %s Zeile(n) -> %s",
-        event.title,
-        event.booking_url,
-        len(lines),
-        [(line.text, line.heading) for line in lines][:40],
-    )
     event.details, event.notes = parse_details(lines, event.title)
+    LOG.debug("Detailseite '%s': Felder=%s Notizen=%s", event.title, event.details, event.notes[:3])
+    if not event.details:
+        LOG.debug("  keine Felder erkannt, Zeilen: %s", [line.text for line in lines][:20])
 
 
 def parse_events(html: str, page_url: str) -> list[Event]:
@@ -388,12 +384,6 @@ def parse_events(html: str, page_url: str) -> list[Event]:
         cards.extend(container.select("div.events-card"))
     if not cards:
         cards = soup.select("div.events-card")
-
-    if LOG.isEnabledFor(logging.DEBUG):
-        modal_ids = [
-            str(tag.get("id")) for tag in soup.find_all(id=True) if "modal" in str(tag.get("id")).lower()
-        ]
-        LOG.debug("%s Element(e) mit 'modal' in der ID: %s", len(modal_ids), modal_ids[:25])
 
     events: list[Event] = []
     for card in cards:
@@ -441,15 +431,9 @@ def parse_card(soup: BeautifulSoup, card: Tag, page_url: str) -> Event | None:
         body = modal.select_one(".modal-body") or modal
         modal_lines = extract_lines(body)
         details, notes = parse_details(modal_lines, title)
-        LOG.debug(
-            "Modal '%s' für '%s': %s Zeile(n) -> %s",
-            modal.get("id"),
-            title,
-            len(modal_lines),
-            [(line.text, line.heading) for line in modal_lines],
-        )
+        LOG.debug("Modal '%s' für '%s': Felder=%s", modal.get("id"), title, details)
     else:
-        LOG.debug("Kein Modal für '%s' gefunden — Karte:\n%s", title, str(card)[:1500])
+        LOG.debug("Kein Modal für '%s' — Detailseite wird nachgeladen", title)
 
     # Manche Karten tragen die Zusatzinfos direkt in der Karte statt im Modal.
     if not details:
