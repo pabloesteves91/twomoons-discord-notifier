@@ -44,6 +44,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # "Re-run jobs" wiederholt den ursprünglichen Commit: alter Code und ein
+      # state.json-Stand von damals, wodurch bereits gepostete Events erneut als
+      # neu gelten. Lieber hier abbrechen, bevor Duplikate im Kanal landen.
+      - name: Aktuellen Branch-Stand sicherstellen
+        run: |
+          git fetch --quiet origin "$GITHUB_REF_NAME"
+          checked_out="$(git rev-parse HEAD)"
+          branch_head="$(git rev-parse "origin/$GITHUB_REF_NAME")"
+          if [ "$checked_out" != "$branch_head" ]; then
+            echo "::error::Dieser Lauf nutzt den veralteten Commit ${checked_out}, aktuell ist ${branch_head}. Bitte über 'Run workflow' neu starten statt 'Re-run jobs'."
+            exit 1
+          fi
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
