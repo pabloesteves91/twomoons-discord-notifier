@@ -22,6 +22,10 @@ on:
         description: "Optional: maximale Anzahl Posts pro Kategorie (0 = Wert aus config.json)"
         type: string
         default: "0"
+      debug:
+        description: "Ausführliches Log (zeigt u. a. die im Modal gefundenen Zeilen)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -58,10 +62,14 @@ jobs:
           POST_EXISTING: ${{ inputs.post_existing }}
           CATEGORIES: ${{ inputs.categories }}
           LIMIT: ${{ inputs.limit }}
+          DEBUG: ${{ inputs.debug }}
         run: |
           args=()
           if [ "$DRY_RUN" = "true" ]; then
             args+=(--dry-run)
+          fi
+          if [ "$DEBUG" = "true" ]; then
+            args+=(--verbose)
           fi
           if [ "$POST_EXISTING" = "true" ]; then
             args+=(--post-existing)

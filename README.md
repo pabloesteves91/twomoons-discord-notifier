@@ -18,7 +18,10 @@ Unlimited, Yu-Gi-Oh, Lorcana, One Piece, Flesh & Blood, Riftbound, Unterhaltung)
    hat — `Titel|Datum`.
 3. Alle bereits gesehenen IDs stehen in `state.json`. Nur Events, deren ID dort **noch nicht**
    steht, werden nach Discord gepostet.
-4. Danach wird `state.json` vom Workflow automatisch zurück ins Repo committet, damit der
+4. Für bereits gepostete Events wird geprüft, ob sich etwas geändert hat (typisch: die freien
+   Plätze). Wenn ja, wird **die bestehende Discord-Nachricht bearbeitet** — es wird nichts
+   doppelt gepostet. Dafür merkt sich `state.json` zu jedem Event die Message-ID.
+5. Danach wird `state.json` vom Workflow automatisch zurück ins Repo committet, damit der
    Verlauf erhalten bleibt.
 
 Beim allerersten Lauf einer Kategorie wird **nichts** gepostet — der aktuelle Stand wird nur
@@ -114,6 +117,7 @@ Ausserdem in `config.json`:
 - `locations` — Zuordnung Filiale → Standortseite und Zusatztext („direkt am Bahnhof Stettbach“).
 - `discord.delay_between_posts` — Pause zwischen zwei Nachrichten (Rate-Limit-freundlich).
 - `discord.max_posts_per_run` — Obergrenze pro Kategorie und Lauf, als Spam-Bremse.
+- `discord.update_existing` — `false` schaltet das tägliche Nachführen der Plätze ab.
 
 ## 4. Weitere Kategorien aktivieren
 
@@ -137,6 +141,7 @@ darauffolgenden Lauf werden neue Events gepostet.
 | `post_existing` | `true` = auch beim ersten Lauf alle aktuell gelisteten Events posten              |
 | `categories`    | leer = alle aktiven; sonst z. B. `magic` oder `magic,pokemon`                     |
 | `limit`         | max. Anzahl Posts pro Kategorie (`0` = Wert aus `config.json`)                    |
+| `debug`         | ausführliches Log, zeigt u. a. die im Detail-Modal gefundenen Zeilen              |
 
 3. **Run workflow** klicken, den Lauf öffnen und den Schritt **Notifier ausführen** aufklappen.
 
@@ -169,7 +174,14 @@ Wird vom Workflow automatisch erzeugt und committet — du musst sie nicht anfas
 {
   "categories": {
     "magic": {
-      "seen": { "<Event-ID>": { "title": "…", "date": "…" } },
+      "seen": {
+        "<Event-ID>": {
+          "title": "…",
+          "date": "…",
+          "message_id": "1420…",
+          "digest": "9f2c…"
+        }
+      },
       "initialized": true,
       "last_run": "2026-09-17T07:00:04Z"
     }
@@ -177,6 +189,10 @@ Wird vom Workflow automatisch erzeugt und committet — du musst sie nicht anfas
 }
 ```
 
+- `message_id` ist die Discord-Nachricht zu diesem Event — nur damit kann der Lauf die
+  Plätze später im bestehenden Embed nachführen.
+- `digest` ist ein Fingerabdruck des Nachrichteninhalts. Weicht er beim nächsten Lauf ab,
+  hat sich etwas geändert und die Nachricht wird aktualisiert.
 - Einen Eintrag aus `seen` löschen ⇒ das Event gilt wieder als neu und wird erneut gepostet.
 - Den ganzen Kategorie-Block löschen ⇒ die Kategorie startet wieder mit einem stillen Erstlauf.
 

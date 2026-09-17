@@ -25,7 +25,10 @@ def parse():
 class ParserTest(unittest.TestCase):
     def test_parses_all_cards(self):
         events = parse()
-        self.assertEqual([event.title for event in events], ["MTG The Hobbit Draft", "Commander Abend"])
+        self.assertEqual(
+            [event.title for event in events],
+            ["MTG The Hobbit Draft", "MTG Modern SUL District", "Commander Abend"],
+        )
 
     def test_card_fields(self):
         event = parse()[0]
@@ -46,8 +49,26 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(event.details["Prizepool"], "Es wird einen Backdraft von Rares und Mythics geben")
         self.assertNotIn("Magic", event.details)
 
-    def test_event_id_falls_back_to_title_and_date(self):
+    def test_bold_labels_inside_modal_are_parsed(self):
         event = parse()[1]
+        self.assertEqual(event.details["Format"], "Modern")
+        self.assertEqual(event.details["Entry Fee"], "CHF 20")
+        self.assertEqual(event.details["SUL"], "District")
+        self.assertEqual(
+            event.details["Tournament System"],
+            "Swiss Rounds with top 4/8 (9-16 players/17+ players)",
+        )
+
+    def test_repeated_label_keeps_both_values(self):
+        event = parse()[1]
+        self.assertEqual(
+            event.details["Prizepool"],
+            "Moons · Entry Fee - Costs go into the prizepool. "
+            "They will be distributed among the players with more wins than losses.",
+        )
+
+    def test_event_id_falls_back_to_title_and_date(self):
+        event = parse()[2]
         self.assertEqual(event.booking_url, "")
         self.assertEqual(event.event_id, "Commander Abend|Mittwoch, 26. November 2025, 18:30 Uhr")
 
@@ -66,7 +87,7 @@ class EmbedTest(unittest.TestCase):
                 "**Turniersystem:** Swiss Rounds",
                 "**Preispool:** Es wird einen Backdraft von Rares und Mythics geben",
                 "**Includes:** 3 Booster",
-                "**Plätze:** 12 Plätze verfügbar",
+                "**Plätze:** 12 verfügbar",
                 "",
                 "Draft mit Karten aus dem Herrn-der-Ringe-Universum.",
                 "",
@@ -77,8 +98,30 @@ class EmbedTest(unittest.TestCase):
         self.assertEqual(embed["title"], "MTG The Hobbit Draft")
         self.assertEqual(embed["thumbnail"]["url"], "https://www.twomoons.ch/media/events/hobbit-draft.jpg")
 
-    def test_event_without_booking_link_uses_category_page(self):
+    def test_modern_sul_embed_contains_all_modal_fields(self):
         embed = notifier.build_embed(parse()[1], MAGIC, CONFIG["locations"])
+        expected = "\n".join(
+            [
+                "**Datum:** Sa., 19.09.26, 11:00 - 20:00",
+                "**Format:** Modern",
+                "**Eintritt:** CHF 20",
+                "**Ort:** [TwoMoons Stettbach]"
+                "(https://www.twomoons.ch/twomoons/standort-oeffnungszeiten/stettbach/) direkt am Bahnhof Stettbach",
+                "**SUL:** District",
+                "**Turniersystem:** Swiss Rounds with top 4/8 (9-16 players/17+ players)",
+                "**Preispool:** Moons · Entry Fee - Costs go into the prizepool. "
+                "They will be distributed among the players with more wins than losses.",
+                "**Plätze:** 61 verfügbar",
+                "",
+                "**Link:** [Zur Buchung](https://www.twomoons.ch/events/anmeldung/?slotId=54321)",
+            ]
+        )
+        self.assertEqual(embed["description"], expected)
+        # "Place" steht schon als Ort auf der Karte und darf nicht doppelt erscheinen.
+        self.assertNotIn("**Place:**", embed["description"])
+
+    def test_event_without_booking_link_uses_category_page(self):
+        embed = notifier.build_embed(parse()[2], MAGIC, CONFIG["locations"])
         self.assertIn(f"**Link:** [Zu den Events]({MAGIC['url']})", embed["description"])
         self.assertIn("weinfelden/) Marktstrasse 3 8570 Weinfelden", embed["description"])
         self.assertIn("**Mitbringen:** eigenes Deck", embed["description"])
@@ -86,13 +129,16 @@ class EmbedTest(unittest.TestCase):
 
 
 class StateTest(unittest.TestCase):
-    def run_category(self, state, **flags):
+    def run_category(self, state, html=FIXTURE, **flags):
         defaults = {"dry_run": False, "post_existing": False, "limit": 0, "category": None, "verbose": False}
         args = Namespace(**{**defaults, **flags})
-        with mock.patch.object(notifier, "fetch_html", return_value=FIXTURE), mock.patch.object(
-            notifier, "post_embed"
-        ) as post, mock.patch.object(notifier.time, "sleep"):
+        with mock.patch.object(notifier, "fetch_html", return_value=html), mock.patch.object(
+            notifier, "post_embed", return_value="msg-1"
+        ) as post, mock.patch.object(notifier, "edit_embed", return_value=True) as edit, mock.patch.object(
+            notifier.time, "sleep"
+        ):
             posted = notifier.process_category(MAGIC, CONFIG, state, args)
+        self.edit = edit
         return posted, post
 
     def test_first_run_seeds_without_posting(self):
@@ -101,7 +147,7 @@ class StateTest(unittest.TestCase):
             posted, post = self.run_category(state)
         self.assertEqual(posted, 0)
         post.assert_not_called()
-        self.assertEqual(len(state["categories"]["magic"]["seen"]), 2)
+        self.assertEqual(len(state["categories"]["magic"]["seen"]), 3)
         self.assertTrue(state["categories"]["magic"]["initialized"])
 
     def test_second_run_posts_only_new_events(self):
@@ -118,8 +164,11 @@ class StateTest(unittest.TestCase):
         state = {"categories": {}}
         with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}):
             posted, post = self.run_category(state, post_existing=True)
-        self.assertEqual(posted, 2)
-        self.assertEqual(post.call_count, 2)
+        self.assertEqual(posted, 3)
+        self.assertEqual(post.call_count, 3)
+        self.assertEqual(
+            state["categories"]["magic"]["seen"][parse()[0].event_id]["message_id"], "msg-1"
+        )
 
     def test_missing_webhook_keeps_events_new(self):
         state = {"categories": {"magic": {"seen": {}, "initialized": True}}}
@@ -137,6 +186,38 @@ class StateTest(unittest.TestCase):
             posted, post = self.run_category(state, limit=1)
         self.assertEqual(posted, 1)
         self.assertEqual(list(state["categories"]["magic"]["seen"]), [parse()[0].event_id])
+
+    def test_changed_seats_edit_the_existing_message(self):
+        state = {"categories": {}}
+        changed = FIXTURE.replace("61 Pl&auml;tze verf&uuml;gbar", "47 Pl&auml;tze verf&uuml;gbar")
+        with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}):
+            self.run_category(state, post_existing=True)
+            posted, post = self.run_category(state, html=changed)
+
+        # Kein neuer Post — die bestehende Nachricht wird bearbeitet.
+        self.assertEqual(posted, 0)
+        post.assert_not_called()
+        self.assertEqual(self.edit.call_count, 1)
+        webhook, message_id, embed = self.edit.call_args.args
+        self.assertEqual(message_id, "msg-1")
+        self.assertIn("**Plätze:** 47 verfügbar", embed["description"])
+
+    def test_unchanged_events_are_not_edited(self):
+        state = {"categories": {}}
+        with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}):
+            self.run_category(state, post_existing=True)
+            posted, post = self.run_category(state)
+        self.assertEqual(posted, 0)
+        post.assert_not_called()
+        self.edit.assert_not_called()
+
+    def test_seeded_events_without_message_id_are_not_edited(self):
+        state = {"categories": {}}
+        changed = FIXTURE.replace("61 Pl&auml;tze verf&uuml;gbar", "47 Pl&auml;tze verf&uuml;gbar")
+        with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}):
+            self.run_category(state)  # stiller Erstlauf, keine Message-IDs
+            self.run_category(state, html=changed)
+        self.edit.assert_not_called()
 
     def test_failing_category_does_not_block_others(self):
         state = {"categories": {}}

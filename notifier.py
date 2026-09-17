@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import logging
 import os
@@ -49,6 +50,26 @@ LABEL_DENYLIST = {
 }
 
 LABEL_RE = re.compile(r"^\s*([^:\n]{2,30}?)\s*:\s*(.+?)\s*$")
+
+# Auszeichnung, die eine Zeile nicht umbricht ("<b>Format:</b> Draft" ist eine Zeile).
+INLINE_TAGS = {"a", "b", "code", "em", "font", "i", "label", "small", "span", "strong", "sub", "sup", "u"}
+
+# Diese Angaben stehen schon auf der Karte — aus dem Modal nicht doppelt anzeigen.
+CARD_LABELS = {
+    "ort",
+    "place",
+    "location",
+    "veranstaltungsort",
+    "adresse",
+    "address",
+    "datum",
+    "date",
+    "zeit",
+    "time",
+    "uhrzeit",
+    "wann",
+    "wo",
+}
 
 
 @dataclass
@@ -124,12 +145,54 @@ def text_after(node: Tag) -> str:
     return clean_text("".join(parts)).lstrip("|").strip()
 
 
-def parse_label_lines(text: str) -> dict[str, str]:
-    """Generisches "Label: Wert" pro Zeile — unabhängig von festen Labels."""
+def extract_lines(root: Tag) -> list[str]:
+    """Sichtbare Zeilen eines Elements.
+
+    Inline-Auszeichnung bleibt in derselben Zeile, damit `<b>Format:</b> Draft`
+    als eine Zeile "Format: Draft" ankommt; `<br>` und Block-Elemente trennen.
+    """
+    lines: list[str] = []
+    buffer: list[str] = []
+
+    def flush() -> None:
+        line = clean_text(" ".join(buffer))
+        if line:
+            lines.append(line)
+        buffer.clear()
+
+    def walk(node: Tag) -> None:
+        for child in node.children:
+            if isinstance(child, NavigableString):
+                buffer.append(str(child))
+            elif isinstance(child, Tag):
+                if child.name == "br":
+                    flush()
+                elif child.name in INLINE_TAGS:
+                    walk(child)
+                else:
+                    flush()
+                    walk(child)
+                    flush()
+
+    walk(root)
+    flush()
+    return lines
+
+
+def parse_label_lines(lines: list[str]) -> dict[str, str]:
+    """Generisches "Label: Wert" — unabhängig von festen Labels oder Sprache."""
     found: dict[str, str] = {}
-    for raw_line in text.splitlines():
-        line = clean_text(raw_line)
-        if not line or len(line) > 400:
+
+    # "Format:" und "Draft" in getrennten Block-Elementen (z. B. dt/dd) zusammenziehen.
+    merged: list[str] = []
+    for line in lines:
+        if merged and merged[-1].endswith(":") and ":" not in line:
+            merged[-1] = f"{merged[-1]} {line}"
+        else:
+            merged.append(line)
+
+    for line in merged:
+        if not line or len(line) > 500:
             continue
         match = LABEL_RE.match(line)
         if not match:
@@ -137,23 +200,39 @@ def parse_label_lines(text: str) -> dict[str, str]:
         label, value = match.group(1).strip(), match.group(2).strip()
         if not value or label.lower() in LABEL_DENYLIST or len(label.split()) > 3:
             continue
-        found.setdefault(label, value)
+        previous = found.get(label)
+        if previous is None:
+            found[label] = value
+        elif value not in previous:
+            # Manche Events führen dasselbe Label zweimal (z. B. zwei Prizepool-Zeilen).
+            found[label] = f"{previous} · {value}"
     return found
 
 
-def find_modal(soup: BeautifulSoup, card: Tag) -> Tag | None:
+def modal_candidate_ids(card: Tag) -> list[str]:
+    ids: list[str] = []
+    for element in card.find_all(True):
+        for attribute in ("data-bs-target", "data-target", "href"):
+            value = str(element.get(attribute) or "")
+            if value.startswith("#") and len(value) > 1:
+                modal_id = value[1:]
+                if modal_id not in ids:
+                    ids.append(modal_id)
+    return ids
+
+
+def find_modal(soup: BeautifulSoup, card: Tag, slot_id: str = "") -> Tag | None:
     nested = card.find("div", class_="modal")
-    if nested is not None:
+    if isinstance(nested, Tag):
         return nested
 
-    for attribute in ("data-bs-target", "data-target", "href"):
-        trigger = card.find(attrs={attribute: re.compile(r"^#")})
-        if trigger is None:
-            continue
-        modal_id = str(trigger.get(attribute)).lstrip("#")
-        if not modal_id:
-            continue
+    for modal_id in modal_candidate_ids(card):
         modal = soup.find(id=modal_id)
+        if isinstance(modal, Tag):
+            return modal
+
+    if slot_id:
+        modal = soup.find(id=re.compile(rf"\b{re.escape(slot_id)}\b"))
         if isinstance(modal, Tag):
             return modal
     return None
@@ -232,11 +311,22 @@ def parse_card(soup: BeautifulSoup, card: Tag, page_url: str) -> Event | None:
     summary_node = card.select_one(".card-text.lead")
     summary = clean_text(summary_node.get_text(" ") if summary_node else "")
 
+    slot_match = re.search(r"slotId=(\w+)", booking_url)
+    slot_id = slot_match.group(1) if slot_match else ""
+
     details: dict[str, str] = {}
-    modal = find_modal(soup, card)
+    modal = find_modal(soup, card, slot_id)
     if modal is not None:
         body = modal.select_one(".modal-body") or modal
-        details = parse_label_lines(body.get_text("\n"))
+        modal_lines = extract_lines(body)
+        details = parse_label_lines(modal_lines)
+        LOG.debug("Modal '%s' für '%s': %s Zeile(n) -> %s", modal.get("id"), title, len(modal_lines), modal_lines)
+    else:
+        LOG.debug("Kein Modal für '%s' gefunden", title)
+
+    # Manche Karten tragen die Zusatzinfos direkt in der Karte statt im Modal.
+    if not details:
+        details = parse_label_lines(extract_lines(card))
 
     event_id = booking_url or f"{title}|{date_text}"
 
@@ -273,6 +363,11 @@ def pick_detail(details: dict[str, str], variants: tuple[str, ...]) -> tuple[str
         if key.lower() in variants:
             return key, value
     return None
+
+
+def embed_digest(embed: dict[str, Any]) -> str:
+    """Kurzer Fingerabdruck des Inhalts — ändert er sich, wird die Nachricht aktualisiert."""
+    return hashlib.sha1(embed.get("description", "").encode("utf-8")).hexdigest()[:16]
 
 
 def color_to_int(color: str) -> int:
@@ -317,11 +412,13 @@ def build_embed(event: Event, category: dict[str, Any], locations: dict[str, Any
 
     # Felder, die im Modal stehen, aber in FIELD_ORDER nicht vorkommen (andere Kategorien).
     for key, value in event.details.items():
-        if key not in used_keys:
+        if key not in used_keys and key.lower() not in CARD_LABELS:
             lines.append(f"**{key}:** {value}")
 
     if event.seats:
-        lines.append(f"**Plätze:** {event.seats}")
+        seats_number = re.match(r"(\d+)", event.seats)
+        seats_text = f"{seats_number.group(1)} verfügbar" if seats_number else event.seats
+        lines.append(f"**Plätze:** {seats_text}")
 
     if event.summary:
         summary = event.summary if len(event.summary) <= 300 else event.summary[:297] + "..."
@@ -344,20 +441,9 @@ def build_embed(event: Event, category: dict[str, Any], locations: dict[str, Any
     return embed
 
 
-def post_embed(
-    webhook_url: str,
-    embed: dict[str, Any],
-    username: str,
-    timeout: int = 30,
-) -> None:
-    payload = {"embeds": [embed]}
-    if username:
-        payload["username"] = username
-
+def discord_request(method: str, url: str, payload: dict[str, Any], timeout: int = 30) -> requests.Response:
     for attempt in range(1, 4):
-        response = requests.post(webhook_url, json=payload, timeout=timeout)
-        if response.status_code in (200, 204):
-            return
+        response = requests.request(method, url, json=payload, timeout=timeout)
         if response.status_code == 429:
             retry_after = 2.0
             try:
@@ -371,9 +457,37 @@ def post_embed(
             LOG.warning("Discord antwortete %s, Versuch %s/3", response.status_code, attempt)
             time.sleep(2**attempt)
             continue
+        return response
+    raise RuntimeError(f"Discord-Anfrage nach mehreren Versuchen fehlgeschlagen: {method} {url}")
+
+
+def post_embed(webhook_url: str, embed: dict[str, Any], username: str) -> str:
+    """Postet das Embed und liefert die Message-ID (für spätere Updates)."""
+    payload: dict[str, Any] = {"embeds": [embed]}
+    if username:
+        payload["username"] = username
+
+    separator = "&" if "?" in webhook_url else "?"
+    response = discord_request("POST", f"{webhook_url}{separator}wait=true", payload)
+    if response.status_code not in (200, 204):
         raise RuntimeError(f"Discord lehnte den Post ab ({response.status_code}): {response.text[:300]}")
 
-    raise RuntimeError("Discord-Post nach mehreren Versuchen fehlgeschlagen")
+    try:
+        return str(response.json().get("id", ""))
+    except ValueError:
+        return ""
+
+
+def edit_embed(webhook_url: str, message_id: str, embed: dict[str, Any]) -> bool:
+    """Aktualisiert eine bereits gepostete Nachricht. False = Nachricht gibt es nicht mehr."""
+    base = webhook_url.split("?")[0].rstrip("/")
+    response = discord_request("PATCH", f"{base}/messages/{message_id}", {"embeds": [embed]})
+    if response.status_code == 404:
+        LOG.warning("Nachricht %s existiert nicht mehr — wird nicht weiter aktualisiert", message_id)
+        return False
+    if response.status_code not in (200, 204):
+        raise RuntimeError(f"Discord lehnte das Update ab ({response.status_code}): {response.text[:300]}")
+    return True
 
 
 # --------------------------------------------------------------------------- #
@@ -432,21 +546,25 @@ def process_category(
         LOG.error("[%s] %s nicht gesetzt — es wird nichts gepostet", key, category["webhook_env"])
         should_post = False
 
-    posted: list[Event] = []
+    discord_config = config.get("discord", {})
+    delay = float(discord_config.get("delay_between_posts", 1.5))
+    username = discord_config.get("username", "")
+    locations = config.get("locations", {})
+
+    posted: list[tuple[Event, str]] = []
     if should_post:
-        limit = args.limit or int(config.get("discord", {}).get("max_posts_per_run", 25))
-        delay = float(config.get("discord", {}).get("delay_between_posts", 1.5))
-        username = config.get("discord", {}).get("username", "")
+        limit = args.limit or int(discord_config.get("max_posts_per_run", 25))
 
         for event in new_events[:limit]:
-            embed = build_embed(event, category, config.get("locations", {}))
+            embed = build_embed(event, category, locations)
+            message_id = ""
             if args.dry_run:
                 LOG.info("[%s] DRY-RUN Embed:\n%s", key, json.dumps(embed, indent=2, ensure_ascii=False))
             else:
-                post_embed(webhook_url, embed, username)
+                message_id = post_embed(webhook_url, embed, username)
                 LOG.info("[%s] Gepostet: %s", key, event.title)
                 time.sleep(delay)
-            posted.append(event)
+            posted.append((event, message_id))
 
         if len(new_events) > limit:
             LOG.warning(
@@ -455,6 +573,28 @@ def process_category(
                 len(new_events) - limit,
             )
 
+    # Bereits gepostete Events: geänderte Angaben (z. B. freie Plätze) ins bestehende
+    # Embed nachtragen, statt dieselbe Veranstaltung nochmals zu posten.
+    if discord_config.get("update_existing", True) and webhook_url and not first_run:
+        for event in events:
+            record = seen.get(event.event_id)
+            if not isinstance(record, dict):
+                continue
+            message_id = record.get("message_id", "")
+            embed = build_embed(event, category, locations)
+            digest = embed_digest(embed)
+            if not message_id or record.get("digest") == digest:
+                continue
+            if args.dry_run:
+                LOG.info("[%s] DRY-RUN Update: %s", key, event.title)
+                continue
+            if edit_embed(webhook_url, message_id, embed):
+                LOG.info("[%s] Aktualisiert: %s (%s)", key, event.title, event.seats or "Angaben geändert")
+                record["digest"] = digest
+            else:
+                record["message_id"] = ""
+            time.sleep(delay)
+
     if args.dry_run:
         LOG.info("[%s] DRY-RUN — state.json bleibt unverändert", key)
         return len(posted)
@@ -462,9 +602,18 @@ def process_category(
     # Nur der Erstlauf merkt sich alles ungesehen; sonst gilt ein Event erst als bekannt,
     # wenn es wirklich gepostet wurde — sonst ginge es bei fehlendem Webhook oder
     # erreichtem Limit stillschweigend verloren.
-    remembered = events if (first_run and not args.post_existing) else posted
-    for event in remembered:
-        seen[event.event_id] = {"title": event.title, "date": event.date_text}
+    if first_run and not args.post_existing:
+        remembered = [(event, "") for event in events]
+    else:
+        remembered = posted
+
+    for event, message_id in remembered:
+        seen[event.event_id] = {
+            "title": event.title,
+            "date": event.date_text,
+            "message_id": message_id,
+            "digest": embed_digest(build_embed(event, category, locations)),
+        }
     category_state["initialized"] = True
     category_state["last_run"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     return len(posted)
