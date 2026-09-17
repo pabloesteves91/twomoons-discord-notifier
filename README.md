@@ -142,6 +142,7 @@ darauffolgenden Lauf werden neue Events gepostet.
 | `categories`    | leer = alle aktiven; sonst z. B. `magic` oder `magic,pokemon`                     |
 | `limit`         | max. Anzahl Posts pro Kategorie (`0` = Wert aus `config.json`)                    |
 | `debug`         | ausführliches Log, zeigt u. a. die im Detail-Modal gefundenen Zeilen              |
+| `reset`         | gemerkte Events vergessen — für den Kanal-/Server-Umzug, siehe Schritt 10         |
 
 3. **Run workflow** klicken, den Lauf öffnen und den Schritt **Notifier ausführen** aufklappen.
 
@@ -217,7 +218,27 @@ Tests (prüfen Parser, Embed-Format und die state-Logik gegen ein gespeichertes 
 python -m unittest discover -s tests
 ```
 
-## 9. Wenn etwas nicht klappt
+## 9. Kanal oder Server wechseln
+
+Jede Kategorie hat ihr eigenes Secret und damit ihren eigenen Kanal — die Kanäle dürfen auch
+auf verschiedenen Servern liegen. Der Notifier kennt weder Server noch Kanal, er postet an die
+URL im jeweiligen Secret. Ein Umzug (z. B. vom Test-Server auf den richtigen) geht so:
+
+1. Im Ziel-Kanal einen Webhook erstellen (Schritt 1) und die URL kopieren.
+2. Das bestehende Secret aktualisieren: **Settings → Secrets and variables → Actions →**
+   Secret anklicken → **Update**. Kein Code-Deploy nötig.
+3. Workflow manuell starten mit `reset` = **true**, `post_existing` = **true** und
+   `categories` = der umgezogenen Kategorie.
+
+`reset` löscht die gemerkten Events dieser Kategorie, `post_existing` postet den aktuellen
+Stand einmalig in den neuen Kanal — inklusive neuer Message-IDs, damit die Plätze dort wieder
+täglich nachgeführt werden. Die alten Nachrichten im vorherigen Kanal bleiben stehen und
+werden nicht mehr aktualisiert; lösch sie einfach in Discord.
+
+Ohne `post_existing` wirkt `reset` als stiller Neustart: der aktuelle Stand wird nur als
+bekannt gespeichert und erst künftige Events werden gepostet.
+
+## 10. Wenn etwas nicht klappt
 
 | Symptom im Log                                    | Ursache / Lösung                                                              |
 | ------------------------------------------------- | ----------------------------------------------------------------------------- |

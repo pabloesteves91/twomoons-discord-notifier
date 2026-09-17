@@ -130,7 +130,14 @@ class EmbedTest(unittest.TestCase):
 
 class StateTest(unittest.TestCase):
     def run_category(self, state, html=FIXTURE, **flags):
-        defaults = {"dry_run": False, "post_existing": False, "limit": 0, "category": None, "verbose": False}
+        defaults = {
+            "dry_run": False,
+            "post_existing": False,
+            "reset": False,
+            "limit": 0,
+            "category": None,
+            "verbose": False,
+        }
         args = Namespace(**{**defaults, **flags})
         with mock.patch.object(notifier, "fetch_html", return_value=html), mock.patch.object(
             notifier, "post_embed", return_value="msg-1"
@@ -219,9 +226,37 @@ class StateTest(unittest.TestCase):
             self.run_category(state, html=changed)
         self.edit.assert_not_called()
 
+    def test_reset_with_post_existing_reposts_into_new_channel(self):
+        state = {"categories": {}}
+        with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}):
+            self.run_category(state, post_existing=True)
+            posted, post = self.run_category(state, reset=True, post_existing=True)
+        self.assertEqual(posted, 3)
+        self.assertEqual(post.call_count, 3)
+        self.edit.assert_not_called()
+
+    def test_reset_without_post_existing_seeds_silently(self):
+        state = {"categories": {}}
+        with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}):
+            self.run_category(state, post_existing=True)
+            posted, post = self.run_category(state, reset=True)
+        self.assertEqual(posted, 0)
+        post.assert_not_called()
+        self.assertEqual(len(state["categories"]["magic"]["seen"]), 3)
+
+    def test_reset_in_dry_run_keeps_state(self):
+        state = {"categories": {}}
+        with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}):
+            self.run_category(state, post_existing=True)
+            before = dict(state["categories"]["magic"]["seen"])
+            self.run_category(state, reset=True, dry_run=True)
+        self.assertEqual(state["categories"]["magic"]["seen"], before)
+
     def test_failing_category_does_not_block_others(self):
         state = {"categories": {}}
-        args = Namespace(dry_run=False, post_existing=False, limit=0, category=None, verbose=False)
+        args = Namespace(
+            dry_run=False, post_existing=False, reset=False, limit=0, category=None, verbose=False
+        )
         with mock.patch.object(notifier, "fetch_html", side_effect=RuntimeError("boom")):
             with self.assertRaises(RuntimeError):
                 notifier.process_category(MAGIC, CONFIG, state, args)

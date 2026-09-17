@@ -532,6 +532,13 @@ def process_category(
 
     category_state = state.setdefault("categories", {}).setdefault(key, {})
     seen: dict[str, Any] = category_state.setdefault("seen", {})
+
+    if args.reset:
+        LOG.warning("[%s] Reset: %s gemerkte(s) Event(s) werden vergessen", key, len(seen))
+        if not args.dry_run:
+            seen.clear()
+            category_state["initialized"] = False
+
     first_run = not category_state.get("initialized", False)
 
     new_events = [event for event in events if event.event_id not in seen]
@@ -641,6 +648,11 @@ def main(argv: list[str] | None = None) -> int:
         "--post-existing",
         action="store_true",
         help="Auch beim allerersten Lauf alle aktuellen Events posten",
+    )
+    parser.add_argument(
+        "--reset",
+        action="store_true",
+        help="Gemerkte Events der gewählten Kategorien vergessen (z. B. beim Kanalwechsel)",
     )
     parser.add_argument("--limit", type=int, default=0, help="Maximale Anzahl Posts pro Kategorie")
     parser.add_argument("--verbose", action="store_true")

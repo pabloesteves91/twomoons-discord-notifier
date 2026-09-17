@@ -18,6 +18,10 @@ on:
         description: "Optional: einzelne Kategorien, mit Komma getrennt (z. B. magic,pokemon)"
         type: string
         default: ""
+      reset:
+        description: "Gemerkte Events vergessen — zusammen mit post_existing für den Kanalwechsel"
+        type: boolean
+        default: false
       limit:
         description: "Optional: maximale Anzahl Posts pro Kategorie (0 = Wert aus config.json)"
         type: string
@@ -63,10 +67,14 @@ jobs:
           CATEGORIES: ${{ inputs.categories }}
           LIMIT: ${{ inputs.limit }}
           DEBUG: ${{ inputs.debug }}
+          RESET: ${{ inputs.reset }}
         run: |
           args=()
           if [ "$DRY_RUN" = "true" ]; then
             args+=(--dry-run)
+          fi
+          if [ "$RESET" = "true" ]; then
+            args+=(--reset)
           fi
           if [ "$DEBUG" = "true" ]; then
             args+=(--verbose)
