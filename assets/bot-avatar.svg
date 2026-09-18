@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Ebene_1" data-name="Ebene 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: url(#Unbenannter_Verlauf);
+      }
+    </style>
+    <radialGradient id="Unbenannter_Verlauf" data-name="Unbenannter Verlauf" cx="-40.42" cy="676.07" fx="-40.42" fy="676.07" r=".72" gradientTransform="translate(20951 346402.5937) scale(512 -512)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1e2a46"/>
+      <stop offset="1" stop-color="#0c101c"/>
+    </radialGradient>
+  </defs>
+  <rect class="cls-1" width="512" height="512"/>
+  <image width="512" height="512" transform="translate(75.89 75.89) scale(.7)" xlink:href="calendar.png"/>
+</svg>
