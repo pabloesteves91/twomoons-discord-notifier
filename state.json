@@ -2,84 +2,84 @@
   "categories": {
     "magic": {
       "initialized": true,
-      "last_run": "2026-09-18T06:21:44Z",
+      "last_run": "2026-09-18T06:24:33Z",
       "seen": {
         "Commander Night Weinfelden|Fr., 18.09.26, 18:00 - 22:00": {
           "date": "Fr., 18.09.26, 18:00 - 22:00",
           "digest": "d1583e2be251992c",
-          "message_id": "1550208446266220585",
+          "message_id": "1550392002632487032",
           "title": "Commander Night Weinfelden"
         },
         "https://www.twomoons.ch/modern-sul-district?slotId=01a042e7cd64796e834521689b0c9553": {
           "date": "Sa., 19.09.26, 11:00 - 20:00",
           "digest": "1bbe30d20d68bf4b",
-          "message_id": "1550208464247193771",
+          "message_id": "1550392025180803184",
           "title": "MTG Modern SUL District"
         },
         "https://www.twomoons.ch/mtg-reality-fracture-prerelease?slotId=01a0438f957d7703813bc3c931d96087": {
           "date": "Fr., 25.09.26, 18:00 - 22:30",
           "digest": "d57a148b429c16da",
-          "message_id": "1550208488414912563",
+          "message_id": "1550392057493717023",
           "title": "MTG Prerelease Reality Fracture"
         },
         "https://www.twomoons.ch/mtg-the-hobbit-draft?slotId=019feb7bcbfb7e1ab480d16af75dac0d": {
           "date": "Fr., 18.09.26, 18:30 - 22:30",
           "digest": "a0a52bd4e2ca9e53",
-          "message_id": "1550208454268813339",
+          "message_id": "1550392014179143721",
           "title": "MTG The Hobbit Draft"
         },
         "https://www.twomoons.ch/mtg-weekly-entry-modern?slotId=019f193b0ce4720ea554190be5553bf2": {
           "date": "Mi., 23.09.26, 19:00 - 22:30",
           "digest": "35cb4d1fec0ee3f6",
-          "message_id": "1550208480781144095",
+          "message_id": "1550392047372869706",
           "title": "MTG Modern Weekly"
         },
         "https://www.twomoons.ch/mtg-weekly-entry-standard?slotId=019f1930bb1471a3b89afab7b79f6ebd": {
           "date": "Mo., 21.09.26, 19:00 - 22:30",
           "digest": "d2c6111b94c0d8d2",
-          "message_id": "1550208472711168113",
+          "message_id": "1550392036316676148",
           "title": "MTG Standard Weekly"
         }
       }
     },
     "pokemon": {
       "initialized": true,
-      "last_run": "2026-09-18T06:21:58Z",
+      "last_run": "2026-09-18T06:24:59Z",
       "seen": {
         "Pokemon Trade Day|Sa., 19.09.26, 11:00 - 18:00": {
           "date": "Sa., 19.09.26, 11:00 - 18:00",
           "digest": "769d4a571c36ba3c",
-          "message_id": "1550208564747051112",
+          "message_id": "1550392139819655199",
           "title": "Pokemon Trade Day"
         },
         "https://www.twomoons.ch/pokemon-league-challenge?slotId=01a03419af117a52b06868746ba61f9c": {
           "date": "Sa., 19.09.26, 11:00 - 17:00",
           "digest": "08edc451b9521519",
-          "message_id": "1550208557511745598",
+          "message_id": "1550392128600019025",
           "title": "Pokemon League Challenge"
         },
         "https://www.twomoons.ch/pokemon-weekly-standard?slotId=019f090fffe675e2b567b79bd5de0039": {
           "date": "Mo., 21.09.26, 18:30 - 22:30",
           "digest": "dcaff2b42fa6f39b",
-          "message_id": "1550208572632076391",
+          "message_id": "1550392146929127568",
           "title": "Pokémon Weekly Standard"
         },
         "https://www.twomoons.ch/pokemon-weekly-standard?slotId=019f090fffe77fa18d9f26af09ef9b90": {
           "date": "Mo., 28.09.26, 18:30 - 22:30",
           "digest": "d5aa04f66a9b5f70",
-          "message_id": "1550208588503580913",
+          "message_id": "1550392161659392112",
           "title": "Pokémon Weekly Standard"
         },
         "https://www.twomoons.ch/pokemon-weekly-standard?slotId=019f1952d1267df28db91f9448b9e1ae": {
           "date": "Mi., 23.09.26, 19:00 - 22:30",
           "digest": "eebc026224822fda",
-          "message_id": "1550208580580544533",
+          "message_id": "1550392154504040529",
           "title": "Pokémon Weekly Standard"
         },
         "https://www.twomoons.ch/pokemon-weekly-standard?slotId=019f1952d1267df28db91f9b1c10bbc4": {
           "date": "Mi., 30.09.26, 19:00 - 22:30",
           "digest": "abddbbbfd9cfa179",
-          "message_id": "1550208595944013885",
+          "message_id": "1550392168659554345",
           "title": "Pokémon Weekly Standard"
         }
       }
