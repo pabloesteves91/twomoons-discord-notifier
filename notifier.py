@@ -525,8 +525,14 @@ def pick_detail(details: dict[str, str], variants: tuple[str, ...]) -> tuple[str
 
 
 def embed_digest(embed: dict[str, Any]) -> str:
-    """Kurzer Fingerabdruck des Inhalts — ändert er sich, wird die Nachricht aktualisiert."""
-    return hashlib.sha1(embed.get("description", "").encode("utf-8")).hexdigest()[:16]
+    """Fingerabdruck der ganzen Nachricht — ändert er sich, wird sie aktualisiert.
+
+    Bewusst über das komplette Embed und nicht nur den Text: So wirken auch
+    geänderte Farben, Fusszeilen oder Bilder aus der config.json beim nächsten
+    Lauf, ohne dass etwas neu gepostet werden muss.
+    """
+    serialised = json.dumps(embed, sort_keys=True, ensure_ascii=False)
+    return hashlib.sha1(serialised.encode("utf-8")).hexdigest()[:16]
 
 
 def color_to_int(color: str) -> int:

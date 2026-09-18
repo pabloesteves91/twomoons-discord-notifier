@@ -309,7 +309,25 @@ Zwei Bedingungen dafür:
 offizielle Logo verwenden will, ersetzt einfach `bot-avatar.png` — quadratisch, mindestens
 128 × 128 Pixel, da Discord rund zuschneidet.
 
-## 12. Wenn etwas nicht klappt
+## 12. Was eine Änderung an `config.json` bewirkt
+
+Eine Änderung genügt — der nächste Lauf zieht nach, ohne dass etwas gelöscht oder neu
+gepostet werden muss. Drei Fälle sind zu unterscheiden:
+
+| Änderung | Wirkung |
+| --- | --- |
+| Farbe, Fusszeile, Standort-Texte, Feldauswahl, Detailseiten-Einstellungen | Bestehende Nachrichten werden beim nächsten Lauf **bearbeitet**. |
+| `cleanup`, `max_posts_per_run`, `delay_between_posts`, Zeitplan | Gelten ab dem nächsten Lauf; an bestehenden Nachrichten ändert sich nichts. |
+| `username`, `avatar_url` | Nur für **neue** Nachrichten. Discord lässt Absendername und Bild einer bestehenden Webhook-Nachricht nicht nachträglich ändern. |
+
+Der Lauf vergleicht dafür einen Fingerabdruck der gesamten Nachricht mit dem gespeicherten
+Stand und bearbeitet nur, was tatsächlich abweicht — unveränderte Events werden nicht angefasst.
+
+Sollen Name oder Profilbild auch auf den bereits stehenden Nachrichten erscheinen, hilft nur
+neu posten: Workflow mit `reset` = true und `post_existing` = true starten und die alten
+Nachrichten in Discord löschen. Für alles andere ist das nicht nötig.
+
+## 13. Wenn etwas nicht klappt
 
 | Symptom im Log                                    | Ursache / Lösung                                                              |
 | ------------------------------------------------- | ----------------------------------------------------------------------------- |

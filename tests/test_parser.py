@@ -358,6 +358,27 @@ class StateTest(unittest.TestCase):
         self.assertEqual(message_id, "msg-1")
         self.assertIn("**Plätze:** 47 verfügbar", embed["description"])
 
+    def test_changed_colour_updates_the_existing_message(self):
+        # Farbe und Fusszeile stehen nicht im Text — sie müssen trotzdem nachgeführt werden.
+        state = {"categories": {}}
+        with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}):
+            self.run_category(state, post_existing=True)
+            recoloured = json.loads(json.dumps(CONFIG))
+            recoloured["categories"][0]["color"] = "#123456"
+            args = Namespace(
+                dry_run=False, post_existing=False, reset=False, limit=0, category=None, verbose=False
+            )
+            with mock.patch.object(notifier, "fetch_html", return_value=FIXTURE), mock.patch.object(
+                notifier, "post_embed", return_value="msg-1"
+            ) as post, mock.patch.object(notifier, "edit_embed", return_value=True) as edit, mock.patch.object(
+                notifier.time, "sleep"
+            ):
+                notifier.process_category(recoloured["categories"][0], recoloured, state, args)
+
+        post.assert_not_called()
+        self.assertEqual(edit.call_count, 4)
+        self.assertEqual(edit.call_args.args[2]["color"], 0x123456)
+
     def test_unchanged_events_are_not_edited(self):
         state = {"categories": {}}
         with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}):
