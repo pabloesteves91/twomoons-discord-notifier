@@ -624,11 +624,13 @@ def discord_request(method: str, url: str, payload: dict[str, Any], timeout: int
     raise RuntimeError(f"Discord-Anfrage nach mehreren Versuchen fehlgeschlagen: {method} {url}")
 
 
-def post_embed(webhook_url: str, embed: dict[str, Any], username: str) -> str:
+def post_embed(webhook_url: str, embed: dict[str, Any], username: str, avatar_url: str = "") -> str:
     """Postet das Embed und liefert die Message-ID (für spätere Updates)."""
     payload: dict[str, Any] = {"embeds": [embed]}
     if username:
         payload["username"] = username
+    if avatar_url:
+        payload["avatar_url"] = avatar_url
 
     separator = "&" if "?" in webhook_url else "?"
     response = discord_request("POST", f"{webhook_url}{separator}wait=true", payload)
@@ -770,6 +772,7 @@ def process_category(
     discord_config = config.get("discord", {})
     delay = float(discord_config.get("delay_between_posts", 1.5))
     username = discord_config.get("username", "")
+    avatar_url = discord_config.get("avatar_url", "")
     locations = config.get("locations", {})
 
     posted: list[tuple[Event, str]] = []
@@ -782,7 +785,7 @@ def process_category(
             if args.dry_run:
                 LOG.info("[%s] DRY-RUN Embed:\n%s", key, json.dumps(embed, indent=2, ensure_ascii=False))
             else:
-                message_id = post_embed(webhook_url, embed, username)
+                message_id = post_embed(webhook_url, embed, username, avatar_url)
                 LOG.info("[%s] Gepostet: %s", key, event.title)
                 time.sleep(delay)
             posted.append((event, message_id))

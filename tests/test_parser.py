@@ -311,6 +311,21 @@ class StateTest(unittest.TestCase):
             state["categories"]["magic"]["seen"][parse()[0].event_id]["message_id"], "msg-1"
         )
 
+    def test_name_and_avatar_are_sent_with_the_post(self):
+        payloads = []
+
+        def capture(method, url, payload, timeout=30):
+            payloads.append(payload)
+            response = mock.Mock(status_code=200)
+            response.json.return_value = {"id": "msg-1"}
+            return response
+
+        with mock.patch.object(notifier, "discord_request", side_effect=capture):
+            notifier.post_embed("https://example.invalid/hook", {"title": "T"}, "TwoMoons Events", "https://example.invalid/avatar.png")
+
+        self.assertEqual(payloads[0]["username"], "TwoMoons Events")
+        self.assertEqual(payloads[0]["avatar_url"], "https://example.invalid/avatar.png")
+
     def test_missing_webhook_keeps_events_new(self):
         state = {"categories": {"magic": {"seen": {}, "initialized": True}}}
         with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": ""}):

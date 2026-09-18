@@ -123,6 +123,10 @@ Ausserdem in `config.json`:
 - `locations` — Zuordnung Filiale → Standortseite und Zusatztext („direkt am Bahnhof Stettbach“).
 - `discord.delay_between_posts` — Pause zwischen zwei Nachrichten (Rate-Limit-freundlich).
 - `discord.max_posts_per_run` — Obergrenze pro Kategorie und Lauf, als Spam-Bremse.
+- `discord.username` und `discord.avatar_url` — Name und Profilbild des Absenders. Das Bild
+  liegt als `assets/bot-avatar.png` im Repository und wird von dort geladen; `assets/bot-avatar.svg`
+  ist die bearbeitbare Vorlage. Beide Felder leer lassen ⇒ es gilt, was am Webhook in Discord
+  eingestellt ist.
 - `discord.update_existing` — `false` schaltet das tägliche Nachführen der Plätze ab.
 - `cleanup.delete_after_hours` — wie lange nach Event-Ende die Nachricht stehen bleibt
   (Standard 24 Stunden); `cleanup.enabled: false` lässt alte Nachrichten für immer stehen.
@@ -288,7 +292,24 @@ URL im jeweiligen Secret. Am Programm ist für den Wechsel **nichts** zu ändern
 > gemeldet. Ohne `post_existing` wirkt `reset` als stiller Neustart: der aktuelle Stand wird
 > nur als bekannt gespeichert, gepostet wird erst, was danach neu dazukommt.
 
-## 11. Wenn etwas nicht klappt
+## 11. Profilbild des Absenders
+
+Das Bild liegt im Repository (`assets/bot-avatar.png`) und wird in `config.json` unter
+`discord.avatar_url` als Adresse eingetragen — Discord lädt es bei jeder Nachricht von dort.
+Ein Wechsel ist damit ein Austausch der Datei, kein Klick in Discord.
+
+Zwei Bedingungen dafür:
+
+- Die Adresse enthält den Branch-Namen. Wird der Branch umbenannt, muss sie angepasst werden.
+- Das Repository muss öffentlich sein, sonst kann Discord die Datei nicht abrufen. Bei einem
+  privaten Repository stattdessen `discord.avatar_url` leeren und das Bild direkt beim Webhook
+  in Discord hochladen (Kanal-Einstellungen → Integrationen → Webhooks).
+
+`assets/bot-avatar.svg` ist die bearbeitbare Vorlage mit derselben Geometrie. Wer das
+offizielle Logo verwenden will, ersetzt einfach `bot-avatar.png` — quadratisch, mindestens
+128 × 128 Pixel, da Discord rund zuschneidet.
+
+## 12. Wenn etwas nicht klappt
 
 | Symptom im Log                                    | Ursache / Lösung                                                              |
 | ------------------------------------------------- | ----------------------------------------------------------------------------- |

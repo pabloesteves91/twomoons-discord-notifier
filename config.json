@@ -6,6 +6,7 @@
   },
   "discord": {
     "username": "TwoMoons Events",
+    "avatar_url": "https://raw.githubusercontent.com/pabloesteves91/twomoons-discord-notifier/claude/dazzling-hawking-cvn2c4/assets/bot-avatar.png",
     "delay_between_posts": 1.5,
     "max_posts_per_run": 25,
     "update_existing": true
