@@ -46,25 +46,51 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Von den beiden Cron-Zeiten ist immer nur eine 09:00 in der Schweiz; die
-  # andere endet hier. Manuelle Läufe laufen unabhängig davon.
+  # Ziel: genau ein Lauf pro Tag, frühestens ab 09:00 Schweizer Zeit. GitHub hält
+  # geplante Läufe bei Last oft stundenlang auf, deshalb entscheidet nicht die
+  # Uhrzeit, sondern ob heute schon gearbeitet wurde — sonst fällt der Lauf aus.
   zeitfenster:
     runs-on: ubuntu-latest
     outputs:
       los: ${{ steps.pruefen.outputs.los }}
     steps:
+      - uses: actions/checkout@v4
+
       - id: pruefen
         run: |
           if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "Manueller Lauf — wird ausgeführt."
             echo "los=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+
           stunde="$(TZ=Europe/Zurich date +%H)"
-          echo "In der Schweiz ist es ${stunde} Uhr."
-          if [ "$stunde" = "09" ]; then
-            echo "los=true" >> "$GITHUB_OUTPUT"
-          else
+          heute="$(TZ=Europe/Zurich date +%F)"
+          letzter="$(python3 - <<'PY'
+          import datetime, json, pathlib, zoneinfo
+
+          state = pathlib.Path("state.json")
+          stamps = []
+          if state.exists():
+              kategorien = json.loads(state.read_text(encoding="utf-8")).get("categories", {})
+              stamps = [c["last_run"] for c in kategorien.values() if c.get("last_run")]
+
+          if stamps:
+              gemeldet = datetime.datetime.strptime(max(stamps), "%Y-%m-%dT%H:%M:%SZ")
+              gemeldet = gemeldet.replace(tzinfo=datetime.timezone.utc)
+              print(gemeldet.astimezone(zoneinfo.ZoneInfo("Europe/Zurich")).date().isoformat())
+          PY
+          )"
+
+          echo "Schweizer Zeit: ${heute} ${stunde} Uhr — letzter Lauf: ${letzter:-noch keiner}"
+          if [ "$stunde" -lt 9 ]; then
+            echo "Vor 09:00 — dieser Lauf wird übersprungen."
             echo "los=false" >> "$GITHUB_OUTPUT"
+          elif [ "$letzter" = "$heute" ]; then
+            echo "Heute wurde bereits gearbeitet — dieser Lauf wird übersprungen."
+            echo "los=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "los=true" >> "$GITHUB_OUTPUT"
           fi
 
   notify:

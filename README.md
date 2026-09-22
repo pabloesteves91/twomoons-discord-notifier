@@ -184,13 +184,17 @@ postet aber nichts und ändert `state.json` nicht.
 
 ## 7. Zeitplan
 
-Der Lauf startet **täglich um 09:00 Schweizer Zeit**, das ganze Jahr über.
+Der Lauf passiert **einmal pro Tag, frühestens ab 09:00 Schweizer Zeit**.
 
-GitHub-Cron kennt keine Sommerzeit, deshalb sind zwei Zeiten eingetragen: `0 7 * * *` und
-`0 8 * * *` (UTC). Der Workflow prüft als Erstes, wie spät es in `Europe/Zurich` gerade ist,
-und bricht ab, wenn es nicht 09:00 ist — pro Tag arbeitet also genau ein Lauf, der andere
-endet nach wenigen Sekunden. Willst du eine andere Uhrzeit, verschiebe beide Cron-Zeiten um
-denselben Betrag und passe im Job `zeitfenster` die Stunde an.
+Zwei Cron-Zeiten sind eingetragen, `0 7 * * *` und `0 8 * * *` (UTC), weil GitHub-Cron keine
+Sommerzeit kennt. Entscheidend ist aber nicht die Uhr: **GitHub hält geplante Läufe bei hoher
+Last regelmässig um Stunden auf** — beobachtet wurden hier Verzögerungen bis in den frühen
+Nachmittag. Der Job `zeitfenster` prüft deshalb, ob heute schon gearbeitet wurde, und lässt
+den ersten Lauf ab 09:00 Schweizer Zeit durch; jeder weitere am selben Tag endet nach
+Sekunden. Massstab dafür ist `last_run` in der `state.json`.
+
+Willst du eine andere Uhrzeit, verschiebe beide Cron-Zeiten und passe im Job `zeitfenster`
+die Stundengrenze an. Ein manueller Lauf ist von dieser Prüfung nie betroffen.
 
 ## 8. `state.json`
 
@@ -336,6 +340,7 @@ Nachrichten in Discord löschen. Für alles andere ist das nicht nötig.
 | `Discord lehnte den Post ab (401/404)`            | Webhook gelöscht oder URL falsch kopiert — neu erstellen und Secret ersetzen   |
 | `Discord Rate-Limit`                              | Wird automatisch abgewartet; bei Häufung `delay_between_posts` erhöhen         |
 | Workflow committet `state.json` nicht             | Unter Settings → Actions → General: *Read and write permissions* aktivieren    |
+| Geplanter Lauf zeigt `notify` als *skipped*       | Heute wurde bereits gearbeitet, oder es ist vor 09:00 Schweizer Zeit — beides beabsichtigt |
 
 Ein Fehler in einer Kategorie stoppt die anderen nie — jede wird einzeln abgearbeitet und
 protokolliert.
