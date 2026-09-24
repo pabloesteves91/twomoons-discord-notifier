@@ -2,11 +2,11 @@
   "categories": {
     "magic": {
       "initialized": true,
-      "last_run": "2026-09-23T12:33:58Z",
+      "last_run": "2026-09-24T12:32:35Z",
       "seen": {
         "https://www.twomoons.ch/mtg-reality-fracture-prerelease-weinfelden?slotId=01a04395e1e87e8e88d1d3c954c3e084": {
           "date": "Fr., 25.09.26, 18:00 - 22:00",
-          "digest": "11e1b1c342a88046",
+          "digest": "fce925dda58d008a",
           "message_id": "1551877284820946988",
           "title": "MTG Prerelease Reality Fracture - Weinfelden"
         },
@@ -18,13 +18,13 @@
         },
         "https://www.twomoons.ch/mtg-reality-fracture-prerelease?slotId=01a04391c40d7143b0ed06d8a9aff93d": {
           "date": "Sa., 26.09.26, 11:00 - 18:00",
-          "digest": "f37e29bd51f577c1",
+          "digest": "ce8d400cdbdf1abc",
           "message_id": "1551877296351084616",
           "title": "MTG Prerelease Reality Fracture"
         },
         "https://www.twomoons.ch/mtg-reality-fracture-two-headed-giant-prerelease?slotId=01a04399365e74ca8d48fb143d2818be": {
           "date": "So., 27.09.26, 11:00 - 18:00",
-          "digest": "7a54888230a755e1",
+          "digest": "8443f3e405e26925",
           "message_id": "1551877303598972960",
           "title": "MTG Two-Headed Giant Prerelease Reality Fracture"
         },
@@ -32,6 +32,12 @@
           "date": "Mi., 23.09.26, 19:00 - 22:30",
           "digest": "0507cb21a0ee0376",
           "message_id": "1550392047372869706",
+          "title": "MTG Modern Weekly"
+        },
+        "https://www.twomoons.ch/mtg-weekly-entry-modern?slotId=019f193b0ce6789ba7ae9807583ba571": {
+          "date": "Mi., 30.09.26, 19:00 - 22:30",
+          "digest": "31fb3bc09e79ff11",
+          "message_id": "1552658977064493138",
           "title": "MTG Modern Weekly"
         },
         "https://www.twomoons.ch/mtg-weekly-entry-standard?slotId=019f1930bb157254a51fe4c9fbc84195": {
@@ -44,7 +50,7 @@
     },
     "pokemon": {
       "initialized": true,
-      "last_run": "2026-09-23T12:34:17Z",
+      "last_run": "2026-09-24T12:32:54Z",
       "seen": {
         "https://www.twomoons.ch/pokemon-league-cup?slotId=01a0341757f571949c37eb21761631b8": {
           "date": "Sa., 10.10.26, 11:00 - 19:00",
@@ -74,6 +80,12 @@
           "date": "Mo., 05.10.26, 18:30 - 22:30",
           "digest": "a64ce1e63a4378ef",
           "message_id": "1551877433211355169",
+          "title": "Pokémon Weekly Standard"
+        },
+        "https://www.twomoons.ch/pokemon-weekly-standard?slotId=01a034400a5a71d283556efa12154896": {
+          "date": "Mo., 12.10.26, 18:30 - 22:30",
+          "digest": "3490a94bda2bb3fe",
+          "message_id": "1552659082320674887",
           "title": "Pokémon Weekly Standard"
         },
         "https://www.twomoons.ch/pokemon-weekly-standard?slotId=01a03441f92978f6ba1a5ff9fb2135aa": {
