@@ -2,7 +2,7 @@
   "categories": {
     "magic": {
       "initialized": true,
-      "last_run": "2026-09-28T14:57:10Z",
+      "last_run": "2026-09-29T13:44:29Z",
       "seen": {
         "Commander Night Weinfelden|Fr., 02.10.26, 18:00 - 22:00": {
           "date": "Fr., 02.10.26, 18:00 - 22:00",
@@ -10,17 +10,17 @@
           "message_id": "1553376382179086479",
           "title": "Commander Night Weinfelden"
         },
+        "Commander Night Weinfelden|Fr., 09.10.26, 18:00 - 22:00": {
+          "date": "Fr., 09.10.26, 18:00 - 22:00",
+          "digest": "0c5b22ce5e996827",
+          "message_id": "1554489011375046729",
+          "title": "Commander Night Weinfelden"
+        },
         "https://www.twomoons.ch/mtg-reality-fracture-draft-fnm?slotId=01a0439e4d13755d913e79c1b91e8217": {
           "date": "Fr., 02.10.26, 18:30 - 22:30",
-          "digest": "a69998883ecc261c",
+          "digest": "0105c59feeeb28e9",
           "message_id": "1553376397827768404",
           "title": "MTG FNM Draft Reality Fracture"
-        },
-        "https://www.twomoons.ch/mtg-reality-fracture-two-headed-giant-prerelease?slotId=01a04399365e74ca8d48fb143d2818be": {
-          "date": "So., 27.09.26, 11:00 - 18:00",
-          "digest": "ad7683182bbc02ff",
-          "message_id": "1551877303598972960",
-          "title": "MTG Two-Headed Giant Prerelease Reality Fracture"
         },
         "https://www.twomoons.ch/mtg-weekly-entry-modern?slotId=019f193b0ce6789ba7ae9807583ba571": {
           "date": "Mi., 30.09.26, 19:00 - 22:30",
@@ -50,11 +50,11 @@
     },
     "pokemon": {
       "initialized": true,
-      "last_run": "2026-09-28T14:57:29Z",
+      "last_run": "2026-09-29T13:44:52Z",
       "seen": {
         "https://www.twomoons.ch/pokemon-league-cup?slotId=01a0341757f571949c37eb21761631b8": {
           "date": "Sa., 10.10.26, 11:00 - 19:00",
-          "digest": "df73d05224602db0",
+          "digest": "0eca01555817f98c",
           "message_id": "1551877451876147231",
           "title": "Pokémon League Cup"
         },
@@ -86,6 +86,12 @@
           "date": "Mi., 07.10.26, 19:00 - 22:00",
           "digest": "c893d26f166f8a4e",
           "message_id": "1551877444334649382",
+          "title": "Pokémon Weekly Standard"
+        },
+        "https://www.twomoons.ch/pokemon-weekly-standard?slotId=01a03441f92978f6ba1a6000dae9dc2d": {
+          "date": "Mi., 14.10.26, 19:00 - 22:00",
+          "digest": "25db8a75eff55d0a",
+          "message_id": "1554489123564159048",
           "title": "Pokémon Weekly Standard"
         }
       }
