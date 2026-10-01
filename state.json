@@ -2,7 +2,7 @@
   "categories": {
     "magic": {
       "initialized": true,
-      "last_run": "2026-09-30T13:20:34Z",
+      "last_run": "2026-10-01T14:10:35Z",
       "seen": {
         "Commander Night Weinfelden|Fr., 02.10.26, 18:00 - 22:00": {
           "date": "Fr., 02.10.26, 18:00 - 22:00",
@@ -18,8 +18,14 @@
         },
         "https://www.twomoons.ch/mtg-reality-fracture-draft-fnm?slotId=01a0439e4d13755d913e79c1b91e8217": {
           "date": "Fr., 02.10.26, 18:30 - 22:30",
-          "digest": "34e4ad60f3618ae3",
+          "digest": "7a188a2b29d2d26e",
           "message_id": "1553376397827768404",
+          "title": "MTG FNM Draft Reality Fracture"
+        },
+        "https://www.twomoons.ch/mtg-reality-fracture-draft-fnm?slotId=01a0439e4d1b7713b6b3537355a9173b": {
+          "date": "Fr., 09.10.26, 18:30 - 22:30",
+          "digest": "b111954a1c5f617a",
+          "message_id": "1555220370330488943",
           "title": "MTG FNM Draft Reality Fracture"
         },
         "https://www.twomoons.ch/mtg-weekly-entry-modern?slotId=019f193b0ce6789ba7ae9807583ba571": {
@@ -44,11 +50,11 @@
     },
     "pokemon": {
       "initialized": true,
-      "last_run": "2026-09-30T13:20:53Z",
+      "last_run": "2026-10-01T14:10:55Z",
       "seen": {
         "https://www.twomoons.ch/pokemon-league-cup?slotId=01a0341757f571949c37eb21761631b8": {
           "date": "Sa., 10.10.26, 11:00 - 19:00",
-          "digest": "0eca01555817f98c",
+          "digest": "8ce931dc5a55bd5b",
           "message_id": "1551877451876147231",
           "title": "Pokémon League Cup"
         },
@@ -68,6 +74,12 @@
           "date": "Mo., 12.10.26, 18:30 - 22:30",
           "digest": "3490a94bda2bb3fe",
           "message_id": "1552659082320674887",
+          "title": "Pokémon Weekly Standard"
+        },
+        "https://www.twomoons.ch/pokemon-weekly-standard?slotId=01a034400a5b7e5fbb2388a74c377e2f": {
+          "date": "Mo., 19.10.26, 18:30 - 22:30",
+          "digest": "f15bd243622b0d50",
+          "message_id": "1555220455491772438",
           "title": "Pokémon Weekly Standard"
         },
         "https://www.twomoons.ch/pokemon-weekly-standard?slotId=01a03441f92978f6ba1a5ff9fb2135aa": {
