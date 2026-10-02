@@ -2,7 +2,7 @@
   "categories": {
     "magic": {
       "initialized": true,
-      "last_run": "2026-10-01T14:10:35Z",
+      "last_run": "2026-10-02T13:34:07Z",
       "seen": {
         "Commander Night Weinfelden|Fr., 02.10.26, 18:00 - 22:00": {
           "date": "Fr., 02.10.26, 18:00 - 22:00",
@@ -18,7 +18,7 @@
         },
         "https://www.twomoons.ch/mtg-reality-fracture-draft-fnm?slotId=01a0439e4d13755d913e79c1b91e8217": {
           "date": "Fr., 02.10.26, 18:30 - 22:30",
-          "digest": "7a188a2b29d2d26e",
+          "digest": "0fc7ce72470691f2",
           "message_id": "1553376397827768404",
           "title": "MTG FNM Draft Reality Fracture"
         },
@@ -27,12 +27,6 @@
           "digest": "b111954a1c5f617a",
           "message_id": "1555220370330488943",
           "title": "MTG FNM Draft Reality Fracture"
-        },
-        "https://www.twomoons.ch/mtg-weekly-entry-modern?slotId=019f193b0ce6789ba7ae9807583ba571": {
-          "date": "Mi., 30.09.26, 19:00 - 22:30",
-          "digest": "31fb3bc09e79ff11",
-          "message_id": "1552658977064493138",
-          "title": "MTG Modern Weekly"
         },
         "https://www.twomoons.ch/mtg-weekly-entry-modern?slotId=01a0343ebee67271ac9489930d1727e4": {
           "date": "Mi., 07.10.26, 19:00 - 22:30",
@@ -50,19 +44,13 @@
     },
     "pokemon": {
       "initialized": true,
-      "last_run": "2026-10-01T14:10:55Z",
+      "last_run": "2026-10-02T13:34:28Z",
       "seen": {
         "https://www.twomoons.ch/pokemon-league-cup?slotId=01a0341757f571949c37eb21761631b8": {
           "date": "Sa., 10.10.26, 11:00 - 19:00",
-          "digest": "8ce931dc5a55bd5b",
+          "digest": "01b3766fb83aac66",
           "message_id": "1551877451876147231",
           "title": "Pokémon League Cup"
-        },
-        "https://www.twomoons.ch/pokemon-weekly-standard?slotId=019f1952d1267df28db91f9b1c10bbc4": {
-          "date": "Mi., 30.09.26, 19:00 - 22:30",
-          "digest": "083fde6f8ed73573",
-          "message_id": "1550392168659554345",
-          "title": "Pokémon Weekly Standard"
         },
         "https://www.twomoons.ch/pokemon-weekly-standard?slotId=01a034400a5a71d283556ef38253cc65": {
           "date": "Mo., 05.10.26, 18:30 - 22:30",
