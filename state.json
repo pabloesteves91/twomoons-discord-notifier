@@ -2,7 +2,7 @@
   "categories": {
     "magic": {
       "initialized": true,
-      "last_run": "2026-10-02T13:34:07Z",
+      "last_run": "2026-10-03T12:14:00Z",
       "seen": {
         "Commander Night Weinfelden|Fr., 02.10.26, 18:00 - 22:00": {
           "date": "Fr., 02.10.26, 18:00 - 22:00",
@@ -28,6 +28,12 @@
           "message_id": "1555220370330488943",
           "title": "MTG FNM Draft Reality Fracture"
         },
+        "https://www.twomoons.ch/mtg-standard-store-championship?slotId=01a0ce91bf437ceaaf0cd2caa87aa0a6": {
+          "date": "So., 11.10.26, 11:00 - 18:00",
+          "digest": "26b9062db235692b",
+          "message_id": "1555915816388661269",
+          "title": "MTG Standard Store Championship"
+        },
         "https://www.twomoons.ch/mtg-weekly-entry-modern?slotId=01a0343ebee67271ac9489930d1727e4": {
           "date": "Mi., 07.10.26, 19:00 - 22:30",
           "digest": "2f41a2dab347fbf7",
@@ -39,12 +45,18 @@
           "digest": "57ecc6c8dcfd78fb",
           "message_id": "1553376408749998182",
           "title": "MTG Standard Weekly"
+        },
+        "https://www.twomoons.ch/rcq-sealed-reality-fracture-sul-district?slotId=01a08bb57a107e0e8010ec96c71c0c3c": {
+          "date": "Sa., 10.10.26, 11:00 - 20:00",
+          "digest": "86940905638f8b4d",
+          "message_id": "1555915805097594911",
+          "title": "MTG Sealed RCQ Reality Fracture SUL District"
         }
       }
     },
     "pokemon": {
       "initialized": true,
-      "last_run": "2026-10-02T13:34:28Z",
+      "last_run": "2026-10-03T12:14:16Z",
       "seen": {
         "https://www.twomoons.ch/pokemon-league-cup?slotId=01a0341757f571949c37eb21761631b8": {
           "date": "Sa., 10.10.26, 11:00 - 19:00",
