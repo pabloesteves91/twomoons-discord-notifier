@@ -2,29 +2,17 @@
   "categories": {
     "magic": {
       "initialized": true,
-      "last_run": "2026-10-03T12:14:00Z",
+      "last_run": "2026-10-04T13:02:43Z",
       "seen": {
-        "Commander Night Weinfelden|Fr., 02.10.26, 18:00 - 22:00": {
-          "date": "Fr., 02.10.26, 18:00 - 22:00",
-          "digest": "4bd4f132a0e230b3",
-          "message_id": "1553376382179086479",
-          "title": "Commander Night Weinfelden"
-        },
         "Commander Night Weinfelden|Fr., 09.10.26, 18:00 - 22:00": {
           "date": "Fr., 09.10.26, 18:00 - 22:00",
           "digest": "0c5b22ce5e996827",
           "message_id": "1554489011375046729",
           "title": "Commander Night Weinfelden"
         },
-        "https://www.twomoons.ch/mtg-reality-fracture-draft-fnm?slotId=01a0439e4d13755d913e79c1b91e8217": {
-          "date": "Fr., 02.10.26, 18:30 - 22:30",
-          "digest": "0fc7ce72470691f2",
-          "message_id": "1553376397827768404",
-          "title": "MTG FNM Draft Reality Fracture"
-        },
         "https://www.twomoons.ch/mtg-reality-fracture-draft-fnm?slotId=01a0439e4d1b7713b6b3537355a9173b": {
           "date": "Fr., 09.10.26, 18:30 - 22:30",
-          "digest": "b111954a1c5f617a",
+          "digest": "3781d4c6952021d8",
           "message_id": "1555220370330488943",
           "title": "MTG FNM Draft Reality Fracture"
         },
@@ -48,7 +36,7 @@
         },
         "https://www.twomoons.ch/rcq-sealed-reality-fracture-sul-district?slotId=01a08bb57a107e0e8010ec96c71c0c3c": {
           "date": "Sa., 10.10.26, 11:00 - 20:00",
-          "digest": "86940905638f8b4d",
+          "digest": "ee3a4e644907b0db",
           "message_id": "1555915805097594911",
           "title": "MTG Sealed RCQ Reality Fracture SUL District"
         }
@@ -56,7 +44,7 @@
     },
     "pokemon": {
       "initialized": true,
-      "last_run": "2026-10-03T12:14:16Z",
+      "last_run": "2026-10-04T13:02:59Z",
       "seen": {
         "https://www.twomoons.ch/pokemon-league-cup?slotId=01a0341757f571949c37eb21761631b8": {
           "date": "Sa., 10.10.26, 11:00 - 19:00",
