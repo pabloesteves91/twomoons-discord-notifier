@@ -2,7 +2,7 @@
   "categories": {
     "magic": {
       "initialized": true,
-      "last_run": "2026-10-04T13:02:43Z",
+      "last_run": "2026-10-05T15:33:23Z",
       "seen": {
         "Commander Night Weinfelden|Fr., 09.10.26, 18:00 - 22:00": {
           "date": "Fr., 09.10.26, 18:00 - 22:00",
@@ -12,7 +12,7 @@
         },
         "https://www.twomoons.ch/mtg-reality-fracture-draft-fnm?slotId=01a0439e4d1b7713b6b3537355a9173b": {
           "date": "Fr., 09.10.26, 18:30 - 22:30",
-          "digest": "3781d4c6952021d8",
+          "digest": "d9087a841b56c4aa",
           "message_id": "1555220370330488943",
           "title": "MTG FNM Draft Reality Fracture"
         },
@@ -44,17 +44,17 @@
     },
     "pokemon": {
       "initialized": true,
-      "last_run": "2026-10-04T13:02:59Z",
+      "last_run": "2026-10-05T15:33:46Z",
       "seen": {
         "https://www.twomoons.ch/pokemon-league-cup?slotId=01a0341757f571949c37eb21761631b8": {
           "date": "Sa., 10.10.26, 11:00 - 19:00",
-          "digest": "01b3766fb83aac66",
+          "digest": "b8212de056411f98",
           "message_id": "1551877451876147231",
           "title": "Pokémon League Cup"
         },
         "https://www.twomoons.ch/pokemon-weekly-standard?slotId=01a034400a5a71d283556ef38253cc65": {
           "date": "Mo., 05.10.26, 18:30 - 22:30",
-          "digest": "a64ce1e63a4378ef",
+          "digest": "04864fe34f57072e",
           "message_id": "1551877433211355169",
           "title": "Pokémon Weekly Standard"
         },
