@@ -5,8 +5,8 @@ Prüft einmal täglich die Event-Seiten von [twomoons.ch](https://www.twomoons.c
 ohne eigenen Server. Der tägliche Lauf passiert komplett über GitHub Actions.
 
 **Eine Kategorie läuft, sobald ihr Webhook-Secret im Repo hinterlegt ist** — mehr ist nicht
-zu tun. Alle neun Kategorien (Magic, Pokémon, Star Wars Unlimited, Yu-Gi-Oh, Lorcana,
-One Piece, Flesh & Blood, Riftbound, Unterhaltung) stehen in `config.json` bereit; ohne
+zu tun. Alle zehn Kategorien (Magic, Pokémon, Star Wars Unlimited, Yu-Gi-Oh, Lorcana,
+One Piece, Flesh & Blood, Riftbound, Cyberpunk TCG, Unterhaltung) stehen in `config.json` bereit; ohne
 Secret werden sie übersprungen und nur im Log erwähnt.
 
 ## Wie es funktioniert
@@ -94,6 +94,7 @@ Zuordnung Kategorie → Secret-Name (so, wie es in `config.json` hinterlegt ist)
 | One Piece            | `DISCORD_WEBHOOK_ONE_PIECE`    |
 | Flesh & Blood        | `DISCORD_WEBHOOK_FLESH_BLOOD`  |
 | Riftbound            | `DISCORD_WEBHOOK_RIFTBOUND`    |
+| Cyberpunk TCG        | `DISCORD_WEBHOOK_CYBERPUNK`    |
 | Unterhaltung         | `DISCORD_WEBHOOK_UNTERHALTUNG` |
 
 Lege nur die Secrets an, deren Kategorien du haben willst — alle übrigen werden schlicht
@@ -120,6 +121,7 @@ Kategorien sind frei konfigurierbar, nichts ist im Code fest verdrahtet:
 | `name`        | Anzeigename in der Embed-Fusszeile                                     |
 | `url`         | Übersichtsseite; zugleich Fallback-Link, wenn ein Event keinen hat     |
 | `event_category_id` | Kategorie in der Kalender-Schnittstelle. Fehlt sie, zählen nur die (max. sechs) Termine der Übersichtsseite |
+| `title_contains` | Alternative zur Kategorie-ID: Termine, deren Titel einen dieser Texte enthält. Für Spiele, die der Shop ohne eigene Event-Kategorie führt |
 | `webhook_env` | **Name** der Umgebungsvariable — nie die URL selbst; ist das zugehörige Secret gesetzt, läuft die Kategorie |
 | `color`       | Farbbalken des Embeds (Hex)                                            |
 | `enabled`     | optional; `false` schaltet eine Kategorie trotz Secret ab              |
@@ -149,6 +151,17 @@ Die IDs der bestehenden Kategorien sind eingetragen. Für eine neue: einen Probe
 ausführlichem Log starten (Schritt 6) — er listet jede Kategorie der Schnittstelle mit Namen
 und ID unter „Kategorie-IDs der API". „Unterhaltung" führt der Shop dort derzeit nicht; diese
 Kategorie arbeitet deshalb nur mit ihrer Übersichtsseite.
+
+Hat ein Spiel **keine eigene Kategorie** im Shop — wie Cyberpunk TCG, das in der Sammelkategorie
+„---" neben Einträgen wie „Stettbach Closed" steht —, wählt die Kategorie ihre Termine über den
+Titel aus: `"title_contains": ["Cyberpunk"]` statt einer `event_category_id`. Als `url` dient dann
+die allgemeine Event-Seite `https://www.twomoons.ch/events/`; sie ist auch der Link, wenn ein
+Termin keinen eigenen Buchungslink hat.
+
+Bei einer ganz neuen Kategorie zusätzlich in `.github/workflows/notify.yml` im Schritt
+„Notifier ausführen" unter `env:` die Zeile für das Secret ergänzen, z. B.
+`DISCORD_WEBHOOK_GUNDAM: ${{ secrets.DISCORD_WEBHOOK_GUNDAM }}` — ohne diese Zeile reicht
+GitHub das Secret nicht an das Skript weiter.
 
 ## 4. Weitere Kategorien aktivieren
 

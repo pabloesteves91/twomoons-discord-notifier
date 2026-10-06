@@ -937,9 +937,24 @@ def process_category(
     events = parse_events(html, category["url"])
     LOG.info("[%s] %s Event(s) auf der Übersichtsseite", key, len(events))
 
+    # Manche Spiele führt der Shop ohne eigene Event-Kategorie (z. B. Cyberpunk);
+    # die werden über ihren Titel ausgewählt, auf Seite und in der API gleichermassen.
+    title_filter = [text.casefold() for text in category.get("title_contains", [])]
+    if title_filter:
+        events = [event for event in events if any(text in event.title.casefold() for text in title_filter)]
+
     category_id = category.get("event_category_id", "")
-    if api_slots is not None and category_id:
-        events = merge_with_slots(events, api_slots.get(category_id, []))
+    if api_slots is not None and (category_id or title_filter):
+        if title_filter:
+            chosen = [
+                item
+                for group in api_slots.values()
+                for item in group
+                if any(text in str(item.get("title", "")).casefold() for text in title_filter)
+            ]
+        else:
+            chosen = api_slots.get(category_id, [])
+        events = merge_with_slots(events, chosen)
         LOG.info("[%s] %s Termin(e) insgesamt laut Termin-API", key, len(events))
 
     if not events:

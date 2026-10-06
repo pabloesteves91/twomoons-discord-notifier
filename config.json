@@ -130,6 +130,16 @@
       "color": "#C89B3C"
     },
     {
+      "key": "cyberpunk",
+      "name": "Cyberpunk TCG",
+      "url": "https://www.twomoons.ch/events/",
+      "title_contains": [
+        "Cyberpunk"
+      ],
+      "webhook_env": "DISCORD_WEBHOOK_CYBERPUNK",
+      "color": "#FCEE0A"
+    },
+    {
       "key": "unterhaltung",
       "name": "Unterhaltung",
       "url": "https://www.twomoons.ch/events/unterhaltung/",

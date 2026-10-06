@@ -707,6 +707,31 @@ class WindowStateTest(unittest.TestCase):
         self.assertIn("weekly-a", seen)
         self.assertNotIn("weekly-b", seen)
 
+    def test_category_without_shop_category_is_chosen_by_title(self):
+        cyber = {
+            "key": "cyberpunk",
+            "name": "Cyberpunk TCG",
+            "url": "https://www.twomoons.ch/events/",
+            "title_contains": ["Cyberpunk"],
+            "webhook_env": "DISCORD_WEBHOOK_CYBERPUNK",
+            "color": "#FCEE0A",
+        }
+        brawl = slot("cyber-1", "Cyberpunk TCG Brawl Weekly", "2026-09-21T19:00:00", "2026-09-21T22:00:00")
+        closed = slot("zu-1", "Stettbach Closed", "2026-09-22T10:00:00", "2026-09-22T20:00:00")
+        state = {"categories": {}}
+        args = Namespace(dry_run=False, post_existing=True, reset=False, limit=0, category=None, verbose=False)
+        with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_CYBERPUNK": "https://example.invalid/hook"}), mock.patch.object(
+            notifier, "local_now", return_value=FROZEN_NOW
+        ), mock.patch.object(notifier, "fetch_html", return_value=FIXTURE), mock.patch.object(
+            notifier, "fetch_event_details"
+        ), mock.patch.object(notifier, "post_embed", return_value="msg") as post, mock.patch.object(
+            notifier.time, "sleep"
+        ):
+            notifier.process_category(cyber, CONFIG, state, args, None, {"0": [brawl, closed], MAGIC_ID: API_SLOTS})
+
+        # Nur der Cyberpunk-Termin — weder Magic-Karten der Seite noch "Stettbach Closed".
+        self.assertEqual([call.args[1]["title"] for call in post.call_args_list], ["Cyberpunk TCG Brawl Weekly"])
+
     def test_posted_event_beyond_the_window_stays_and_is_updated(self):
         state = {"categories": {}}
         self.run_at(state, FROZEN_NOW, post_existing=True)

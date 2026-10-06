@@ -138,6 +138,7 @@ jobs:
           DISCORD_WEBHOOK_ONE_PIECE: ${{ secrets.DISCORD_WEBHOOK_ONE_PIECE }}
           DISCORD_WEBHOOK_FLESH_BLOOD: ${{ secrets.DISCORD_WEBHOOK_FLESH_BLOOD }}
           DISCORD_WEBHOOK_RIFTBOUND: ${{ secrets.DISCORD_WEBHOOK_RIFTBOUND }}
+          DISCORD_WEBHOOK_CYBERPUNK: ${{ secrets.DISCORD_WEBHOOK_CYBERPUNK }}
           DISCORD_WEBHOOK_UNTERHALTUNG: ${{ secrets.DISCORD_WEBHOOK_UNTERHALTUNG }}
           DRY_RUN: ${{ inputs.dry_run }}
           POST_EXISTING: ${{ inputs.post_existing }}
