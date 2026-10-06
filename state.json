@@ -2,81 +2,87 @@
   "categories": {
     "magic": {
       "initialized": true,
-      "last_run": "2026-10-05T15:33:23Z",
+      "last_run": "2026-10-06T13:17:09Z",
       "seen": {
-        "Commander Night Weinfelden|Fr., 09.10.26, 18:00 - 22:00": {
-          "date": "Fr., 09.10.26, 18:00 - 22:00",
-          "digest": "0c5b22ce5e996827",
-          "message_id": "1554489011375046729",
-          "title": "Commander Night Weinfelden"
-        },
-        "https://www.twomoons.ch/mtg-reality-fracture-draft-fnm?slotId=01a0439e4d1b7713b6b3537355a9173b": {
-          "date": "Fr., 09.10.26, 18:30 - 22:30",
-          "digest": "d9087a841b56c4aa",
-          "message_id": "1555220370330488943",
-          "title": "MTG FNM Draft Reality Fracture"
-        },
-        "https://www.twomoons.ch/mtg-standard-store-championship?slotId=01a0ce91bf437ceaaf0cd2caa87aa0a6": {
-          "date": "So., 11.10.26, 11:00 - 18:00",
-          "digest": "26b9062db235692b",
-          "message_id": "1555915816388661269",
-          "title": "MTG Standard Store Championship"
-        },
-        "https://www.twomoons.ch/mtg-weekly-entry-modern?slotId=01a0343ebee67271ac9489930d1727e4": {
+        "01a0343ebee67271ac9489930d1727e4": {
           "date": "Mi., 07.10.26, 19:00 - 22:30",
           "digest": "2f41a2dab347fbf7",
           "message_id": "1553749305339285606",
           "title": "MTG Modern Weekly"
         },
-        "https://www.twomoons.ch/mtg-weekly-entry-standard?slotId=01a03445c36e78a4a88107903762b6ea": {
+        "01a03445c36e78a4a88107903762b6ea": {
           "date": "Mo., 05.10.26, 19:00 - 22:30",
           "digest": "57ecc6c8dcfd78fb",
           "message_id": "1553376408749998182",
           "title": "MTG Standard Weekly"
         },
-        "https://www.twomoons.ch/rcq-sealed-reality-fracture-sul-district?slotId=01a08bb57a107e0e8010ec96c71c0c3c": {
+        "01a03445c36f76df8d4ee382d63caca4": {
+          "date": "Mo., 12.10.26, 19:00 - 22:30",
+          "digest": "1737b05fee249c7d",
+          "message_id": "1557018788468105280",
+          "title": "MTG Standard Weekly"
+        },
+        "01a0439e4d1b7713b6b3537355a9173b": {
+          "date": "Fr., 09.10.26, 18:30 - 22:30",
+          "digest": "d9087a841b56c4aa",
+          "message_id": "",
+          "title": "MTG FNM Draft Reality Fracture"
+        },
+        "01a08bb57a107e0e8010ec96c71c0c3c": {
           "date": "Sa., 10.10.26, 11:00 - 20:00",
           "digest": "ee3a4e644907b0db",
           "message_id": "1555915805097594911",
           "title": "MTG Sealed RCQ Reality Fracture SUL District"
+        },
+        "01a0ce91bf437ceaaf0cd2caa87aa0a6": {
+          "date": "So., 11.10.26, 11:00 - 18:00",
+          "digest": "26b9062db235692b",
+          "message_id": "1555915816388661269",
+          "title": "MTG Standard Store Championship"
+        },
+        "Commander Night Weinfelden|Fr., 09.10.26, 18:00 - 22:00": {
+          "date": "Fr., 09.10.26, 18:00 - 22:00",
+          "digest": "0c5b22ce5e996827",
+          "message_id": "1554489011375046729",
+          "title": "Commander Night Weinfelden"
         }
       }
     },
     "pokemon": {
       "initialized": true,
-      "last_run": "2026-10-05T15:33:46Z",
+      "last_run": "2026-10-06T13:17:17Z",
       "seen": {
-        "https://www.twomoons.ch/pokemon-league-cup?slotId=01a0341757f571949c37eb21761631b8": {
+        "01a0341757f571949c37eb21761631b8": {
           "date": "Sa., 10.10.26, 11:00 - 19:00",
           "digest": "b8212de056411f98",
-          "message_id": "1551877451876147231",
+          "message_id": "",
           "title": "Pokémon League Cup"
         },
-        "https://www.twomoons.ch/pokemon-weekly-standard?slotId=01a034400a5a71d283556ef38253cc65": {
+        "01a034400a5a71d283556ef38253cc65": {
           "date": "Mo., 05.10.26, 18:30 - 22:30",
           "digest": "04864fe34f57072e",
           "message_id": "1551877433211355169",
           "title": "Pokémon Weekly Standard"
         },
-        "https://www.twomoons.ch/pokemon-weekly-standard?slotId=01a034400a5a71d283556efa12154896": {
+        "01a034400a5a71d283556efa12154896": {
           "date": "Mo., 12.10.26, 18:30 - 22:30",
           "digest": "3490a94bda2bb3fe",
           "message_id": "1552659082320674887",
           "title": "Pokémon Weekly Standard"
         },
-        "https://www.twomoons.ch/pokemon-weekly-standard?slotId=01a034400a5b7e5fbb2388a74c377e2f": {
+        "01a034400a5b7e5fbb2388a74c377e2f": {
           "date": "Mo., 19.10.26, 18:30 - 22:30",
           "digest": "f15bd243622b0d50",
           "message_id": "1555220455491772438",
           "title": "Pokémon Weekly Standard"
         },
-        "https://www.twomoons.ch/pokemon-weekly-standard?slotId=01a03441f92978f6ba1a5ff9fb2135aa": {
+        "01a03441f92978f6ba1a5ff9fb2135aa": {
           "date": "Mi., 07.10.26, 19:00 - 22:00",
           "digest": "c893d26f166f8a4e",
           "message_id": "1551877444334649382",
           "title": "Pokémon Weekly Standard"
         },
-        "https://www.twomoons.ch/pokemon-weekly-standard?slotId=01a03441f92978f6ba1a6000dae9dc2d": {
+        "01a03441f92978f6ba1a6000dae9dc2d": {
           "date": "Mi., 14.10.26, 19:00 - 22:00",
           "digest": "25db8a75eff55d0a",
           "message_id": "1554489123564159048",
