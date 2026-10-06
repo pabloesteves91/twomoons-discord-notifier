@@ -61,6 +61,8 @@ LABEL_RE = re.compile(r"^\s*([^:\n]{2,30}?)\s*:\s*(.+?)\s*$")
 DATE_RE = re.compile(r"(\d{1,2})\.(\d{1,2})\.(\d{2,4})")
 TIME_RE = re.compile(r"(\d{1,2}):(\d{2})")
 LOCAL_ZONE = ZoneInfo("Europe/Zurich")
+WEEKDAYS = ("Mo.", "Di.", "Mi.", "Do.", "Fr.", "Sa.", "So.")
+SLOT_RE = re.compile(r"slotId=([\w-]+)")
 
 # Auszeichnung, die eine Zeile nicht umbricht ("<b>Format:</b> Draft" ist eine Zeile).
 INLINE_TAGS = {"a", "b", "code", "em", "font", "i", "label", "small", "span", "strong", "sub", "sup", "u"}
@@ -140,6 +142,11 @@ def clean_text(value: str | None) -> str:
     if not value:
         return ""
     return re.sub(r"\s+", " ", value.replace("\xa0", " ")).strip()
+
+
+def slot_id_from_url(url: str) -> str:
+    match = SLOT_RE.search(url or "")
+    return match.group(1) if match else ""
 
 
 def is_inside(container: Tag, node: Tag) -> bool:
@@ -365,6 +372,10 @@ def fetch_html(url: str, request_config: dict[str, Any]) -> str:
             return response.text
         except requests.RequestException as error:
             last_error = error
+            status = getattr(error.response, "status_code", None)
+            # 4xx (z. B. eine entfernte Produktseite) wird durch Warten nicht besser.
+            if status is not None and 400 <= status < 500:
+                break
             wait = 2**attempt
             LOG.warning("Abruf fehlgeschlagen (%s/%s) für %s: %s", attempt, retries, url, error)
             if attempt < retries:
@@ -382,6 +393,11 @@ def fetch_event_details(
     price_selectors = price_selectors or []
     html = fetch_html(event.booking_url, request_config)
     soup = BeautifulSoup(html, "html.parser")
+
+    if not event.image_url:
+        og_image = soup.find("meta", attrs={"property": "og:image"})
+        if isinstance(og_image, Tag) and og_image.get("content"):
+            event.image_url = str(og_image["content"])
 
     container: Tag | None = None
     for selector in selectors:
@@ -413,6 +429,138 @@ def fetch_event_details(
     LOG.debug("Detailseite '%s': Felder=%s Notizen=%s", event.title, event.details, event.notes[:3])
     if not event.details:
         LOG.debug("  keine Felder erkannt, Zeilen: %s", [line.text for line in lines][:20])
+
+
+def fetch_event_slots(config: dict[str, Any]) -> dict[str, list[dict[str, Any]]] | None:
+    """Alle kommenden Termine aus der Kalender-API des Shops, gruppiert nach Kategorie-ID.
+
+    Die Übersichtsseiten zeigen nur die nächsten sechs Termine einer Kategorie; die
+    API liefert alle. None heisst: nicht verfügbar — dann gelten die Übersichtsseiten.
+    """
+    api = config.get("events_api", {})
+    if not api.get("enabled", False):
+        return None
+
+    request_config = config.get("request", {})
+    today = local_now().date()
+    horizon = today + timedelta(days=int(api.get("horizon_days", 90)))
+    try:
+        slots = json.loads(fetch_html(api["slots_url"].format(start=today, end=horizon), request_config))
+        if not isinstance(slots, list):
+            raise ValueError("unerwartete Antwort der Termin-API")
+        # Die Kalender-Zuordnung kennt nur Kalender mit Terminen im abgefragten
+        # Zeitraum — deshalb bis zum spätesten gelieferten Termin abfragen.
+        latest = max((str(slot.get("end") or slot.get("start"))[:10] for slot in slots), default=str(horizon))
+        calendars = json.loads(
+            fetch_html(api["calendars_url"].format(start=today, end=latest), request_config)
+        )
+        if not isinstance(calendars, list):
+            raise ValueError("unerwartete Antwort der Kalender-API")
+    except (RuntimeError, ValueError, KeyError, TypeError, AttributeError) as error:
+        LOG.warning("Termin-API nicht verfügbar (%s) — es gelten nur die Übersichtsseiten", error)
+        return None
+
+    category_of = {calendar.get("id"): calendar.get("categoryId", "") for calendar in calendars}
+    grouped: dict[str, list[dict[str, Any]]] = {}
+    for slot in slots:
+        grouped.setdefault(category_of.get(slot.get("calendarId"), ""), []).append(slot)
+
+    LOG.info("Termin-API: %s Termine in %s Kategorien", len(slots), len(grouped))
+    names = sorted({(c.get("categoryId", ""), c.get("category", "")) for c in calendars}, key=lambda x: x[1])
+    LOG.debug("Kategorie-IDs der API: %s", names)
+    return grouped
+
+
+def format_slot_date(start: datetime, end: datetime) -> str:
+    """Datum im Format der Website, z. B. "Mo., 12.10.26, 18:30 - 22:30"."""
+    first = f"{WEEKDAYS[start.weekday()]}, {start:%d.%m.%y}, {start:%H:%M}"
+    if start.date() == end.date():
+        return f"{first} - {end:%H:%M}"
+    return f"{first} - {WEEKDAYS[end.weekday()]}, {end:%d.%m.%y}, {end:%H:%M}"
+
+
+def event_from_slot(slot: dict[str, Any]) -> Event | None:
+    try:
+        start = datetime.fromisoformat(str(slot["start"]))
+        end = datetime.fromisoformat(str(slot.get("end") or slot["start"]))
+    except (KeyError, ValueError):
+        return None
+
+    name, _, address = clean_text(slot.get("location")).partition(" / ")
+    attendees = slot.get("attendees") or []
+    raw = slot.get("raw") or {}
+    return Event(
+        event_id=str(slot.get("id") or ""),
+        title=clean_text(slot.get("title")),
+        date_text=format_slot_date(start, end),
+        location_name=name.strip(),
+        location_address=address.strip(),
+        seats=clean_text(attendees[0]) if attendees else "",
+        booking_url=str(raw.get("bookingUrl") or ""),
+        summary=clean_text(slot.get("body")),
+    )
+
+
+def merge_with_slots(cards: list[Event], slots: list[dict[str, Any]]) -> list[Event]:
+    """Vollständige Terminliste aus der API, angereichert mit den Daten der Karten.
+
+    Steht ein Termin auch als Karte auf der Übersicht, wird die Karte genommen —
+    sie bringt Bild, Kurzbeschreibung und Detail-Fenster mit. Weitere Termine
+    desselben Events erben Bild und Angaben von dieser Karte. Karten ohne
+    API-Gegenstück bleiben erhalten, damit nichts verloren geht.
+    """
+    by_id = {card.event_id: card for card in cards}
+    by_title_and_date = {(card.title, card.date_text): card for card in cards}
+    templates: dict[str, Event] = {}
+    for card in cards:
+        templates.setdefault(card.title, card)
+
+    merged: list[Event] = []
+    used: set[int] = set()
+    for slot in sorted(slots, key=lambda item: str(item.get("start", ""))):
+        event = event_from_slot(slot)
+        if event is None or not event.title:
+            continue
+        card = by_id.get(event.event_id) or by_title_and_date.get((event.title, event.date_text))
+        if card is not None:
+            used.add(id(card))
+            card.event_id = event.event_id
+            merged.append(card)
+            continue
+        template = templates.get(event.title)
+        if template is not None:
+            event.image_url = template.image_url
+            event.summary = event.summary or template.summary
+            event.details = dict(template.details)
+            event.notes = list(template.notes)
+        merged.append(event)
+
+    merged.extend(card for card in cards if id(card) not in used)
+    return merged
+
+
+def align_event_ids(events: list[Event], seen: dict[str, Any]) -> None:
+    """Gemerkte Einträge auf die aktuelle Event-ID abbilden.
+
+    Ältere Stände speicherten den ganzen Buchungslink oder "Titel|Datum" als
+    Schlüssel. Solche Einträge werden auf die Slot-ID umgeschrieben bzw. über
+    Titel und Datum zugeordnet, damit nichts doppelt gepostet wird.
+    """
+    for key in list(seen):
+        slot_id = slot_id_from_url(key)
+        if slot_id and slot_id != key and slot_id not in seen:
+            seen[slot_id] = seen.pop(key)
+
+    index = {
+        (record.get("title"), record.get("date")): key
+        for key, record in seen.items()
+        if isinstance(record, dict)
+    }
+    for event in events:
+        if event.event_id not in seen:
+            known = index.get((event.title, event.date_text))
+            if known is not None:
+                event.event_id = known
 
 
 def parse_events(html: str, page_url: str) -> list[Event]:
@@ -472,8 +620,7 @@ def parse_card(soup: BeautifulSoup, card: Tag, page_url: str) -> Event | None:
     summary_node = card.select_one(".card-text.lead")
     summary = clean_text(summary_node.get_text(" ") if summary_node else "")
 
-    slot_match = re.search(r"slotId=(\w+)", booking_url)
-    slot_id = slot_match.group(1) if slot_match else ""
+    slot_id = slot_id_from_url(booking_url)
 
     details: dict[str, str] = {}
     notes: list[str] = []
@@ -486,7 +633,9 @@ def parse_card(soup: BeautifulSoup, card: Tag, page_url: str) -> Event | None:
     else:
         LOG.debug("Kein Modal für '%s' — Detailseite wird nachgeladen", title)
 
-    event_id = booking_url or f"{title}|{date_text}"
+    # Die Slot-ID ist auf Übersichtsseite und Termin-API dieselbe — damit erkennt
+    # der Bot einen Termin wieder, egal aus welcher Quelle er gerade kommt.
+    event_id = slot_id or f"{title}|{date_text}"
 
     return Event(
         event_id=event_id,
@@ -661,23 +810,49 @@ def edit_embed(webhook_url: str, message_id: str, embed: dict[str, Any]) -> bool
     return True
 
 
-def parse_event_end(date_text: str) -> datetime | None:
-    """Ende eines Events aus dem Datumstext der Karte."""
+def local_now() -> datetime:
+    return datetime.now(LOCAL_ZONE)
+
+
+def _date_from_text(date_text: str, last: bool, default_time: tuple[int, int]) -> datetime | None:
     dates = DATE_RE.findall(date_text or "")
     if not dates:
         return None
 
-    day, month, year = (int(part) for part in dates[-1])
+    day, month, year = (int(part) for part in dates[-1 if last else 0])
     if year < 100:
         year += 2000
 
     times = TIME_RE.findall(date_text)
-    hour, minute = (int(times[-1][0]), int(times[-1][1])) if times else (23, 59)
+    hour, minute = (int(times[-1 if last else 0][0]), int(times[-1 if last else 0][1])) if times else default_time
 
     try:
         return datetime(year, month, day, hour, minute, tzinfo=LOCAL_ZONE)
     except ValueError:
         return None
+
+
+def parse_event_start(date_text: str) -> datetime | None:
+    """Beginn eines Events: erstes Datum und erste Uhrzeit des Datumstexts."""
+    return _date_from_text(date_text, last=False, default_time=(0, 0))
+
+
+def parse_event_end(date_text: str) -> datetime | None:
+    """Ende eines Events: letztes Datum und letzte Uhrzeit, auch bei mehrtägigen Events."""
+    return _date_from_text(date_text, last=True, default_time=(23, 59))
+
+
+def in_window(event: Event, days: int, now: datetime) -> bool:
+    """Noch nicht vorbei und Beginn spätestens in `days` Tagen.
+
+    Ohne erkennbares Datum gilt ein Event als im Fenster — lieber einmal zu viel
+    posten, als es stillschweigend zu verlieren.
+    """
+    start = parse_event_start(event.date_text)
+    if start is None:
+        return True
+    end = parse_event_end(event.date_text) or start
+    return end >= now and start.date() <= (now + timedelta(days=days)).date()
 
 
 def delete_message(webhook_url: str, message_id: str) -> bool:
@@ -715,12 +890,44 @@ def save_state(path: Path, state: dict[str, Any]) -> None:
 # --------------------------------------------------------------------------- #
 
 
+def enrich_details(key: str, events: list[Event], config: dict[str, Any]) -> None:
+    detail_config = config.get("detail_pages", {})
+    if not detail_config.get("enabled", True):
+        return
+
+    request_config = config.get("request", {})
+    selectors = detail_config.get("selectors", ["main"])
+    price_selectors = detail_config.get("price_selectors", [])
+    pause = float(detail_config.get("delay_between_requests", 1.0))
+    loaded: dict[str, Event] = {}
+    done: set[int] = set()
+
+    for event in events:
+        if id(event) in done or event.details or not event.booking_url:
+            continue
+        done.add(id(event))
+        product = event.booking_url.split("?")[0]
+        source = loaded.get(product)
+        if source is not None:
+            event.details = dict(source.details)
+            event.notes = list(source.notes)
+            event.image_url = event.image_url or source.image_url
+            continue
+        try:
+            fetch_event_details(event, request_config, selectors, price_selectors)
+            loaded[product] = event
+            time.sleep(pause)
+        except Exception as error:  # ohne Detailseite bleibt wenigstens die Karte
+            LOG.warning("[%s] Detailseite für '%s' nicht lesbar: %s", key, event.title, error)
+
+
 def process_category(
     category: dict[str, Any],
     config: dict[str, Any],
     state: dict[str, Any],
     args: argparse.Namespace,
     report: list[str] | None = None,
+    api_slots: dict[str, list[dict[str, Any]]] | None = None,
 ) -> int:
     key = category["key"]
     LOG.info("[%s] Hole %s", key, category["url"])
@@ -728,26 +935,19 @@ def process_category(
     request_config = config.get("request", {})
     html = fetch_html(category["url"], request_config)
     events = parse_events(html, category["url"])
-    LOG.info("[%s] %s Event(s) auf der Seite gefunden", key, len(events))
+    LOG.info("[%s] %s Event(s) auf der Übersichtsseite", key, len(events))
 
-    detail_config = config.get("detail_pages", {})
-    if detail_config.get("enabled", True):
-        selectors = detail_config.get("selectors", ["main"])
-        pause = float(detail_config.get("delay_between_requests", 1.0))
-        for event in events:
-            if event.details or not event.booking_url:
-                continue
-            try:
-                fetch_event_details(event, request_config, selectors, detail_config.get('price_selectors', []))
-                time.sleep(pause)
-            except Exception as error:  # ohne Detailseite bleibt wenigstens die Karte
-                LOG.warning("[%s] Detailseite für '%s' nicht lesbar: %s", key, event.title, error)
+    category_id = category.get("event_category_id", "")
+    if api_slots is not None and category_id:
+        events = merge_with_slots(events, api_slots.get(category_id, []))
+        LOG.info("[%s] %s Termin(e) insgesamt laut Termin-API", key, len(events))
 
     if not events:
         LOG.warning("[%s] Keine Events geparst — HTML-Struktur womöglich geändert", key)
 
     category_state = state.setdefault("categories", {}).setdefault(key, {})
     seen: dict[str, Any] = category_state.setdefault("seen", {})
+    align_event_ids(events, seen)
 
     if args.reset:
         LOG.warning("[%s] Reset: %s gemerkte(s) Event(s) werden vergessen", key, len(seen))
@@ -757,8 +957,16 @@ def process_category(
 
     first_run = not category_state.get("initialized", False)
 
-    new_events = [event for event in events if event.event_id not in seen]
-    LOG.info("[%s] %s davon neu", key, len(new_events))
+    # Gepostet wird nur, was in den nächsten Tagen stattfindet. Spätere Termine
+    # werden bewusst nicht gemerkt: Sie gelten an dem Tag als neu, an dem sie
+    # ins Fenster rücken, und werden dann gepostet.
+    window_days = int(config.get("window", {}).get("days", 7))
+    now = local_now()
+    upcoming = [event for event in events if in_window(event, window_days, now)]
+    new_events = [event for event in upcoming if event.event_id not in seen]
+    LOG.info(
+        "[%s] %s im %s-Tage-Fenster, davon %s neu", key, len(upcoming), window_days, len(new_events)
+    )
 
     webhook_url = os.environ.get(category["webhook_env"], "").strip()
     should_post = bool(new_events) and (not first_run or args.post_existing)
@@ -769,11 +977,19 @@ def process_category(
         LOG.error("[%s] %s nicht gesetzt — es wird nichts gepostet", key, category["webhook_env"])
         should_post = False
 
+    # Detailseiten nur für Events, die gepostet oder aktualisiert werden — alles
+    # jenseits des Fensters braucht sie nicht. Gleiche Produkte nur einmal laden.
+    posted_before = [event for event in events if (seen.get(event.event_id) or {}).get("message_id")]
+    enrich_details(key, upcoming + posted_before, config)
+
     if report is not None:
-        for event in events:
+        for event in upcoming:
             fields = ", ".join(event.details) or "KEINE FELDER"
-            note = f" | Text: {event.notes[0][:70]}" if event.notes else ""
-            report.append(f"[{key}] {event.title} -> {fields}{note}")
+            note = f" | Text: {event.notes[0][:60]}" if event.notes else ""
+            report.append(f"[{key}] {event.date_text[:13]} {event.title} -> {fields}{note}")
+        later = len(events) - len(upcoming)
+        if later:
+            report.append(f"[{key}] … {later} weitere(r) Termin(e) später als {window_days} Tage")
 
     discord_config = config.get("discord", {})
     delay = float(discord_config.get("delay_between_posts", 1.5))
@@ -830,7 +1046,6 @@ def process_category(
     cleanup_config = config.get("cleanup", {})
     if cleanup_config.get("enabled", True) and webhook_url:
         grace = timedelta(hours=float(cleanup_config.get("delete_after_hours", 24)))
-        now = datetime.now(LOCAL_ZONE)
         listed = {event.event_id for event in events}
 
         for event_id, record in list(seen.items()):
@@ -858,9 +1073,10 @@ def process_category(
 
     # Nur der Erstlauf merkt sich alles ungesehen; sonst gilt ein Event erst als bekannt,
     # wenn es wirklich gepostet wurde — sonst ginge es bei fehlendem Webhook oder
-    # erreichtem Limit stillschweigend verloren.
+    # erreichtem Limit stillschweigend verloren. Auch der Erstlauf merkt sich nur das
+    # Fenster, sonst würden spätere Termine nie gepostet.
     if first_run and not args.post_existing:
-        remembered = [(event, "") for event in events]
+        remembered = [(event, "") for event in upcoming]
     else:
         remembered = posted
 
@@ -952,9 +1168,10 @@ def main(argv: list[str] | None = None) -> int:
     total_posted = 0
     failed: list[str] = []
     report: list[str] | None = [] if args.dry_run else None
+    api_slots = fetch_event_slots(config)
     for category in categories:
         try:
-            total_posted += process_category(category, config, state, args, report)
+            total_posted += process_category(category, config, state, args, report, api_slots)
         except Exception as error:  # eine kaputte Kategorie darf die anderen nicht stoppen
             failed.append(category["key"])
             LOG.exception("[%s] Fehler: %s", category["key"], error)

@@ -11,18 +11,22 @@ Secret werden sie übersprungen und nur im Log erwähnt.
 
 ## Wie es funktioniert
 
-1. Für jede aktive Kategorie wird die Übersichtsseite geladen und jede Event-Karte geparst
-   (Titel, Datum, Ort, freie Plätze, Buchungslink, Bild, Kurzbeschreibung).
+1. Die Termine kommen aus der Kalender-Schnittstelle des Shops — **alle** kommenden Termine,
+   nicht nur die sechs, die eine Übersichtsseite anzeigt. Die Übersichtsseite jeder Kategorie
+   wird zusätzlich gelesen: Ihre Karten liefern Bild, Kurzbeschreibung und Detail-Fenster,
+   und weitere Termine desselben Events übernehmen diese Angaben.
 2. Die Zusatzinfos — Format, Eintritt, SUL, Turniersystem, Preispool und was sonst noch
    dabeisteht — stehen je nach Event entweder in einem Detail-Modal oder erst auf der
    Detailseite des Events; fehlt das Modal, wird diese Seite nachgeladen. Nennt ein Turnier
    keinen Eintritt, gilt der Ticketpreis der Seite. Gelesen wird nach dem Muster
    "Label: Wert" sowie "Überschrift + Text", also ohne feste Feldnamen — deshalb erscheinen
    auch Angaben wie `MAX Teilnehmer` oder `Decklist` automatisch im Embed.
-3. Jedes Event bekommt eine ID: den Buchungslink, oder — falls das Event keinen eigenen Link
-   hat — `Titel|Datum`.
-4. Alle bereits gesehenen IDs stehen in `state.json`. Nur Events, deren ID dort **noch nicht**
-   steht, werden nach Discord gepostet.
+3. Jedes Event bekommt eine ID: die Slot-ID des Termins (dieselbe auf Übersichtsseite und
+   Schnittstelle), oder — falls es keine gibt — `Titel|Datum`.
+4. Gepostet wird, was **in den nächsten 7 Tagen** stattfindet und noch nicht in `state.json`
+   steht. Das Fenster rollt mit: Jeden Tag rückt ein Tag nach, und Termine, die neu
+   hineinrücken, werden dann gepostet. Spätere Termine merkt sich der Bot bewusst nicht vor —
+   so kommen sie genau an dem Tag, an dem sie in die Woche fallen.
 5. Für bereits gepostete Events wird geprüft, ob sich etwas geändert hat (typisch: die freien
    Plätze). Wenn ja, wird **die bestehende Discord-Nachricht bearbeitet** — es wird nichts
    doppelt gepostet. Dafür merkt sich `state.json` zu jedem Event die Message-ID.
@@ -104,6 +108,7 @@ Kategorien sind frei konfigurierbar, nichts ist im Code fest verdrahtet:
   "key": "magic",
   "name": "Magic: The Gathering",
   "url": "https://www.twomoons.ch/events/magic-the-gathering-events/",
+  "event_category_id": "018fce2122a577b6990d6a6579eb84a0",
   "webhook_env": "DISCORD_WEBHOOK_MAGIC",
   "color": "#E67E22"
 }
@@ -114,12 +119,16 @@ Kategorien sind frei konfigurierbar, nichts ist im Code fest verdrahtet:
 | `key`         | Kurzname, auch für `--category` / das Workflow-Feld `categories`       |
 | `name`        | Anzeigename in der Embed-Fusszeile                                     |
 | `url`         | Übersichtsseite; zugleich Fallback-Link, wenn ein Event keinen hat     |
+| `event_category_id` | Kategorie in der Kalender-Schnittstelle. Fehlt sie, zählen nur die (max. sechs) Termine der Übersichtsseite |
 | `webhook_env` | **Name** der Umgebungsvariable — nie die URL selbst; ist das zugehörige Secret gesetzt, läuft die Kategorie |
 | `color`       | Farbbalken des Embeds (Hex)                                            |
 | `enabled`     | optional; `false` schaltet eine Kategorie trotz Secret ab              |
 
 Ausserdem in `config.json`:
 
+- `window.days` — wie viele Tage im Voraus gepostet wird (Standard 7).
+- `events_api` — Adressen der Kalender-Schnittstelle und wie weit sie vorausblickt
+  (`horizon_days`). `enabled: false` schaltet zurück auf die reinen Übersichtsseiten.
 - `locations` — Zuordnung Filiale → Standortseite und Zusatztext („direkt am Bahnhof Stettbach“).
 - `discord.delay_between_posts` — Pause zwischen zwei Nachrichten (Rate-Limit-freundlich).
 - `discord.max_posts_per_run` — Obergrenze pro Kategorie und Lauf, als Spam-Bremse.
@@ -133,6 +142,13 @@ Ausserdem in `config.json`:
 - `detail_pages.selectors` — welcher Bereich der Detailseite ausgewertet wird (die
   Beschreibung statt Menü und Fusszeile); `price_selectors` bestimmt, woher der
   Ticketpreis als Eintritt kommt.
+
+### Kategorie-ID einer neuen Kategorie finden
+
+Die IDs der bestehenden Kategorien sind eingetragen. Für eine neue: einen Probelauf mit
+ausführlichem Log starten (Schritt 6) — er listet jede Kategorie der Schnittstelle mit Namen
+und ID unter „Kategorie-IDs der API". „Unterhaltung" führt der Shop dort derzeit nicht; diese
+Kategorie arbeitet deshalb nur mit ihrer Übersichtsseite.
 
 ## 4. Weitere Kategorien aktivieren
 

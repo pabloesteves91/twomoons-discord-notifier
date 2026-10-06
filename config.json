@@ -4,6 +4,15 @@
     "retries": 3,
     "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
   },
+  "events_api": {
+    "enabled": true,
+    "slots_url": "https://www.twomoons.ch/netzp/events/slots/{start}/{end}",
+    "calendars_url": "https://www.twomoons.ch/netzp/events/calendars/{start}/{end}",
+    "horizon_days": 90
+  },
+  "window": {
+    "days": 7
+  },
   "discord": {
     "username": "TwoMoons Events",
     "avatar_url": "https://raw.githubusercontent.com/pabloesteves91/twomoons-discord-notifier/claude/dazzling-hawking-cvn2c4/assets/bot-avatar.png",
@@ -60,6 +69,7 @@
       "key": "magic",
       "name": "Magic: The Gathering",
       "url": "https://www.twomoons.ch/events/magic-the-gathering-events/",
+      "event_category_id": "018fce2122a577b6990d6a6579eb84a0",
       "webhook_env": "DISCORD_WEBHOOK_MAGIC",
       "color": "#E67E22"
     },
@@ -67,6 +77,7 @@
       "key": "pokemon",
       "name": "Pokémon",
       "url": "https://www.twomoons.ch/events/pokemon-events/",
+      "event_category_id": "0196a1360ea17e1b978e35ccb5a33f3c",
       "webhook_env": "DISCORD_WEBHOOK_POKEMON",
       "color": "#FFCB05"
     },
@@ -74,6 +85,7 @@
       "key": "star-wars-unlimited",
       "name": "Star Wars Unlimited",
       "url": "https://www.twomoons.ch/events/star-wars-unlimited-events/",
+      "event_category_id": "018fce21467777c99dc475c4dc0414de",
       "webhook_env": "DISCORD_WEBHOOK_STAR_WARS",
       "color": "#1F6FEB"
     },
@@ -81,6 +93,7 @@
       "key": "yu-gi-oh",
       "name": "Yu-Gi-Oh!",
       "url": "https://www.twomoons.ch/events/yu-gi-oh-events/",
+      "event_category_id": "0190268a4c2e7c928f2d66c50385e365",
       "webhook_env": "DISCORD_WEBHOOK_YUGIOH",
       "color": "#8E44AD"
     },
@@ -88,6 +101,7 @@
       "key": "lorcana",
       "name": "Lorcana",
       "url": "https://www.twomoons.ch/events/lorcana-events/",
+      "event_category_id": "0192824ece387d85a0cc9be2f76f5e02",
       "webhook_env": "DISCORD_WEBHOOK_LORCANA",
       "color": "#00A9A5"
     },
@@ -95,6 +109,7 @@
       "key": "one-piece",
       "name": "One Piece",
       "url": "https://www.twomoons.ch/events/one-piece-events/",
+      "event_category_id": "0190c56eece573eebc78b13ee6ecea04",
       "webhook_env": "DISCORD_WEBHOOK_ONE_PIECE",
       "color": "#D62828"
     },
@@ -102,6 +117,7 @@
       "key": "flesh-blood",
       "name": "Flesh & Blood",
       "url": "https://www.twomoons.ch/events/flesh-blood-events/",
+      "event_category_id": "0196a1363654727f8000c3bd6b1ae492",
       "webhook_env": "DISCORD_WEBHOOK_FLESH_BLOOD",
       "color": "#7A1F1F"
     },
@@ -109,6 +125,7 @@
       "key": "riftbound",
       "name": "Riftbound",
       "url": "https://www.twomoons.ch/events/riftbound-events/",
+      "event_category_id": "019a08d30a697969834063a1526f58a5",
       "webhook_env": "DISCORD_WEBHOOK_RIFTBOUND",
       "color": "#C89B3C"
     },

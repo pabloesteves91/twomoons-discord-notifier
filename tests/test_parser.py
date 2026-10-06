@@ -4,6 +4,7 @@ import json
 import sys
 import unittest
 from argparse import Namespace
+from datetime import datetime
 from pathlib import Path
 from unittest import mock
 
@@ -262,7 +263,17 @@ class EmbedTest(unittest.TestCase):
         self.assertEqual(embed["url"], MAGIC["url"])
 
 
+FROZEN_NOW = datetime(2026, 9, 17, 10, 0, tzinfo=notifier.LOCAL_ZONE)
+
+
 class StateTest(unittest.TestCase):
+    def setUp(self):
+        # Die Fixture-Termine liegen im September 2026; "jetzt" muss davor liegen,
+        # sonst fallen sie aus dem 7-Tage-Fenster.
+        patcher = mock.patch.object(notifier, "local_now", return_value=FROZEN_NOW)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def run_category(self, state, html=FIXTURE, **flags):
         defaults = {
             "dry_run": False,
@@ -428,7 +439,7 @@ class StateTest(unittest.TestCase):
                 "magic": {
                     "initialized": True,
                     "seen": {
-                        "https://example.invalid/vorbei?slotId=1": {
+                        "slot-vorbei": {
                             "title": "Altes Event",
                             "date": date_text,
                             "message_id": "msg-alt",
@@ -463,14 +474,14 @@ class StateTest(unittest.TestCase):
             delete = self.run_cleanup(state)
         delete.assert_called_once()
         self.assertEqual(delete.call_args.args[1], "msg-alt")
-        self.assertNotIn("https://example.invalid/vorbei?slotId=1", state["categories"]["magic"]["seen"])
+        self.assertNotIn("slot-vorbei", state["categories"]["magic"]["seen"])
 
     def test_future_event_is_kept(self):
         state = self.cleanup_state("Fr., 31.12.99, 18:00 - 22:00")
         with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}):
             delete = self.run_cleanup(state)
         delete.assert_not_called()
-        self.assertIn("https://example.invalid/vorbei?slotId=1", state["categories"]["magic"]["seen"])
+        self.assertIn("slot-vorbei", state["categories"]["magic"]["seen"])
 
     def test_event_still_listed_is_never_deleted(self):
         # Steht das Event trotz vergangenem Datum noch auf der Seite, bleibt es.
@@ -502,7 +513,7 @@ class StateTest(unittest.TestCase):
         with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}):
             delete = self.run_cleanup(state, dry_run=True)
         delete.assert_not_called()
-        self.assertIn("https://example.invalid/vorbei?slotId=1", state["categories"]["magic"]["seen"])
+        self.assertIn("slot-vorbei", state["categories"]["magic"]["seen"])
 
     def test_failing_category_does_not_block_others(self):
         state = {"categories": {}}
@@ -512,6 +523,198 @@ class StateTest(unittest.TestCase):
         with mock.patch.object(notifier, "fetch_html", side_effect=RuntimeError("boom")):
             with self.assertRaises(RuntimeError):
                 notifier.process_category(MAGIC, CONFIG, state, args)
+
+
+MAGIC_ID = MAGIC["event_category_id"]
+
+
+def slot(slot_id, title, start, end, booking=True, seats="20 Plätze verfügbar"):
+    return {
+        "id": slot_id,
+        "calendarId": "kalender-magic",
+        "start": start,
+        "end": end,
+        "title": title,
+        "location": "TwoMoons Stettbach / Zürichstrasse 137a 8600 Dübendorf",
+        "body": " ",
+        "attendees": [seats],
+        "raw": {"bookingUrl": f"https://www.twomoons.ch/detail/p?slotId={slot_id}&only=1" if booking else ""},
+    }
+
+
+API_SLOTS = [
+    slot("54321", "MTG Modern SUL District", "2026-09-19T11:00:00", "2026-09-19T20:00:00"),
+    slot("weekly-a", "MTG Modern Weekly", "2026-09-21T19:00:00", "2026-09-21T22:30:00"),
+    slot("019f193b", "MTG Modern Weekly", "2026-09-23T19:00:00", "2026-09-23T22:30:00"),
+    slot("weekly-b", "MTG Modern Weekly", "2026-09-30T19:00:00", "2026-09-30T22:30:00"),
+]
+
+
+class FetchTest(unittest.TestCase):
+    def test_missing_page_is_not_retried(self):
+        response = mock.Mock(status_code=404)
+        response.raise_for_status.side_effect = notifier.requests.HTTPError("404", response=response)
+        with mock.patch.object(notifier.requests, "get", return_value=response) as get, mock.patch.object(
+            notifier.time, "sleep"
+        ) as sleep:
+            with self.assertRaises(RuntimeError):
+                notifier.fetch_html("https://example.invalid/weg", {"retries": 3})
+        self.assertEqual(get.call_count, 1)
+        sleep.assert_not_called()
+
+    def test_server_errors_are_retried(self):
+        response = mock.Mock(status_code=503)
+        response.raise_for_status.side_effect = notifier.requests.HTTPError("503", response=response)
+        with mock.patch.object(notifier.requests, "get", return_value=response) as get, mock.patch.object(
+            notifier.time, "sleep"
+        ):
+            with self.assertRaises(RuntimeError):
+                notifier.fetch_html("https://example.invalid/kaputt", {"retries": 3})
+        self.assertEqual(get.call_count, 3)
+
+
+class DateWindowTest(unittest.TestCase):
+    def test_start_and_end_of_a_single_day(self):
+        text = "Mo., 05.10.26, 19:00 - 22:30"
+        self.assertEqual(notifier.parse_event_start(text), datetime(2026, 10, 5, 19, 0, tzinfo=notifier.LOCAL_ZONE))
+        self.assertEqual(notifier.parse_event_end(text), datetime(2026, 10, 5, 22, 30, tzinfo=notifier.LOCAL_ZONE))
+
+    def test_start_and_end_of_a_multi_day_event(self):
+        text = "Fr., 23.10.26, 18:00 - So., 25.10.26, 18:00"
+        self.assertEqual(notifier.parse_event_start(text).date().isoformat(), "2026-10-23")
+        self.assertEqual(notifier.parse_event_end(text).date().isoformat(), "2026-10-25")
+
+    def test_slot_date_matches_the_website_format(self):
+        start = datetime(2026, 10, 12, 18, 30)
+        self.assertEqual(notifier.format_slot_date(start, datetime(2026, 10, 12, 22, 30)), "Mo., 12.10.26, 18:30 - 22:30")
+        self.assertEqual(
+            notifier.format_slot_date(datetime(2026, 10, 23, 18, 0), datetime(2026, 10, 25, 18, 0)),
+            "Fr., 23.10.26, 18:00 - So., 25.10.26, 18:00",
+        )
+
+    def test_window_covers_the_next_seven_days(self):
+        def at(text):
+            return notifier.Event(event_id="x", title="T", date_text=text)
+
+        self.assertTrue(notifier.in_window(at("Mi., 23.09.26, 19:00 - 22:30"), 7, FROZEN_NOW))
+        self.assertTrue(notifier.in_window(at("Do., 24.09.26, 19:00 - 22:30"), 7, FROZEN_NOW))
+        self.assertFalse(notifier.in_window(at("Fr., 25.09.26, 19:00 - 22:30"), 7, FROZEN_NOW))
+        self.assertFalse(notifier.in_window(at("Mi., 16.09.26, 19:00 - 22:30"), 7, FROZEN_NOW))  # vorbei
+        self.assertTrue(notifier.in_window(at("Freitag, 21. November 2025"), 7, FROZEN_NOW))  # unlesbar
+
+
+class EventApiTest(unittest.TestCase):
+    def test_slot_becomes_an_event_like_a_card(self):
+        event = notifier.event_from_slot(API_SLOTS[1])
+        self.assertEqual(event.event_id, "weekly-a")
+        self.assertEqual(event.date_text, "Mo., 21.09.26, 19:00 - 22:30")
+        self.assertEqual(event.location_name, "TwoMoons Stettbach")
+        self.assertEqual(event.location_address, "Zürichstrasse 137a 8600 Dübendorf")
+        self.assertEqual(event.seats, "20 Plätze verfügbar")
+        self.assertTrue(event.booking_url.endswith("slotId=weekly-a&only=1"))
+
+    def test_merge_prefers_cards_and_lets_siblings_inherit(self):
+        merged = notifier.merge_with_slots(parse(), API_SLOTS)
+        by_id = {event.event_id: event for event in merged}
+
+        # Steht ein Termin als Karte auf der Seite, kommt die Karte mit ihren Angaben.
+        self.assertEqual(by_id["54321"].details["Format"], "Modern")
+        # Weitere Termine desselben Events übernehmen Bild und Angaben der Karte.
+        sibling = by_id["weekly-b"]
+        self.assertEqual(sibling.image_url, "https://www.twomoons.ch/media/events/modern-weekly.jpg")
+        self.assertEqual(sibling.details["SUL"], "League (Infos zu League)")
+        # Karten ohne Termin in der API gehen nicht verloren.
+        self.assertIn("MTG The Hobbit Draft", {event.title for event in merged})
+        self.assertIn("Commander Abend", {event.title for event in merged})
+        self.assertEqual(len(merged), 6)
+
+    def test_slots_are_grouped_by_category(self):
+        calendars = [{"id": "kalender-magic", "categoryId": MAGIC_ID, "category": "Magic"}]
+        responses = [json.dumps(API_SLOTS), json.dumps(calendars)]
+        config = {"events_api": {"enabled": True, "slots_url": "s/{start}/{end}", "calendars_url": "c/{start}/{end}"}}
+        with mock.patch.object(notifier, "local_now", return_value=FROZEN_NOW), mock.patch.object(
+            notifier, "fetch_html", side_effect=responses
+        ) as fetch:
+            grouped = notifier.fetch_event_slots(config)
+        self.assertEqual(len(grouped[MAGIC_ID]), 4)
+        # Die Kalender-Zuordnung muss bis zum spätesten Termin reichen.
+        self.assertEqual(fetch.call_args_list[1].args[0], "c/2026-09-17/2026-09-30")
+
+    def test_unusable_api_falls_back_to_the_overview(self):
+        config = {"events_api": {"enabled": True, "slots_url": "s/{start}/{end}", "calendars_url": "c/{start}/{end}"}}
+        with mock.patch.object(notifier, "fetch_html", return_value="<html>Wartung</html>"):
+            self.assertIsNone(notifier.fetch_event_slots(config))
+
+    def test_old_state_keys_are_mapped_to_slot_ids(self):
+        seen = {
+            "https://www.twomoons.ch/mtg-weekly-entry-modern?slotId=weekly-a": {"title": "MTG Modern Weekly", "date": "x"},
+            "Commander Night|Fr., 09.10.26, 18:00 - 22:00": {"title": "Commander Night", "date": "Fr., 09.10.26, 18:00 - 22:00"},
+        }
+        night = notifier.Event(event_id="slot-night", title="Commander Night", date_text="Fr., 09.10.26, 18:00 - 22:00")
+        notifier.align_event_ids([night], seen)
+        self.assertIn("weekly-a", seen)
+        self.assertEqual(night.event_id, "Commander Night|Fr., 09.10.26, 18:00 - 22:00")
+
+
+class WindowStateTest(unittest.TestCase):
+    def run_at(self, state, now, **flags):
+        defaults = {
+            "dry_run": False,
+            "post_existing": False,
+            "reset": False,
+            "limit": 0,
+            "category": None,
+            "verbose": False,
+        }
+        args = Namespace(**{**defaults, **flags})
+        with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}), mock.patch.object(
+            notifier, "local_now", return_value=now
+        ), mock.patch.object(notifier, "fetch_html", return_value=FIXTURE), mock.patch.object(
+            notifier, "fetch_event_details"
+        ), mock.patch.object(
+            notifier, "post_embed", side_effect=lambda hook, embed, *rest: f"msg-{embed['title']}-{embed['description'][:20]}"
+        ) as post, mock.patch.object(notifier, "edit_embed", return_value=True) as edit, mock.patch.object(
+            notifier, "delete_message", return_value=True
+        ) as delete, mock.patch.object(notifier.time, "sleep"):
+            notifier.process_category(MAGIC, CONFIG, state, args, None, {MAGIC_ID: API_SLOTS})
+        return post, edit, delete
+
+    def test_only_the_next_seven_days_are_posted(self):
+        state = {"categories": {}}
+        post, _, _ = self.run_at(state, FROZEN_NOW, post_existing=True)
+        titles = sorted(call.args[1]["title"] for call in post.call_args_list)
+        seen = state["categories"]["magic"]["seen"]
+        # 19.09., 21.09., 23.09. plus zwei Karten ohne lesbares Datum — nicht der 30.09.
+        self.assertEqual(post.call_count, 5)
+        self.assertNotIn("weekly-b", seen)
+        self.assertIn("weekly-a", seen)
+        self.assertEqual(titles.count("MTG Modern Weekly"), 2)
+
+    def test_later_event_is_posted_once_it_enters_the_window(self):
+        state = {"categories": {}}
+        self.run_at(state, FROZEN_NOW, post_existing=True)
+        a_week_later = datetime(2026, 9, 24, 10, 0, tzinfo=notifier.LOCAL_ZONE)
+        post, _, delete = self.run_at(state, a_week_later)
+        self.assertEqual([call.args[1]["title"] for call in post.call_args_list], ["MTG Modern Weekly"])
+        self.assertIn("weekly-b", state["categories"]["magic"]["seen"])
+        delete.assert_not_called()
+
+    def test_silent_first_run_only_remembers_the_window(self):
+        state = {"categories": {}}
+        post, _, _ = self.run_at(state, FROZEN_NOW)
+        post.assert_not_called()
+        seen = state["categories"]["magic"]["seen"]
+        self.assertIn("weekly-a", seen)
+        self.assertNotIn("weekly-b", seen)
+
+    def test_posted_event_beyond_the_window_stays_and_is_updated(self):
+        state = {"categories": {}}
+        self.run_at(state, FROZEN_NOW, post_existing=True)
+        seen = state["categories"]["magic"]["seen"]
+        seen["weekly-b"] = {"title": "MTG Modern Weekly", "date": "Mi., 30.09.26, 19:00 - 22:30", "message_id": "alt", "digest": "x"}
+        _, edit, delete = self.run_at(state, FROZEN_NOW)
+        delete.assert_not_called()
+        self.assertIn("alt", [call.args[1] for call in edit.call_args_list])
 
 
 if __name__ == "__main__":
