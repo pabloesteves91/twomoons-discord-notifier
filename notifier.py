@@ -962,13 +962,14 @@ def process_category(
 
     category_state = state.setdefault("categories", {}).setdefault(key, {})
     seen: dict[str, Any] = category_state.setdefault("seen", {})
-    align_event_ids(events, seen)
 
     if args.reset:
         LOG.warning("[%s] Reset: %s gemerkte(s) Event(s) werden vergessen", key, len(seen))
         if not args.dry_run:
             seen.clear()
             category_state["initialized"] = False
+
+    align_event_ids(events, seen)
 
     first_run = not category_state.get("initialized", False)
 
