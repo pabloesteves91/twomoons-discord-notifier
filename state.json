@@ -2,7 +2,7 @@
   "categories": {
     "cyberpunk": {
       "initialized": true,
-      "last_run": "2026-10-08T14:23:46Z",
+      "last_run": "2026-10-09T14:08:50Z",
       "seen": {
         "01a0e40e2fcd7c93a0527e9d81d2092f": {
           "date": "Mo., 12.10.26, 19:00 - 22:30",
@@ -14,7 +14,7 @@
     },
     "flesh-blood": {
       "initialized": true,
-      "last_run": "2026-10-08T14:23:30Z",
+      "last_run": "2026-10-09T14:08:42Z",
       "seen": {
         "01a03443df117c928ec85fc78f2c8ffa": {
           "date": "Mo., 12.10.26, 19:00 - 22:30",
@@ -27,12 +27,18 @@
           "digest": "f06993ecdc1d7dff",
           "message_id": "1557032691482763386",
           "title": "Flesh and Blood Weekly"
+        },
+        "01a03444cf2b79ff8d93295618683687": {
+          "date": "Fr., 16.10.26, 19:00 - 22:00",
+          "digest": "cc11d7e1459a6535",
+          "message_id": "1558119005808631899",
+          "title": "Flesh and Blood Weekly"
         }
       }
     },
     "lorcana": {
       "initialized": true,
-      "last_run": "2026-10-08T14:23:24Z",
+      "last_run": "2026-10-09T14:08:32Z",
       "seen": {
         "01a0ed5d112f750baa87fa957bc48cf6": {
           "date": "Do., 08.10.26, 18:30 - 22:30",
@@ -62,13 +68,13 @@
     },
     "magic": {
       "initialized": true,
-      "last_run": "2026-10-08T14:22:45Z",
+      "last_run": "2026-10-09T14:08:07Z",
       "seen": {
-        "01a0343ebee67271ac9489930d1727e4": {
-          "date": "Mi., 07.10.26, 19:00 - 22:30",
-          "digest": "27b8470e13a13ce7",
-          "message_id": "1557022044766343209",
-          "title": "MTG Modern Weekly"
+        "019ff4df44ae703e98ad74428f59c8c2": {
+          "date": "Fr., 16.10.26, 18:00 - 22:00",
+          "digest": "0cf737e83e455822",
+          "message_id": "1558118806310879337",
+          "title": "Commander Night Weinfelden"
         },
         "01a0343ebee67271ac94899ac939b062": {
           "date": "Mi., 14.10.26, 19:00 - 22:30",
@@ -84,13 +90,19 @@
         },
         "01a0439e4d1b7713b6b3537355a9173b": {
           "date": "Fr., 09.10.26, 18:30 - 22:30",
-          "digest": "6d84bfa9511edede",
+          "digest": "d5c5a4c38cfc55d2",
           "message_id": "1557022069705805876",
+          "title": "MTG FNM Draft Reality Fracture"
+        },
+        "01a0439e4d1c72bf9d125827539e7ebc": {
+          "date": "Fr., 16.10.26, 18:30 - 22:30",
+          "digest": "aad960ecbc10f39f",
+          "message_id": "1558118838019686434",
           "title": "MTG FNM Draft Reality Fracture"
         },
         "01a08bb57a107e0e8010ec96c71c0c3c": {
           "date": "Sa., 10.10.26, 11:00 - 20:00",
-          "digest": "c112c315cba7674f",
+          "digest": "067cc7243e86fca1",
           "message_id": "1557022082401828875",
           "title": "MTG Sealed RCQ Reality Fracture SUL District"
         },
@@ -110,14 +122,8 @@
     },
     "one-piece": {
       "initialized": true,
-      "last_run": "2026-10-08T14:23:27Z",
+      "last_run": "2026-10-09T14:08:35Z",
       "seen": {
-        "019e973789ce72b3a6a6354128b77401": {
-          "date": "Mi., 07.10.26, 19:00 - 22:00",
-          "digest": "4f99876b003bc5c7",
-          "message_id": "1557032658213802035",
-          "title": "One Piece Weekly TCG Constructed - Weinfelden"
-        },
         "019e973789cf75c6b82a7728731fdf1b": {
           "date": "Mi., 14.10.26, 19:00 - 22:00",
           "digest": "84a08062c559ba21",
@@ -134,11 +140,11 @@
     },
     "pokemon": {
       "initialized": true,
-      "last_run": "2026-10-08T14:22:55Z",
+      "last_run": "2026-10-09T14:08:18Z",
       "seen": {
         "01a0341757f571949c37eb21761631b8": {
           "date": "Sa., 10.10.26, 11:00 - 19:00",
-          "digest": "5b67a366aed570c2",
+          "digest": "e38ee639938a7b1c",
           "message_id": "1557022148340486205",
           "title": "Pokémon League Cup"
         },
@@ -146,12 +152,6 @@
           "date": "Mo., 12.10.26, 18:30 - 22:30",
           "digest": "3490a94bda2bb3fe",
           "message_id": "1557022156238626871",
-          "title": "Pokémon Weekly Standard"
-        },
-        "01a03441f92978f6ba1a5ff9fb2135aa": {
-          "date": "Mi., 07.10.26, 19:00 - 22:00",
-          "digest": "c893d26f166f8a4e",
-          "message_id": "1557022135715635305",
           "title": "Pokémon Weekly Standard"
         },
         "01a03441f92978f6ba1a6000dae9dc2d": {
@@ -164,7 +164,7 @@
     },
     "riftbound": {
       "initialized": true,
-      "last_run": "2026-10-08T14:23:40Z",
+      "last_run": "2026-10-09T14:08:46Z",
       "seen": {
         "01a0344c06e3706d850a987efe7c499d": {
           "date": "Do., 08.10.26, 18:30 - 22:00",
@@ -183,12 +183,18 @@
           "digest": "12fad6164ad6e04a",
           "message_id": "1557032751834865707",
           "title": "Riftbound Constructed Weekly"
+        },
+        "01a0ed320e7979b8910374e97db25fb0": {
+          "date": "Fr., 16.10.26, 18:00 - 22:30",
+          "digest": "6bc841a9c364b4e4",
+          "message_id": "1558119023785545802",
+          "title": "Riftbound Radiance Pre-Rift"
         }
       }
     },
     "star-wars-unlimited": {
       "initialized": true,
-      "last_run": "2026-10-08T14:23:04Z",
+      "last_run": "2026-10-09T14:08:22Z",
       "seen": {
         "01a03450f08d7799a5b1e31454489261": {
           "date": "Do., 08.10.26, 19:00 - 22:30",
@@ -212,12 +218,12 @@
     },
     "unterhaltung": {
       "initialized": true,
-      "last_run": "2026-10-08T14:23:47Z",
+      "last_run": "2026-10-09T14:08:52Z",
       "seen": {}
     },
     "yu-gi-oh": {
       "initialized": true,
-      "last_run": "2026-10-08T14:23:14Z",
+      "last_run": "2026-10-09T14:08:28Z",
       "seen": {
         "01a0343415237734bb946d9877345909": {
           "date": "So., 11.10.26, 12:00 - 18:00",
@@ -236,12 +242,6 @@
           "digest": "5e3677b3268fccf3",
           "message_id": "1557760267981557851",
           "title": "Yu-Gi-Oh Advanced Weekly"
-        },
-        "01a05c645031727a89959ac3f20d99c7": {
-          "date": "Mi., 07.10.26, 18:30 - 22:30",
-          "digest": "63ce08754af232e1",
-          "message_id": "1557032561598009449",
-          "title": "Yu-Gi-Oh Genesys Weekly"
         },
         "01a05c645031727a89959aca895ad5b2": {
           "date": "Mi., 14.10.26, 18:30 - 22:30",
