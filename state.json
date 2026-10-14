@@ -2,14 +2,8 @@
   "categories": {
     "cyberpunk": {
       "initialized": true,
-      "last_run": "2026-10-13T14:48:41Z",
+      "last_run": "2026-10-14T12:40:01Z",
       "seen": {
-        "01a0e40e2fcd7c93a0527e9d81d2092f": {
-          "date": "Mo., 12.10.26, 19:00 - 22:30",
-          "digest": "8587209da10d0a48",
-          "message_id": "1557032786735669312",
-          "title": "Cyberpunk TCG Brawl Weekly"
-        },
         "01a0e40ea0db7651b8fb0e70e839448a": {
           "date": "Mo., 19.10.26, 19:00 - 22:30",
           "digest": "f86e588f86efde14",
@@ -20,14 +14,8 @@
     },
     "flesh-blood": {
       "initialized": true,
-      "last_run": "2026-10-13T14:48:30Z",
+      "last_run": "2026-10-14T12:39:52Z",
       "seen": {
-        "01a03443df117c928ec85fc78f2c8ffa": {
-          "date": "Mo., 12.10.26, 19:00 - 22:30",
-          "digest": "c851fe6638e4594a",
-          "message_id": "1557032703881253046",
-          "title": "Flesh and Blood Weekly"
-        },
         "01a03443df127bde977d165a06aff996": {
           "date": "Mo., 19.10.26, 19:00 - 22:30",
           "digest": "8298aff8d3b36f8b",
@@ -44,7 +32,7 @@
     },
     "lorcana": {
       "initialized": true,
-      "last_run": "2026-10-13T14:48:22Z",
+      "last_run": "2026-10-14T12:39:43Z",
       "seen": {
         "01a0ed5a646b7ae5ab429d85b6be5c83": {
           "date": "Sa., 17.10.26, 11:00 - 18:00",
@@ -66,7 +54,7 @@
         },
         "01a12f35eec17d739a123939030622c8": {
           "date": "So., 18.10.26, 11:00 - 17:00",
-          "digest": "6d971bcd4df994d6",
+          "digest": "fecab90192c58fb2",
           "message_id": "1559241798701027529",
           "title": "Hyperia City Prerelease"
         }
@@ -74,7 +62,7 @@
     },
     "magic": {
       "initialized": true,
-      "last_run": "2026-10-13T14:47:59Z",
+      "last_run": "2026-10-14T12:39:12Z",
       "seen": {
         "019ff4df44ae703e98ad74428f59c8c2": {
           "date": "Fr., 16.10.26, 18:00 - 22:00",
@@ -88,11 +76,11 @@
           "message_id": "1557395312363180137",
           "title": "MTG Modern Weekly"
         },
-        "01a03445c36f76df8d4ee382d63caca4": {
-          "date": "Mo., 12.10.26, 19:00 - 22:30",
-          "digest": "1737b05fee249c7d",
-          "message_id": "1557022098726191134",
-          "title": "MTG Standard Weekly"
+        "01a0343ebee67271ac9489a12819e912": {
+          "date": "Mi., 21.10.26, 19:00 - 22:30",
+          "digest": "9f73f2a89add7692",
+          "message_id": "1559908401994145894",
+          "title": "MTG Modern Weekly"
         },
         "01a03445c36f76df8d4ee38945ed4ed1": {
           "date": "Mo., 19.10.26, 19:00 - 22:30",
@@ -102,7 +90,7 @@
         },
         "01a0439e4d1c72bf9d125827539e7ebc": {
           "date": "Fr., 16.10.26, 18:30 - 22:30",
-          "digest": "4a543400d30a9d3f",
+          "digest": "b6d338ad279ac7d8",
           "message_id": "1558118838019686434",
           "title": "MTG FNM Draft Reality Fracture"
         }
@@ -110,12 +98,18 @@
     },
     "one-piece": {
       "initialized": true,
-      "last_run": "2026-10-13T14:48:26Z",
+      "last_run": "2026-10-14T12:39:47Z",
       "seen": {
         "019e973789cf75c6b82a7728731fdf1b": {
           "date": "Mi., 14.10.26, 19:00 - 22:00",
           "digest": "84a08062c559ba21",
           "message_id": "1557395513391980596",
+          "title": "One Piece Weekly TCG Constructed - Weinfelden"
+        },
+        "019e973789d07706993e25f4d3ab2afc": {
+          "date": "Mi., 21.10.26, 19:00 - 22:00",
+          "digest": "db0c5b79e05498c6",
+          "message_id": "1559908569091149847",
           "title": "One Piece Weekly TCG Constructed - Weinfelden"
         },
         "01a03449f58f7cd2b7f48921bc0a1e25": {
@@ -140,14 +134,8 @@
     },
     "pokemon": {
       "initialized": true,
-      "last_run": "2026-10-13T14:48:03Z",
+      "last_run": "2026-10-14T12:39:21Z",
       "seen": {
-        "01a034400a5a71d283556efa12154896": {
-          "date": "Mo., 12.10.26, 18:30 - 22:30",
-          "digest": "19f58547ce630a5a",
-          "message_id": "1557022156238626871",
-          "title": "Pokémon Weekly Standard"
-        },
         "01a034400a5b7e5fbb2388a74c377e2f": {
           "date": "Mo., 19.10.26, 18:30 - 22:30",
           "digest": "f15bd243622b0d50",
@@ -159,12 +147,18 @@
           "digest": "25db8a75eff55d0a",
           "message_id": "1557395418755637249",
           "title": "Pokémon Weekly Standard"
+        },
+        "01a03441f92a7da3bf68eeb8a8f86291": {
+          "date": "Mi., 21.10.26, 19:00 - 22:00",
+          "digest": "9b42c27be0590cdb",
+          "message_id": "1559908452036386928",
+          "title": "Pokémon Weekly Standard"
         }
       }
     },
     "riftbound": {
       "initialized": true,
-      "last_run": "2026-10-13T14:48:36Z",
+      "last_run": "2026-10-14T12:39:56Z",
       "seen": {
         "01a0344c06e47c7baacc22e227adcf34": {
           "date": "Do., 15.10.26, 18:30 - 22:00",
@@ -198,7 +192,7 @@
         },
         "01a0ed3366ab7e56ba721ecfd0863df2": {
           "date": "Di., 20.10.26, 18:00 - 22:30",
-          "digest": "1a9126337fce8157",
+          "digest": "6120aa745e12bc5d",
           "message_id": "1559578600091426929",
           "title": "Riftbound Radiance Pre-Rift"
         },
@@ -212,7 +206,7 @@
     },
     "star-wars-unlimited": {
       "initialized": true,
-      "last_run": "2026-10-13T14:48:07Z",
+      "last_run": "2026-10-14T12:39:25Z",
       "seen": {
         "01a03450f08d7799a5b1e31bd22cd91c": {
           "date": "Do., 15.10.26, 19:00 - 22:30",
@@ -230,12 +224,12 @@
     },
     "unterhaltung": {
       "initialized": true,
-      "last_run": "2026-10-13T14:48:43Z",
+      "last_run": "2026-10-14T12:40:02Z",
       "seen": {}
     },
     "yu-gi-oh": {
       "initialized": true,
-      "last_run": "2026-10-13T14:48:11Z",
+      "last_run": "2026-10-14T12:39:34Z",
       "seen": {
         "01a03436a1ff7e058f10abfdbc6a3ecc": {
           "date": "Do., 15.10.26, 19:00 - 22:30",
@@ -247,6 +241,12 @@
           "date": "Mi., 14.10.26, 18:30 - 22:30",
           "digest": "b54e423090bfa4d0",
           "message_id": "1557395477794914399",
+          "title": "Yu-Gi-Oh Genesys Weekly"
+        },
+        "01a05c645032798cb263ff14e0c2cde6": {
+          "date": "Mi., 21.10.26, 18:30 - 22:30",
+          "digest": "dcbfc837c4bf1bd5",
+          "message_id": "1559908515173109793",
           "title": "Yu-Gi-Oh Genesys Weekly"
         }
       }
