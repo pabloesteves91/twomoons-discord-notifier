@@ -628,6 +628,31 @@ class EventApiTest(unittest.TestCase):
         self.assertIn("Commander Abend", {event.title for event in merged})
         self.assertEqual(len(merged), 6)
 
+    def test_card_without_booking_button_reads_the_product_page(self):
+        card = notifier.Event(event_id="weekly-a", title="MTG Modern Weekly", date_text="Mo., 21.09.26, 19:00 - 22:30")
+        merged = notifier.merge_with_slots([card], API_SLOTS[1:2])
+        self.assertEqual(merged[0].booking_url, "")  # kein "Zur Buchung", wo der Shop keins anbietet
+        self.assertTrue(merged[0].detail_url.endswith("slotId=weekly-a&only=1"))
+
+        with mock.patch.object(notifier, "fetch_event_details") as fetch, mock.patch.object(notifier.time, "sleep"):
+            notifier.enrich_details("magic", merged, CONFIG)
+        fetch.assert_called_once()
+
+    def test_offshoot_without_product_page_borrows_the_main_event(self):
+        main = notifier.Event(event_id="a", title="Pre-Rift", booking_url="https://x/detail/a")
+        offshoot = notifier.Event(event_id="b", title="Pre-Rift - WEINFELDEN", booking_url="https://x/detail/b")
+
+        def details(event, *rest):
+            if event is offshoot:
+                raise RuntimeError("404")
+            event.details = {"Format": "Sealed"}
+
+        with mock.patch.object(notifier, "fetch_event_details", side_effect=details), mock.patch.object(
+            notifier.time, "sleep"
+        ):
+            notifier.enrich_details("riftbound", [main, offshoot], CONFIG)
+        self.assertEqual(offshoot.details, {"Format": "Sealed"})
+
     def test_slots_are_grouped_by_category(self):
         calendars = [{"id": "kalender-magic", "categoryId": MAGIC_ID, "category": "Magic"}]
         responses = [json.dumps(API_SLOTS), json.dumps(calendars)]
@@ -731,6 +756,34 @@ class WindowStateTest(unittest.TestCase):
 
         # Nur der Cyberpunk-Termin — weder Magic-Karten der Seite noch "Stettbach Closed".
         self.assertEqual([call.args[1]["title"] for call in post.call_args_list], ["Cyberpunk TCG Brawl Weekly"])
+
+    def test_title_and_shop_category_are_combined(self):
+        magic = {**MAGIC, "title_contains": ["MTG", "Commander"]}
+        night = slot("night-1", "Commander Night Weinfelden", "2026-09-18T18:00:00", "2026-09-18T22:00:00")
+        prerelease = slot("pre-1", "Hobbit Prerelease", "2026-09-20T11:00:00", "2026-09-20T18:00:00")
+        misfiled = slot("mtg-elsewhere", "MTG Swiss Nationals", "2026-09-22T09:00:00", "2026-09-22T20:00:00")
+        closed = slot("zu-1", "Stettbach Closed", "2026-09-22T10:00:00", "2026-09-22T20:00:00")
+        api = {MAGIC_ID: [*API_SLOTS, night, prerelease], "0": [misfiled, closed, night]}
+        state = {"categories": {}}
+        args = Namespace(dry_run=False, post_existing=True, reset=False, limit=0, category=None, verbose=False)
+        with mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}), mock.patch.object(
+            notifier, "local_now", return_value=FROZEN_NOW
+        ), mock.patch.object(notifier, "fetch_html", return_value=FIXTURE), mock.patch.object(
+            notifier, "fetch_event_details"
+        ), mock.patch.object(notifier, "post_embed", return_value="msg") as post, mock.patch.object(
+            notifier.time, "sleep"
+        ):
+            notifier.process_category(magic, CONFIG, state, args, None, api)
+
+        titles = [call.args[1]["title"] for call in post.call_args_list]
+        # Ohne Spielnamen im Titel über die Kategorie, falsch eingeordnet über den Titel.
+        self.assertIn("Hobbit Prerelease", titles)
+        self.assertIn("MTG Swiss Nationals", titles)
+        self.assertNotIn("Stettbach Closed", titles)
+        # Termine, die beide Wege finden, kommen nur einmal.
+        self.assertEqual(titles.count("Commander Night Weinfelden"), 1)
+        # Karten der Kategorieseite bleiben, auch ohne Suchbegriff im Titel.
+        self.assertIn("Commander Abend", titles)
 
     def test_posted_event_beyond_the_window_stays_and_is_updated(self):
         state = {"categories": {}}

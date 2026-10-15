@@ -123,6 +123,9 @@ class Event:
     location_address: str = ""
     seats: str = ""
     booking_url: str = ""
+    # Produktseite mit den Angaben, wenn die Karte keinen Buchungs-Button hat
+    # (z. B. bei Anmeldung über eine externe Plattform).
+    detail_url: str = ""
     image_url: str = ""
     summary: str = ""
     details: dict[str, str] = field(default_factory=dict)
@@ -391,7 +394,7 @@ def fetch_event_details(
 ) -> None:
     """Holt die Detailseite eines Events — nicht jede Karte hat ein Modal."""
     price_selectors = price_selectors or []
-    html = fetch_html(event.booking_url, request_config)
+    html = fetch_html(event.booking_url or event.detail_url, request_config)
     soup = BeautifulSoup(html, "html.parser")
 
     if not event.image_url:
@@ -525,6 +528,8 @@ def merge_with_slots(cards: list[Event], slots: list[dict[str, Any]]) -> list[Ev
         if card is not None:
             used.add(id(card))
             card.event_id = event.event_id
+            if not card.booking_url:
+                card.detail_url = event.booking_url
             merged.append(card)
             continue
         template = templates.get(event.title)
@@ -903,10 +908,11 @@ def enrich_details(key: str, events: list[Event], config: dict[str, Any]) -> Non
     done: set[int] = set()
 
     for event in events:
-        if id(event) in done or event.details or not event.booking_url:
+        source_url = event.booking_url or event.detail_url
+        if id(event) in done or event.details or not source_url:
             continue
         done.add(id(event))
-        product = event.booking_url.split("?")[0]
+        product = source_url.split("?")[0]
         source = loaded.get(product)
         if source is not None:
             event.details = dict(source.details)
@@ -919,6 +925,16 @@ def enrich_details(key: str, events: list[Event], config: dict[str, Any]) -> Non
             time.sleep(pause)
         except Exception as error:  # ohne Detailseite bleibt wenigstens die Karte
             LOG.warning("[%s] Detailseite für '%s' nicht lesbar: %s", key, event.title, error)
+
+    # Fehlt die Produktseite eines Ablegers (z. B. "… - WEINFELDEN"), gelten die
+    # Angaben des gleichnamigen Events ohne Standortzusatz.
+    by_title = {event.title: event for event in events if event.details}
+    for event in events:
+        base = by_title.get(event.title.rsplit(" - ", 1)[0])
+        if not event.details and base is not None:
+            event.details = dict(base.details)
+            event.notes = list(base.notes)
+            event.image_url = event.image_url or base.image_url
 
 
 def process_category(
@@ -937,23 +953,27 @@ def process_category(
     events = parse_events(html, category["url"])
     LOG.info("[%s] %s Event(s) auf der Übersichtsseite", key, len(events))
 
-    # Manche Spiele führt der Shop ohne eigene Event-Kategorie (z. B. Cyberpunk);
-    # die werden über ihren Titel ausgewählt, auf Seite und in der API gleichermassen.
+    # Ausgewählt wird über den Titel (findet auch Termine, die der Shop in einer
+    # falschen oder gar keiner Kategorie führt, z. B. Cyberpunk) und zusätzlich über
+    # die Kategorie-ID (findet Termine ohne Spielnamen im Titel, z. B. Prereleases).
     title_filter = [text.casefold() for text in category.get("title_contains", [])]
-    if title_filter:
-        events = [event for event in events if any(text in event.title.casefold() for text in title_filter)]
-
     category_id = category.get("event_category_id", "")
+
+    def matches_title(title: Any) -> bool:
+        return any(text in str(title).casefold() for text in title_filter)
+
+    # Die Seite einer Kategorie zeigt nur deren Events; die allgemeine Seite alle.
+    if title_filter and not category_id:
+        events = [event for event in events if matches_title(event.title)]
+
     if api_slots is not None and (category_id or title_filter):
-        if title_filter:
-            chosen = [
-                item
-                for group in api_slots.values()
-                for item in group
-                if any(text in str(item.get("title", "")).casefold() for text in title_filter)
-            ]
-        else:
-            chosen = api_slots.get(category_id, [])
+        chosen = list(api_slots.get(category_id, [])) if category_id else []
+        known = {item.get("id") for item in chosen}
+        for group in api_slots.values():
+            for item in group:
+                if title_filter and item.get("id") not in known and matches_title(item.get("title")):
+                    known.add(item.get("id"))
+                    chosen.append(item)
         events = merge_with_slots(events, chosen)
         LOG.info("[%s] %s Termin(e) insgesamt laut Termin-API", key, len(events))
 

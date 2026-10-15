@@ -121,7 +121,7 @@ Kategorien sind frei konfigurierbar, nichts ist im Code fest verdrahtet:
 | `name`        | Anzeigename in der Embed-Fusszeile                                     |
 | `url`         | Übersichtsseite; zugleich Fallback-Link, wenn ein Event keinen hat     |
 | `event_category_id` | Kategorie in der Kalender-Schnittstelle. Fehlt sie, zählen nur die (max. sechs) Termine der Übersichtsseite |
-| `title_contains` | Alternative zur Kategorie-ID: Termine, deren Titel einen dieser Texte enthält. Für Spiele, die der Shop ohne eigene Event-Kategorie führt |
+| `title_contains` | Termine, deren Titel einen dieser Texte enthält (Gross-/Kleinschreibung egal) — aus allen Shop-Kategorien. Zusammen mit `event_category_id` zählt beides: so landen auch falsch eingeordnete Termine im richtigen Kanal |
 | `webhook_env` | **Name** der Umgebungsvariable — nie die URL selbst; ist das zugehörige Secret gesetzt, läuft die Kategorie |
 | `color`       | Farbbalken des Embeds (Hex)                                            |
 | `enabled`     | optional; `false` schaltet eine Kategorie trotz Secret ab              |
@@ -152,11 +152,20 @@ ausführlichem Log starten (Schritt 6) — er listet jede Kategorie der Schnitts
 und ID unter „Kategorie-IDs der API". „Unterhaltung" führt der Shop dort derzeit nicht; diese
 Kategorie arbeitet deshalb nur mit ihrer Übersichtsseite.
 
+Alle Kategorien wählen ihre Termine über den **Titel** aus (`title_contains`, z. B.
+`["Riftbound"]`). Wo der Shop eine eigene Event-Kategorie hat, gilt zusätzlich die
+`event_category_id` — sie findet Termine ohne Spielnamen im Titel, etwa „Hyperia City Prerelease"
+bei Lorcana oder „Commander Night" bei Magic. Ein Termin, den beide Wege finden, kommt nur einmal.
+
 Hat ein Spiel **keine eigene Kategorie** im Shop — wie Cyberpunk TCG, das in der Sammelkategorie
-„---" neben Einträgen wie „Stettbach Closed" steht —, wählt die Kategorie ihre Termine über den
-Titel aus: `"title_contains": ["Cyberpunk"]` statt einer `event_category_id`. Als `url` dient dann
-die allgemeine Event-Seite `https://www.twomoons.ch/events/`; sie ist auch der Link, wenn ein
-Termin keinen eigenen Buchungslink hat.
+„---" neben Einträgen wie „Stettbach Closed" steht —, genügt `title_contains` allein. Als `url`
+dient dann die allgemeine Event-Seite `https://www.twomoons.ch/events/`; sie ist auch der Link,
+wenn ein Termin keinen eigenen Buchungslink hat.
+
+Events ohne Online-Buchung (z. B. Riftbound, Anmeldung extern) bekommen keinen „Zur Buchung"-Link;
+die Angaben (Format, Eintritt, …) liest der Bot trotzdem von der Produktseite. Fehlt die
+Produktseite eines Ablegers wie „… - WEINFELDEN", übernimmt er die Angaben des gleichnamigen
+Events ohne Standortzusatz.
 
 Bei einer ganz neuen Kategorie zusätzlich in `.github/workflows/notify.yml` im Schritt
 „Notifier ausführen" unter `env:` die Zeile für das Secret ergänzen, z. B.
