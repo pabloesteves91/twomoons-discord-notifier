@@ -2,7 +2,7 @@
   "categories": {
     "cyberpunk": {
       "initialized": true,
-      "last_run": "2026-10-16T12:07:12Z",
+      "last_run": "2026-10-17T11:23:06Z",
       "seen": {
         "01a0e40ea0db7651b8fb0e70e839448a": {
           "date": "Mo., 19.10.26, 19:00 - 22:30",
@@ -14,7 +14,7 @@
     },
     "flesh-blood": {
       "initialized": true,
-      "last_run": "2026-10-16T12:06:50Z",
+      "last_run": "2026-10-17T11:22:54Z",
       "seen": {
         "01a03443df127bde977d165a06aff996": {
           "date": "Mo., 19.10.26, 19:00 - 22:30",
@@ -38,7 +38,7 @@
     },
     "lorcana": {
       "initialized": true,
-      "last_run": "2026-10-16T12:06:39Z",
+      "last_run": "2026-10-17T11:22:47Z",
       "seen": {
         "01a0ed598acd769baa028725328c412c": {
           "date": "Do., 22.10.26, 18:30 - 22:30",
@@ -58,18 +58,6 @@
           "message_id": "1560267963691438124",
           "title": "Hyperia City Prerelease"
         },
-        "01a0ed5d113379209fe29fd569366169": {
-          "date": "Do., 15.10.26, 18:30 - 22:30",
-          "digest": "e3c62f7365a5de5b",
-          "message_id": "1557760306984390669",
-          "title": "Lorcana Core Weekly"
-        },
-        "01a0ed5e28a27924a66450a047ad7fbf": {
-          "date": "Do., 15.10.26, 19:00 - 22:00",
-          "digest": "b2b8f947079e939a",
-          "message_id": "1557760320083071030",
-          "title": "Lorcana Core Weekly"
-        },
         "01a12f35eec17d739a123939030622c8": {
           "date": "So., 18.10.26, 11:00 - 17:00",
           "digest": "fecab90192c58fb2",
@@ -80,7 +68,7 @@
     },
     "magic": {
       "initialized": true,
-      "last_run": "2026-10-16T12:06:16Z",
+      "last_run": "2026-10-17T11:22:01Z",
       "seen": {
         "019ff4df44ae703e98ad74428f59c8c2": {
           "date": "Fr., 16.10.26, 18:00 - 22:00",
@@ -122,7 +110,7 @@
     },
     "one-piece": {
       "initialized": true,
-      "last_run": "2026-10-16T12:06:41Z",
+      "last_run": "2026-10-17T11:22:51Z",
       "seen": {
         "019e973789d07706993e25f4d3ab2afc": {
           "date": "Mi., 21.10.26, 19:00 - 22:00",
@@ -138,7 +126,7 @@
         },
         "01a048c630e076e39637e744e96aa68f": {
           "date": "So., 18.10.26, 11:00 - 18:00",
-          "digest": "226ede17c0fe5aa0",
+          "digest": "e699ef10224ab77c",
           "message_id": "1558838259931422740",
           "title": "One Piece TCG Store Championship"
         }
@@ -146,7 +134,7 @@
     },
     "pokemon": {
       "initialized": true,
-      "last_run": "2026-10-16T12:06:22Z",
+      "last_run": "2026-10-17T11:22:28Z",
       "seen": {
         "01a034400a5b7e5fbb2388a74c377e2f": {
           "date": "Mo., 19.10.26, 18:30 - 22:30",
@@ -159,19 +147,37 @@
           "digest": "9b42c27be0590cdb",
           "message_id": "1559908452036386928",
           "title": "Pokémon Weekly Standard"
+        },
+        "01a0ce0f1f1f7cfd9ad8f8b52b72d71f": {
+          "date": "Sa., 24.10.26, 11:00 - 18:00",
+          "digest": "f1c57efdef7f8076",
+          "message_id": "1560976262892232715",
+          "title": "Pokemon Trade Day"
+        },
+        "01a0ce105a047df3bfb694061483c0a3": {
+          "date": "Sa., 24.10.26, 15:00 - 17:00",
+          "digest": "e90eef8f9f697a12",
+          "message_id": "1560976279585427487",
+          "title": "Pokemon League Challenge"
+        },
+        "01a0ed024df3705584edcab87015e8a9": {
+          "date": "Sa., 24.10.26, 11:00 - 17:00",
+          "digest": "2ca1e60a31db7a70",
+          "message_id": "1560976222727700595",
+          "title": "Delta Reign Prerelease"
+        },
+        "01a0ed087d18782e9982894dd7021adb": {
+          "date": "Sa., 24.10.26, 11:00 - 17:00",
+          "digest": "e312b8e7d04849dc",
+          "message_id": "1560976271222251532",
+          "title": "Delta Reign Prerelease - WEINFELDEN"
         }
       }
     },
     "riftbound": {
       "initialized": true,
-      "last_run": "2026-10-16T12:07:07Z",
+      "last_run": "2026-10-17T11:23:01Z",
       "seen": {
-        "01a0344c06e47c7baacc22e227adcf34": {
-          "date": "Do., 15.10.26, 18:30 - 22:00",
-          "digest": "3caa1fbe416da84e",
-          "message_id": "1557760363548909630",
-          "title": "Riftbound Constructed Weekly"
-        },
         "01a0ed320e7979b8910374e97db25fb0": {
           "date": "Fr., 16.10.26, 18:00 - 22:30",
           "digest": "401df3421e719e68",
@@ -212,14 +218,8 @@
     },
     "star-wars-unlimited": {
       "initialized": true,
-      "last_run": "2026-10-16T12:06:26Z",
+      "last_run": "2026-10-17T11:22:33Z",
       "seen": {
-        "01a03450f08d7799a5b1e31bd22cd91c": {
-          "date": "Do., 15.10.26, 19:00 - 22:30",
-          "digest": "adf1a41927b8411c",
-          "message_id": "1557760226600689739",
-          "title": "SWU Premier Weekly"
-        },
         "01a03450f08e72cd86224f0963a280ae": {
           "date": "Do., 22.10.26, 19:00 - 22:30",
           "digest": "f355801f7f180a0c",
@@ -236,19 +236,13 @@
     },
     "unterhaltung": {
       "initialized": true,
-      "last_run": "2026-10-16T12:07:14Z",
+      "last_run": "2026-10-17T11:23:08Z",
       "seen": {}
     },
     "yu-gi-oh": {
       "initialized": true,
-      "last_run": "2026-10-16T12:06:32Z",
+      "last_run": "2026-10-17T11:22:40Z",
       "seen": {
-        "01a03436a1ff7e058f10abfdbc6a3ecc": {
-          "date": "Do., 15.10.26, 19:00 - 22:30",
-          "digest": "5e3677b3268fccf3",
-          "message_id": "1557760267981557851",
-          "title": "Yu-Gi-Oh Advanced Weekly"
-        },
         "01a03436a1ff7e058f10ac0411648a8c": {
           "date": "Do., 22.10.26, 19:00 - 22:30",
           "digest": "32c18c0049848caf",
