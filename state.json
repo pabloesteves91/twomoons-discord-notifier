@@ -2,7 +2,7 @@
   "categories": {
     "cyberpunk": {
       "initialized": true,
-      "last_run": "2026-10-17T11:23:06Z",
+      "last_run": "2026-10-18T11:57:49Z",
       "seen": {
         "01a0e40ea0db7651b8fb0e70e839448a": {
           "date": "Mo., 19.10.26, 19:00 - 22:30",
@@ -14,18 +14,12 @@
     },
     "flesh-blood": {
       "initialized": true,
-      "last_run": "2026-10-17T11:22:54Z",
+      "last_run": "2026-10-18T11:57:40Z",
       "seen": {
         "01a03443df127bde977d165a06aff996": {
           "date": "Mo., 19.10.26, 19:00 - 22:30",
           "digest": "55046e84293bdf79",
           "message_id": "1559241834633629808",
-          "title": "Flesh and Blood Weekly"
-        },
-        "01a03444cf2b79ff8d93295618683687": {
-          "date": "Fr., 16.10.26, 19:00 - 22:00",
-          "digest": "cc11d7e1459a6535",
-          "message_id": "1558119005808631899",
           "title": "Flesh and Blood Weekly"
         },
         "01a03444cf2b79ff8d93295d52a2a9c7": {
@@ -38,11 +32,11 @@
     },
     "lorcana": {
       "initialized": true,
-      "last_run": "2026-10-17T11:22:47Z",
+      "last_run": "2026-10-18T11:57:33Z",
       "seen": {
         "01a0ed598acd769baa028725328c412c": {
           "date": "Do., 22.10.26, 18:30 - 22:30",
-          "digest": "3a429732f398f343",
+          "digest": "2382e6b009edad6c",
           "message_id": "1560267950995538075",
           "title": "Hyperia City Prerelease"
         },
@@ -68,14 +62,8 @@
     },
     "magic": {
       "initialized": true,
-      "last_run": "2026-10-17T11:22:01Z",
+      "last_run": "2026-10-18T11:56:36Z",
       "seen": {
-        "019ff4df44ae703e98ad74428f59c8c2": {
-          "date": "Fr., 16.10.26, 18:00 - 22:00",
-          "digest": "1b4827de39a95686",
-          "message_id": "1558118806310879337",
-          "title": "Commander Night Weinfelden"
-        },
         "019ff4df44af7b458415e9cc1e23dadc": {
           "date": "Fr., 23.10.26, 18:00 - 22:00",
           "digest": "b990cdc7806a1c49",
@@ -94,12 +82,6 @@
           "message_id": "1559241650134585365",
           "title": "MTG Standard Weekly"
         },
-        "01a0439e4d1c72bf9d125827539e7ebc": {
-          "date": "Fr., 16.10.26, 18:30 - 22:30",
-          "digest": "4751c53a9d5d7c18",
-          "message_id": "1558118838019686434",
-          "title": "MTG FNM Draft Reality Fracture"
-        },
         "01a0439e4d207129bd9ad3636fe9c212": {
           "date": "Fr., 23.10.26, 18:30 - 22:30",
           "digest": "e69e51761bff36a3",
@@ -110,7 +92,7 @@
     },
     "one-piece": {
       "initialized": true,
-      "last_run": "2026-10-17T11:22:51Z",
+      "last_run": "2026-10-18T11:57:34Z",
       "seen": {
         "019e973789d07706993e25f4d3ab2afc": {
           "date": "Mi., 21.10.26, 19:00 - 22:00",
@@ -134,7 +116,7 @@
     },
     "pokemon": {
       "initialized": true,
-      "last_run": "2026-10-17T11:22:28Z",
+      "last_run": "2026-10-18T11:57:08Z",
       "seen": {
         "01a034400a5b7e5fbb2388a74c377e2f": {
           "date": "Mo., 19.10.26, 18:30 - 22:30",
@@ -166,9 +148,15 @@
           "message_id": "1560976222727700595",
           "title": "Delta Reign Prerelease"
         },
+        "01a0ed02ed637d37a733f73b0ae9b5c3": {
+          "date": "So., 25.10.26, 11:00 - 17:00",
+          "digest": "0853d97548f6a306",
+          "message_id": "1561347323034996847",
+          "title": "Delta Reign Prerelease"
+        },
         "01a0ed087d18782e9982894dd7021adb": {
           "date": "Sa., 24.10.26, 11:00 - 17:00",
-          "digest": "e312b8e7d04849dc",
+          "digest": "ae16220b3a7bad24",
           "message_id": "1560976271222251532",
           "title": "Delta Reign Prerelease - WEINFELDEN"
         }
@@ -176,14 +164,8 @@
     },
     "riftbound": {
       "initialized": true,
-      "last_run": "2026-10-17T11:23:01Z",
+      "last_run": "2026-10-18T11:57:46Z",
       "seen": {
-        "01a0ed320e7979b8910374e97db25fb0": {
-          "date": "Fr., 16.10.26, 18:00 - 22:30",
-          "digest": "401df3421e719e68",
-          "message_id": "1558119023785545802",
-          "title": "Riftbound Radiance Pre-Rift"
-        },
         "01a0ed32d0da704289b94464e6237c63": {
           "date": "Sa., 17.10.26, 11:00 - 18:00",
           "digest": "d8969fbcab08b027",
@@ -218,7 +200,7 @@
     },
     "star-wars-unlimited": {
       "initialized": true,
-      "last_run": "2026-10-17T11:22:33Z",
+      "last_run": "2026-10-18T11:57:16Z",
       "seen": {
         "01a03450f08e72cd86224f0963a280ae": {
           "date": "Do., 22.10.26, 19:00 - 22:30",
@@ -231,23 +213,35 @@
           "digest": "cefa09bcd608714c",
           "message_id": "1558838190108975165",
           "title": "SWU Draft"
+        },
+        "01a05babcc777997a73bc2e1f6d399ac": {
+          "date": "So., 25.10.26, 11:00 - 16:00",
+          "digest": "cf6a2239abab4595",
+          "message_id": "1561347417494786160",
+          "title": "SWU Draft"
         }
       }
     },
     "unterhaltung": {
       "initialized": true,
-      "last_run": "2026-10-17T11:23:08Z",
+      "last_run": "2026-10-18T11:57:50Z",
       "seen": {}
     },
     "yu-gi-oh": {
       "initialized": true,
-      "last_run": "2026-10-17T11:22:40Z",
+      "last_run": "2026-10-18T11:57:26Z",
       "seen": {
         "01a03436a1ff7e058f10ac0411648a8c": {
           "date": "Do., 22.10.26, 19:00 - 22:30",
           "digest": "32c18c0049848caf",
           "message_id": "1560267911753506907",
           "title": "Yu-Gi-Oh Advanced Weekly"
+        },
+        "01a0343860837a25a1e7b3e51395af86": {
+          "date": "So., 25.10.26, 12:00 - 18:00",
+          "digest": "e1a13c5d780347fb",
+          "message_id": "1561347463107977301",
+          "title": "Yu-Gi-Oh Advanced Sunday Cup"
         },
         "01a05c645032798cb263ff14e0c2cde6": {
           "date": "Mi., 21.10.26, 18:30 - 22:30",
