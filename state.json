@@ -2,7 +2,7 @@
   "categories": {
     "cyberpunk": {
       "initialized": true,
-      "last_run": "2026-10-19T14:21:25Z",
+      "last_run": "2026-10-20T12:33:37Z",
       "seen": {
         "01a0e40ea0db7651b8fb0e70e839448a": {
           "date": "Mo., 19.10.26, 19:00 - 22:30",
@@ -20,7 +20,7 @@
     },
     "flesh-blood": {
       "initialized": true,
-      "last_run": "2026-10-19T14:21:12Z",
+      "last_run": "2026-10-20T12:33:20Z",
       "seen": {
         "01a03443df127bde977d165a06aff996": {
           "date": "Mo., 19.10.26, 19:00 - 22:30",
@@ -38,7 +38,7 @@
     },
     "lorcana": {
       "initialized": true,
-      "last_run": "2026-10-19T14:21:06Z",
+      "last_run": "2026-10-20T12:33:06Z",
       "seen": {
         "01a0ed598acd769baa028725328c412c": {
           "date": "Do., 22.10.26, 18:30 - 22:30",
@@ -48,21 +48,15 @@
         },
         "01a0ed5ae0fd729e9c30de7a0624c26b": {
           "date": "Do., 22.10.26, 19:00 - 22:00",
-          "digest": "49f2f6248ff2edbb",
+          "digest": "3a59da751d6cffd2",
           "message_id": "1560267963691438124",
-          "title": "Hyperia City Prerelease"
-        },
-        "01a12f35eec17d739a123939030622c8": {
-          "date": "So., 18.10.26, 11:00 - 17:00",
-          "digest": "fecab90192c58fb2",
-          "message_id": "1559241798701027529",
           "title": "Hyperia City Prerelease"
         }
       }
     },
     "magic": {
       "initialized": true,
-      "last_run": "2026-10-19T14:20:22Z",
+      "last_run": "2026-10-20T12:32:26Z",
       "seen": {
         "019ff4df44af7b458415e9cc1e23dadc": {
           "date": "Fr., 23.10.26, 18:00 - 22:00",
@@ -72,7 +66,7 @@
         },
         "01a0343ebee67271ac9489a12819e912": {
           "date": "Mi., 21.10.26, 19:00 - 22:30",
-          "digest": "9f73f2a89add7692",
+          "digest": "085de6c3cfe788ec",
           "message_id": "1559908401994145894",
           "title": "MTG Modern Weekly"
         },
@@ -98,7 +92,7 @@
     },
     "one-piece": {
       "initialized": true,
-      "last_run": "2026-10-19T14:21:08Z",
+      "last_run": "2026-10-20T12:33:16Z",
       "seen": {
         "019e973789d07706993e25f4d3ab2afc": {
           "date": "Mi., 21.10.26, 19:00 - 22:00",
@@ -112,17 +106,17 @@
           "message_id": "1559578558626791488",
           "title": "One Piece TCG Constructed Weekly"
         },
-        "01a048c630e076e39637e744e96aa68f": {
-          "date": "So., 18.10.26, 11:00 - 18:00",
-          "digest": "e699ef10224ab77c",
-          "message_id": "1558838259931422740",
-          "title": "One Piece TCG Store Championship"
+        "01a03449f58f7cd2b7f4892f4fbd55ad": {
+          "date": "Di., 27.10.26, 18:45 - 22:30",
+          "digest": "a471c71fa9ab3f99",
+          "message_id": "1562081232781844502",
+          "title": "One Piece TCG Constructed Weekly"
         }
       }
     },
     "pokemon": {
       "initialized": true,
-      "last_run": "2026-10-19T14:20:45Z",
+      "last_run": "2026-10-20T12:32:47Z",
       "seen": {
         "01a034400a5b7e5fbb2388a74c377e2f": {
           "date": "Mo., 19.10.26, 18:30 - 22:30",
@@ -162,7 +156,7 @@
         },
         "01a0ed02ed637d37a733f73b0ae9b5c3": {
           "date": "So., 25.10.26, 11:00 - 17:00",
-          "digest": "0853d97548f6a306",
+          "digest": "eb8adbd7909e406c",
           "message_id": "1561347323034996847",
           "title": "Delta Reign Prerelease"
         },
@@ -182,13 +176,13 @@
     },
     "riftbound": {
       "initialized": true,
-      "last_run": "2026-10-19T14:21:20Z",
+      "last_run": "2026-10-20T12:33:32Z",
       "seen": {
-        "01a0ed331e4c71208b07c417fd925670": {
-          "date": "So., 18.10.26, 11:00 - 18:00",
-          "digest": "a4e2664a56dcbcec",
-          "message_id": "1558838299248824491",
-          "title": "Riftbound Radiance Pre-Rift"
+        "01a0344cecd272ffbd800bb308af51a9": {
+          "date": "Di., 27.10.26, 18:30 - 22:30",
+          "digest": "e52c86e81ee76365",
+          "message_id": "1562081316806074380",
+          "title": "Riftbound Constructed Weekly"
         },
         "01a0ed3366ab7e56ba721ecfd0863df2": {
           "date": "Di., 20.10.26, 18:00 - 22:30",
@@ -206,7 +200,7 @@
     },
     "star-wars-unlimited": {
       "initialized": true,
-      "last_run": "2026-10-19T14:20:51Z",
+      "last_run": "2026-10-20T12:32:50Z",
       "seen": {
         "01a03450f08e72cd86224f0963a280ae": {
           "date": "Do., 22.10.26, 19:00 - 22:30",
@@ -224,12 +218,12 @@
     },
     "unterhaltung": {
       "initialized": true,
-      "last_run": "2026-10-19T14:21:26Z",
+      "last_run": "2026-10-20T12:33:38Z",
       "seen": {}
     },
     "yu-gi-oh": {
       "initialized": true,
-      "last_run": "2026-10-19T14:20:58Z",
+      "last_run": "2026-10-20T12:32:57Z",
       "seen": {
         "01a03436a1ff7e058f10ac0411648a8c": {
           "date": "Do., 22.10.26, 19:00 - 22:30",
