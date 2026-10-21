@@ -245,5 +245,9 @@
         }
       }
     }
+  },
+  "shop_unreachable": {
+    "count": 1,
+    "since": "2026-10-21T13:19:32Z"
   }
 }
