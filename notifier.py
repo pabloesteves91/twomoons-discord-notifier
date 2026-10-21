@@ -359,6 +359,15 @@ def find_modal(soup: BeautifulSoup, card: Tag, slot_id: str = "") -> Tag | None:
 # --------------------------------------------------------------------------- #
 
 
+class ShopNichtErreichbar(RuntimeError):
+    """Der Shop hat den Abruf abgewiesen — nichts, was der Melder beheben kann.
+
+    Bewusst von allen anderen Fehlern getrennt: Ein 403 aus einem Rechenzentrum
+    oder eine Zeitüberschreitung ist kein Defekt des Melders. Solche Läufe soll
+    er eine Weile stillschweigend aussitzen, statt jedes Mal rot zu werden.
+    """
+
+
 def fetch_html(url: str, request_config: dict[str, Any]) -> str:
     headers = {
         "User-Agent": request_config.get("user_agent", "twomoons-discord-notifier/1.0"),
@@ -379,11 +388,30 @@ def fetch_html(url: str, request_config: dict[str, Any]) -> str:
             # 4xx (z. B. eine entfernte Produktseite) wird durch Warten nicht besser.
             if status is not None and 400 <= status < 500:
                 break
-            wait = 2**attempt
+            # Gedeckelt: Bei einer überlasteten Seite hilft Geduld, aber ein Lauf
+            # darf nicht minutenlang im Wartezustand hängen.
+            wait = min(2**attempt * 2, 60)
             LOG.warning("Abruf fehlgeschlagen (%s/%s) für %s: %s", attempt, retries, url, error)
             if attempt < retries:
                 time.sleep(wait)
-    raise RuntimeError(f"Konnte {url} nicht laden: {last_error}")
+    raise ShopNichtErreichbar(f"Konnte {url} nicht laden: {last_error}")
+
+
+def sperre_vermerken(state: dict[str, Any]) -> int:
+    """Zählt die Läufe in Folge, in denen der Shop nicht erreichbar war."""
+    jetzt = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    eintrag = state.get("shop_unreachable")
+    if not isinstance(eintrag, dict):
+        eintrag = {"count": 0, "since": jetzt}
+    eintrag["count"] = int(eintrag.get("count", 0)) + 1
+    eintrag.setdefault("since", jetzt)
+    state["shop_unreachable"] = eintrag
+    return int(eintrag["count"])
+
+
+def sperre_aufheben(state: dict[str, Any]) -> bool:
+    """Räumt den Zähler weg, sobald der Shop wieder antwortet."""
+    return state.pop("shop_unreachable", None) is not None
 
 
 def fetch_event_details(
@@ -1203,14 +1231,31 @@ def main(argv: list[str] | None = None) -> int:
 
     total_posted = 0
     failed: list[str] = []
+    gesperrt: list[str] = []
     report: list[str] | None = [] if args.dry_run else None
     api_slots = fetch_event_slots(config)
     for category in categories:
         try:
             total_posted += process_category(category, config, state, args, report, api_slots)
+        except ShopNichtErreichbar as error:
+            # Kein Traceback: Der Shop sperrt den Abruf, im Code ist nichts kaputt.
+            gesperrt.append(category["key"])
+            LOG.warning("[%s] Shop nicht erreichbar: %s", category["key"], error)
         except Exception as error:  # eine kaputte Kategorie darf die anderen nicht stoppen
             failed.append(category["key"])
             LOG.exception("[%s] Fehler: %s", category["key"], error)
+
+    # Sind *alle* Kategorien an der Sperre gescheitert, liegt es am Shop und nicht
+    # an diesem Melder — dann erst nach mehreren Läufen in Folge Alarm schlagen,
+    # damit die Fehlermail ein Signal bleibt. Scheitert dagegen nur ein Teil, ist
+    # das ein echtes Problem und bleibt sofort rot.
+    komplett_gesperrt = len(gesperrt) == len(categories) and not failed
+    schwelle = max(1, int(config.get("request", {}).get("quiet_failures", 2)))
+    stand = 0
+    if komplett_gesperrt:
+        stand = sperre_vermerken(state)
+    elif not failed and not gesperrt:
+        sperre_aufheben(state)
 
     if not args.dry_run:
         save_state(args.state, state)
@@ -1221,10 +1266,24 @@ def main(argv: list[str] | None = None) -> int:
     LOG.info(
         "Fertig: %s Event(s) gepostet, %s/%s Kategorie(n) ok",
         total_posted,
-        len(categories) - len(failed),
+        len(categories) - len(failed) - len(gesperrt),
         len(categories),
     )
-    return 1 if failed else 0
+
+    if komplett_gesperrt:
+        LOG.warning("Shop nicht erreichbar (%s. Lauf in Folge) — nichts gepostet, nichts gelöscht.", stand)
+        if stand < schwelle:
+            # Eigene Zeile ohne Log-Präfix, sonst erkennt GitHub die Anmerkung nicht.
+            print(
+                f"::warning::Shop nicht erreichbar ({stand}. Lauf in Folge) — "
+                f"nichts gepostet, nichts gelöscht. Alarm ab {schwelle} Läufen in Folge.",
+                flush=True,
+            )
+            return 0
+        LOG.error("Seit %s Läufen in Folge keine Antwort vom Shop — das ist keine Störung mehr.", stand)
+        return 1
+
+    return 1 if failed or gesperrt else 0
 
 
 if __name__ == "__main__":

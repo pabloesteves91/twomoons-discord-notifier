@@ -2,6 +2,7 @@
 
 import json
 import sys
+import tempfile
 import unittest
 from argparse import Namespace
 from datetime import datetime
@@ -793,6 +794,76 @@ class WindowStateTest(unittest.TestCase):
         _, edit, delete = self.run_at(state, FROZEN_NOW)
         delete.assert_not_called()
         self.assertIn("alt", [call.args[1] for call in edit.call_args_list])
+
+
+class SperreTest(unittest.TestCase):
+    """Der Shop weist Anfragen aus Rechenzentren mit 403 ab.
+
+    Daran ist im Melder nichts zu reparieren. Statt bei jedem Lauf rot zu werden
+    (und eine Mail zu schicken), sitzt er die Sperre eine Weile aus und schlägt
+    erst nach mehreren Läufen in Folge Alarm.
+    """
+
+    def setUp(self):
+        self.tmp = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        self.state_path = self.tmp / "state.json"
+        self.config_path = self.tmp / "config.json"
+        config = dict(CONFIG, categories=[MAGIC], request=dict(CONFIG["request"], quiet_failures=2))
+        self.config_path.write_text(json.dumps(config), encoding="utf-8")
+
+    def lauf(self, seiten):
+        """Ein Durchlauf über main(); `seiten` entscheidet über Erfolg oder Sperre."""
+        with mock.patch.object(notifier, "fetch_html", side_effect=seiten), \
+             mock.patch.object(notifier, "fetch_event_slots", return_value=None), \
+             mock.patch.object(notifier, "fetch_event_details"), \
+             mock.patch.object(notifier, "post_embed", return_value="msg") as post, \
+             mock.patch.object(notifier, "edit_embed", return_value=True), \
+             mock.patch.object(notifier, "delete_message", return_value=True) as delete, \
+             mock.patch.object(notifier.time, "sleep"), \
+             mock.patch.dict("os.environ", {"DISCORD_WEBHOOK_MAGIC": "https://example.invalid/hook"}):
+            code = notifier.main(["--config", str(self.config_path), "--state", str(self.state_path)])
+        return code, post, delete
+
+    def gesperrt(self, *_args, **_kwargs):
+        raise notifier.ShopNichtErreichbar("Konnte … nicht laden: 403 Client Error: Forbidden")
+
+    def gespeichert(self):
+        return json.loads(self.state_path.read_text(encoding="utf-8"))
+
+    def test_erster_fehlschlag_bleibt_gruen(self):
+        code, post, delete = self.lauf(self.gesperrt)
+
+        self.assertEqual(code, 0)
+        post.assert_not_called()
+        delete.assert_not_called()
+        self.assertEqual(self.gespeichert()["shop_unreachable"]["count"], 1)
+
+    def test_zweiter_fehlschlag_wird_rot(self):
+        self.assertEqual(self.lauf(self.gesperrt)[0], 0)
+        code, _, _ = self.lauf(self.gesperrt)
+
+        self.assertEqual(code, 1)
+        self.assertEqual(self.gespeichert()["shop_unreachable"]["count"], 2)
+
+    def test_echter_fehler_bleibt_sofort_rot(self):
+        """Ein kaputter Parser ist keine Sperre — der darf nicht ausgesessen werden."""
+
+        def kaputt(*_args, **_kwargs):
+            raise ValueError("HTML sieht ganz anders aus")
+
+        code, _, _ = self.lauf(kaputt)
+
+        self.assertEqual(code, 1)
+        self.assertNotIn("shop_unreachable", self.gespeichert())
+
+    def test_erfolgreicher_lauf_setzt_den_zaehler_zurueck(self):
+        self.lauf(self.gesperrt)
+        self.assertEqual(self.gespeichert()["shop_unreachable"]["count"], 1)
+
+        code, _, _ = self.lauf(lambda *_args, **_kwargs: FIXTURE)
+
+        self.assertEqual(code, 0)
+        self.assertNotIn("shop_unreachable", self.gespeichert())
 
 
 if __name__ == "__main__":

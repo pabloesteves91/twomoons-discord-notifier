@@ -379,6 +379,33 @@ Nachrichten in Discord löschen. Für alles andere ist das nicht nötig.
 | `Discord Rate-Limit`                              | Wird automatisch abgewartet; bei Häufung `delay_between_posts` erhöhen         |
 | Workflow committet `state.json` nicht             | Unter Settings → Actions → General: *Read and write permissions* aktivieren    |
 | Geplanter Lauf zeigt `notify` als *skipped*       | Heute wurde bereits gearbeitet, oder es ist vor 09:00 Schweizer Zeit — beides beabsichtigt |
+| `Shop nicht erreichbar` / `403 Forbidden`         | Der Shop sperrt Anfragen aus Rechenzentren — siehe unten                       |
 
 Ein Fehler in einer Kategorie stoppt die anderen nie — jede wird einzeln abgearbeitet und
 protokolliert.
+
+### Wenn der Shop mit 403 sperrt
+
+Der Shop weist Anfragen aus Rechenzentren ab, und GitHub-Runner stehen in einem.
+Erkennbar daran, dass selbst `robots.txt` mit `403 Forbidden` beantwortet wird,
+während der Shop im Browser normal lädt. Ein anderer User-Agent hilft dagegen
+nicht: Die Sperre greift auf Netzwerkebene, vor jeder Inhaltsprüfung.
+
+Der Melder sitzt das aus, statt jedes Mal rot zu werden:
+
+* Ein 403 wird nicht wiederholt — Warten macht eine Sperre nicht besser. Bei
+  Zeitüberschreitungen und 5xx wird dagegen geduldig wiederholt, mit Pausen bis
+  zu einer Minute.
+* Scheitern **alle** Kategorien an der Sperre, erhöht der Lauf
+  `shop_unreachable.count` in der `state.json` und endet **grün mit einer
+  Warnung** — keine Fehlermail. In `shop_unreachable.since` steht, seit wann die
+  Sperre besteht.
+* Erst ab `request.quiet_failures` Läufen in Folge (Vorgabe **2**, bei einem Lauf
+  pro Tag also zwei Tage) wird der Lauf rot.
+* Scheitert dagegen nur ein Teil der Kategorien, ist das ein echtes Problem und
+  bleibt sofort rot.
+* Der erste erfolgreiche Lauf räumt den Zähler wieder weg.
+
+Gepostet oder gelöscht wird dabei nie etwas. Hält die Sperre an, hilft nur ein
+anderer Standort (der Melder läuft per Cron auf einem Gerät mit normaler
+Internetleitung) oder eine Freischaltung durch den Shop.
