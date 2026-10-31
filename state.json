@@ -2,7 +2,7 @@
   "categories": {
     "cyberpunk": {
       "initialized": true,
-      "last_run": "2026-10-30T13:52:04Z",
+      "last_run": "2026-10-31T13:18:50Z",
       "seen": {
         "01a134307a827ae1af5a022f6f9b2f45": {
           "date": "So., 01.11.26, 11:00 - 18:00",
@@ -14,7 +14,7 @@
     },
     "flesh-blood": {
       "initialized": true,
-      "last_run": "2026-10-30T13:51:55Z",
+      "last_run": "2026-10-31T13:18:41Z",
       "seen": {
         "01a03443df127bde977d166896bf4450": {
           "date": "Mi., 04.11.26, 19:00 - 22:30",
@@ -38,24 +38,12 @@
     },
     "lorcana": {
       "initialized": true,
-      "last_run": "2026-10-30T13:51:39Z",
+      "last_run": "2026-10-31T13:18:26Z",
       "seen": {
-        "01a0ed5d113572a0bdb0be3f478e8a8f": {
-          "date": "Do., 29.10.26, 18:30 - 22:30",
-          "digest": "8c62580e2da9efb0",
-          "message_id": "1562809704537915551",
-          "title": "Lorcana Core Weekly"
-        },
         "01a0ed5d113572a0bdb0be462730cbba": {
           "date": "Do., 05.11.26, 18:30 - 22:30",
           "digest": "ac9019cf32462e78",
           "message_id": "1565363807243472928",
-          "title": "Lorcana Core Weekly"
-        },
-        "01a0ed5e28a476b687a1e04767845b39": {
-          "date": "Do., 29.10.26, 19:00 - 22:00",
-          "digest": "e3378070f18fec11",
-          "message_id": "1562809717959565323",
           "title": "Lorcana Core Weekly"
         },
         "01a0ed5e28a5739ba37e14a12f562891": {
@@ -122,7 +110,7 @@
     },
     "one-piece": {
       "initialized": true,
-      "last_run": "2026-10-30T13:51:47Z",
+      "last_run": "2026-10-31T13:18:38Z",
       "seen": {
         "019e973789d2776fadcc3a7ad2b219c9": {
           "date": "Mi., 04.11.26, 19:00 - 22:00",
@@ -141,12 +129,18 @@
           "digest": "e8a3c91ae0a11b2e",
           "message_id": "1565724888759668859",
           "title": "One Piece TCG EB05 Heroines Battle Release Event"
+        },
+        "01a17d64e622790ab07b417d1d2bcc2b": {
+          "date": "Sa., 07.11.26, 11:00 - 17:00",
+          "digest": "c2a7543fb429c9be",
+          "message_id": "1566078943243796643",
+          "title": "One Piece TCG EB05 Heroines Battle Release Event"
         }
       }
     },
     "pokemon": {
       "initialized": true,
-      "last_run": "2026-10-30T13:51:22Z",
+      "last_run": "2026-10-31T13:18:08Z",
       "seen": {
         "01a034400a5b7e5fbb2388b545a8beaf": {
           "date": "Mo., 02.11.26, 18:30 - 22:30",
@@ -176,14 +170,8 @@
     },
     "riftbound": {
       "initialized": true,
-      "last_run": "2026-10-30T13:51:59Z",
+      "last_run": "2026-10-31T13:18:47Z",
       "seen": {
-        "01a0344c06e47c7baacc22f0e344c1a9": {
-          "date": "Do., 29.10.26, 18:30 - 22:00",
-          "digest": "8bab23077a2c159f",
-          "message_id": "1562809848876499086",
-          "title": "Riftbound Constructed Weekly"
-        },
         "01a0344c06e57432b0868c028568091a": {
           "date": "Do., 05.11.26, 18:30 - 22:00",
           "digest": "b7831f4af0f9b9bc",
@@ -200,14 +188,8 @@
     },
     "star-wars-unlimited": {
       "initialized": true,
-      "last_run": "2026-10-30T13:51:27Z",
+      "last_run": "2026-10-31T13:18:13Z",
       "seen": {
-        "01a03450f08e72cd86224f100edcd5e0": {
-          "date": "Do., 29.10.26, 19:00 - 22:30",
-          "digest": "bedf3764b66a8dff",
-          "message_id": "1562809604767879220",
-          "title": "SWU Premier Weekly"
-        },
         "01a03450f08e72cd86224f17911c49b8": {
           "date": "Do., 05.11.26, 19:00 - 22:30",
           "digest": "ddc7e2f2ed9707fe",
@@ -224,19 +206,13 @@
     },
     "unterhaltung": {
       "initialized": true,
-      "last_run": "2026-10-30T13:52:05Z",
+      "last_run": "2026-10-31T13:18:51Z",
       "seen": {}
     },
     "yu-gi-oh": {
       "initialized": true,
-      "last_run": "2026-10-30T13:51:35Z",
+      "last_run": "2026-10-31T13:18:19Z",
       "seen": {
-        "01a03436a2007b1aa494df755a7f01d8": {
-          "date": "Do., 29.10.26, 19:00 - 22:30",
-          "digest": "85c6d350f334d127",
-          "message_id": "1562809663626678344",
-          "title": "Yu-Gi-Oh Advanced Weekly"
-        },
         "01a03436a2007b1aa494df7c7276b942": {
           "date": "Do., 05.11.26, 19:00 - 22:30",
           "digest": "a86e03a543caa974",
