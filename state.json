@@ -2,30 +2,30 @@
   "categories": {
     "cyberpunk": {
       "initialized": true,
-      "last_run": "2026-11-07T13:45:35Z",
+      "last_run": "2026-11-08T14:05:08Z",
       "seen": {
         "01a1342edcb27b0fa08bce18a57aa282": {
           "date": "Sa., 14.11.26, 11:00 - 19:00",
           "digest": "558d07ce84a17253",
           "message_id": "1568622438076653709",
           "title": "Cyberpunk TCG Night City Showdown"
+        },
+        "01a1b69ccba37724b75f7ecbb3602514": {
+          "date": "Fr., 13.11.26, 19:00 - 22:30",
+          "digest": "7c80447e09d12224",
+          "message_id": "1568989750151483463",
+          "title": "Cyberpunk TCG Brawl Weekly"
         }
       }
     },
     "flesh-blood": {
       "initialized": true,
-      "last_run": "2026-11-07T13:45:21Z",
+      "last_run": "2026-11-08T14:04:56Z",
       "seen": {
         "01a03443df13777fb24506029bb2693a": {
           "date": "Mi., 11.11.26, 19:00 - 22:30",
           "digest": "dd0d3536ea9052d7",
           "message_id": "1567555718989746360",
-          "title": "Flesh and Blood Weekly"
-        },
-        "01a03444cf2d7f3490d8d8636e3848ec": {
-          "date": "Fr., 06.11.26, 19:00 - 22:00",
-          "digest": "3795cba9b4c461c3",
-          "message_id": "1565724923874508891",
           "title": "Flesh and Blood Weekly"
         },
         "01a03444cf2d7f3490d8d86a3223701e": {
@@ -38,7 +38,7 @@
     },
     "lorcana": {
       "initialized": true,
-      "last_run": "2026-11-07T13:45:14Z",
+      "last_run": "2026-11-08T14:04:47Z",
       "seen": {
         "01a0ed5d11387bca97f145059b920a87": {
           "date": "Do., 12.11.26, 18:30 - 22:30",
@@ -56,14 +56,8 @@
     },
     "magic": {
       "initialized": true,
-      "last_run": "2026-11-07T13:44:44Z",
+      "last_run": "2026-11-08T14:04:19Z",
       "seen": {
-        "019ff4df44b072bc8447f5d003aa0774": {
-          "date": "Fr., 06.11.26, 18:00 - 22:00",
-          "digest": "a96e32fd10c97f8d",
-          "message_id": "1566452396878463053",
-          "title": "Commander Night Weinfelden"
-        },
         "019ff4df44b072bc8447f5d7f2b4ae7d": {
           "date": "Fr., 13.11.26, 18:00 - 22:00",
           "digest": "31ba41875d8a70dc",
@@ -81,12 +75,6 @@
           "digest": "39e44dcd73972d6a",
           "message_id": "1566856804405870735",
           "title": "MTG Standard Weekly"
-        },
-        "01a135e778b273aa9c44189520b4fccb": {
-          "date": "Fr., 06.11.26, 18:00 - 22:30",
-          "digest": "a89016330fea7d99",
-          "message_id": "1566452471969087646",
-          "title": "MTG Star Trek Prerelease"
         },
         "01a135e8f07a7e18adaa85980cfa9f14": {
           "date": "Sa., 07.11.26, 11:00 - 17:00",
@@ -116,7 +104,7 @@
     },
     "one-piece": {
       "initialized": true,
-      "last_run": "2026-11-07T13:45:18Z",
+      "last_run": "2026-11-08T14:04:50Z",
       "seen": {
         "019e973789d2776fadcc3a81dde1e358": {
           "date": "Mi., 11.11.26, 19:00 - 22:00",
@@ -129,12 +117,6 @@
           "digest": "63eb2949f53bd6fd",
           "message_id": "1567189744176209924",
           "title": "One Piece TCG Constructed Weekly"
-        },
-        "01a17d63de817031b1be454f717c0eca": {
-          "date": "Fr., 06.11.26, 18:00 - 22:30",
-          "digest": "e8a3c91ae0a11b2e",
-          "message_id": "1565724888759668859",
-          "title": "One Piece TCG EB05 Heroines Battle Release Event"
         },
         "01a17d64e622790ab07b417d1d2bcc2b": {
           "date": "Sa., 07.11.26, 11:00 - 17:00",
@@ -152,7 +134,7 @@
     },
     "pokemon": {
       "initialized": true,
-      "last_run": "2026-11-07T13:44:55Z",
+      "last_run": "2026-11-08T14:04:26Z",
       "seen": {
         "01a034400a5c7ad1a557eaed018245da": {
           "date": "Mo., 09.11.26, 18:30 - 22:30",
@@ -176,7 +158,7 @@
     },
     "riftbound": {
       "initialized": true,
-      "last_run": "2026-11-07T13:45:27Z",
+      "last_run": "2026-11-08T14:05:00Z",
       "seen": {
         "01a0344c06e57432b0868c092d914784": {
           "date": "Do., 12.11.26, 18:30 - 22:00",
@@ -194,29 +176,41 @@
     },
     "star-wars-unlimited": {
       "initialized": true,
-      "last_run": "2026-11-07T13:45:00Z",
+      "last_run": "2026-11-08T14:04:34Z",
       "seen": {
         "01a03450f08e72cd86224f1e08b68856": {
           "date": "Do., 12.11.26, 19:00 - 22:30",
           "digest": "00c8837cad7bd91b",
           "message_id": "1567919170199494698",
           "title": "SWU Premier Weekly"
+        },
+        "01a05babcc7879c8a6ddd00b1f07dc44": {
+          "date": "So., 15.11.26, 11:00 - 16:00",
+          "digest": "a726b93ed46daa31",
+          "message_id": "1568989597856178177",
+          "title": "SWU Draft"
         }
       }
     },
     "unterhaltung": {
       "initialized": true,
-      "last_run": "2026-11-07T13:45:36Z",
+      "last_run": "2026-11-08T14:05:09Z",
       "seen": {}
     },
     "yu-gi-oh": {
       "initialized": true,
-      "last_run": "2026-11-07T13:45:06Z",
+      "last_run": "2026-11-08T14:04:43Z",
       "seen": {
         "01a0343415257569a358f2bbee7c881b": {
           "date": "So., 08.11.26, 12:00 - 18:00",
           "digest": "665af264dd81e9a2",
           "message_id": "1566452582363177031",
+          "title": "Yu-Gi-Oh Advanced Weekly"
+        },
+        "01a0343415267eff93b1899a480517b9": {
+          "date": "So., 15.11.26, 12:00 - 18:00",
+          "digest": "f46454e0c8fbe91d",
+          "message_id": "1568989636049764384",
           "title": "Yu-Gi-Oh Advanced Weekly"
         },
         "01a03436a2007b1aa494df83df1dbf40": {
