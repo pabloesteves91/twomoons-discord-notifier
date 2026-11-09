@@ -2,7 +2,7 @@
   "categories": {
     "cyberpunk": {
       "initialized": true,
-      "last_run": "2026-11-08T14:05:08Z",
+      "last_run": "2026-11-09T17:10:29Z",
       "seen": {
         "01a1342edcb27b0fa08bce18a57aa282": {
           "date": "Sa., 14.11.26, 11:00 - 19:00",
@@ -20,7 +20,7 @@
     },
     "flesh-blood": {
       "initialized": true,
-      "last_run": "2026-11-08T14:04:56Z",
+      "last_run": "2026-11-09T17:10:21Z",
       "seen": {
         "01a03443df13777fb24506029bb2693a": {
           "date": "Mi., 11.11.26, 19:00 - 22:30",
@@ -38,7 +38,7 @@
     },
     "lorcana": {
       "initialized": true,
-      "last_run": "2026-11-08T14:04:47Z",
+      "last_run": "2026-11-09T17:10:14Z",
       "seen": {
         "01a0ed5d11387bca97f145059b920a87": {
           "date": "Do., 12.11.26, 18:30 - 22:30",
@@ -56,7 +56,7 @@
     },
     "magic": {
       "initialized": true,
-      "last_run": "2026-11-08T14:04:19Z",
+      "last_run": "2026-11-09T17:09:48Z",
       "seen": {
         "019ff4df44b072bc8447f5d7f2b4ae7d": {
           "date": "Fr., 13.11.26, 18:00 - 22:00",
@@ -76,35 +76,23 @@
           "message_id": "1566856804405870735",
           "title": "MTG Standard Weekly"
         },
-        "01a135e8f07a7e18adaa85980cfa9f14": {
-          "date": "Sa., 07.11.26, 11:00 - 17:00",
-          "digest": "339a2a84212c76c5",
-          "message_id": "1566452482870091797",
-          "title": "MTG Star Trek Prerelease"
-        },
-        "01a135edb9597238ba6dfe97f825c3ac": {
-          "date": "Sa., 07.11.26, 11:00 - 17:00",
-          "digest": "aacdf70c16743b24",
-          "message_id": "1566452490839523502",
-          "title": "MTG Star Trek Prerelease - WEINFELDEN"
+        "01a03445c370770a8984bdd6e2a57bc2": {
+          "date": "Mo., 16.11.26, 19:00 - 22:30",
+          "digest": "9277c6b76baed037",
+          "message_id": "1569398579569623224",
+          "title": "MTG Standard Weekly"
         },
         "01a135f99d6b71db9fffdbd358d9ce9c": {
           "date": "Fr., 13.11.26, 18:30 - 22:30",
           "digest": "88ddd7999dc01a6b",
           "message_id": "1568275632260124886",
           "title": "MTG Star Trek Draft FNM"
-        },
-        "01a1445f05e174b380f262b742004480": {
-          "date": "So., 08.11.26, 11:00 - 18:00",
-          "digest": "e4c453e259b72b79",
-          "message_id": "1566452499844567172",
-          "title": "MTG Star Trek Two-Headed Giant Prerelease"
         }
       }
     },
     "one-piece": {
       "initialized": true,
-      "last_run": "2026-11-08T14:04:50Z",
+      "last_run": "2026-11-09T17:10:17Z",
       "seen": {
         "019e973789d2776fadcc3a81dde1e358": {
           "date": "Mi., 11.11.26, 19:00 - 22:00",
@@ -118,12 +106,6 @@
           "message_id": "1567189744176209924",
           "title": "One Piece TCG Constructed Weekly"
         },
-        "01a17d64e622790ab07b417d1d2bcc2b": {
-          "date": "Sa., 07.11.26, 11:00 - 17:00",
-          "digest": "c2a7543fb429c9be",
-          "message_id": "1566078943243796643",
-          "title": "One Piece TCG EB05 Heroines Battle Release Event"
-        },
         "01a17e0c1b28759a848b3b827da63ff8": {
           "date": "Sa., 14.11.26, 11:00 - 17:00",
           "digest": "f70c6aacc2621658",
@@ -134,12 +116,18 @@
     },
     "pokemon": {
       "initialized": true,
-      "last_run": "2026-11-08T14:04:26Z",
+      "last_run": "2026-11-09T17:10:00Z",
       "seen": {
         "01a034400a5c7ad1a557eaed018245da": {
           "date": "Mo., 09.11.26, 18:30 - 22:30",
-          "digest": "96d4dec24461510e",
+          "digest": "282a68d444f06b5e",
           "message_id": "1566856883405332648",
+          "title": "Pokémon Weekly Standard"
+        },
+        "01a034400a5c7ad1a557eaf4f9bdb6cc": {
+          "date": "Mo., 16.11.26, 18:30 - 22:30",
+          "digest": "72610e55f29d06f3",
+          "message_id": "1569398641427222690",
           "title": "Pokémon Weekly Standard"
         },
         "01a03441f92b745c8a77259f10d6b464": {
@@ -150,7 +138,7 @@
         },
         "01a0ce12270c71048e93e6c759ead9c4": {
           "date": "Sa., 14.11.26, 11:00 - 18:00",
-          "digest": "fa264f2e0a53b7f2",
+          "digest": "95b0c8d7552a6e7b",
           "message_id": "1568622263182426152",
           "title": "Pokémon League Cup"
         }
@@ -158,7 +146,7 @@
     },
     "riftbound": {
       "initialized": true,
-      "last_run": "2026-11-08T14:05:00Z",
+      "last_run": "2026-11-09T17:10:24Z",
       "seen": {
         "01a0344c06e57432b0868c092d914784": {
           "date": "Do., 12.11.26, 18:30 - 22:00",
@@ -176,7 +164,7 @@
     },
     "star-wars-unlimited": {
       "initialized": true,
-      "last_run": "2026-11-08T14:04:34Z",
+      "last_run": "2026-11-09T17:10:04Z",
       "seen": {
         "01a03450f08e72cd86224f1e08b68856": {
           "date": "Do., 12.11.26, 19:00 - 22:30",
@@ -194,19 +182,13 @@
     },
     "unterhaltung": {
       "initialized": true,
-      "last_run": "2026-11-08T14:05:09Z",
+      "last_run": "2026-11-09T17:10:31Z",
       "seen": {}
     },
     "yu-gi-oh": {
       "initialized": true,
-      "last_run": "2026-11-08T14:04:43Z",
+      "last_run": "2026-11-09T17:10:11Z",
       "seen": {
-        "01a0343415257569a358f2bbee7c881b": {
-          "date": "So., 08.11.26, 12:00 - 18:00",
-          "digest": "665af264dd81e9a2",
-          "message_id": "1566452582363177031",
-          "title": "Yu-Gi-Oh Advanced Weekly"
-        },
         "01a0343415267eff93b1899a480517b9": {
           "date": "So., 15.11.26, 12:00 - 18:00",
           "digest": "f46454e0c8fbe91d",
