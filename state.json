@@ -2,14 +2,8 @@
   "categories": {
     "cyberpunk": {
       "initialized": true,
-      "last_run": "2026-11-15T14:32:24Z",
+      "last_run": "2026-11-16T16:46:27Z",
       "seen": {
-        "01a1342edcb27b0fa08bce18a57aa282": {
-          "date": "Sa., 14.11.26, 11:00 - 19:00",
-          "digest": "a861f31a08ea9841",
-          "message_id": "1568622438076653709",
-          "title": "Cyberpunk TCG Night City Showdown"
-        },
         "01a1b69ccba4723a96c25d57c5557c4a": {
           "date": "Fr., 20.11.26, 19:00 - 22:30",
           "digest": "fb9361fab2c78745",
@@ -20,7 +14,7 @@
     },
     "flesh-blood": {
       "initialized": true,
-      "last_run": "2026-11-15T14:32:15Z",
+      "last_run": "2026-11-16T16:46:19Z",
       "seen": {
         "01a03443df13777fb2450609f6823e7d": {
           "date": "Mi., 18.11.26, 19:00 - 22:30",
@@ -44,7 +38,7 @@
     },
     "lorcana": {
       "initialized": true,
-      "last_run": "2026-11-15T14:32:03Z",
+      "last_run": "2026-11-16T16:46:07Z",
       "seen": {
         "01a0ed5d11397171a950d4e837621ee3": {
           "date": "Do., 19.11.26, 18:30 - 22:30",
@@ -62,7 +56,7 @@
     },
     "magic": {
       "initialized": true,
-      "last_run": "2026-11-15T14:31:34Z",
+      "last_run": "2026-11-16T16:45:36Z",
       "seen": {
         "019ff4df44b072bc8447f5dee85f73e6": {
           "date": "Fr., 20.11.26, 18:00 - 22:00",
@@ -72,7 +66,7 @@
         },
         "01a0343ebee873ab83ecec26e06cd6ec": {
           "date": "Mi., 18.11.26, 19:00 - 22:30",
-          "digest": "29a9220598af131b",
+          "digest": "65d2abfbc6374e26",
           "message_id": "1570089414565306509",
           "title": "MTG Modern Weekly"
         },
@@ -80,6 +74,12 @@
           "date": "Mo., 16.11.26, 19:00 - 22:30",
           "digest": "9277c6b76baed037",
           "message_id": "1569398579569623224",
+          "title": "MTG Standard Weekly"
+        },
+        "01a03445c371748fb90e4dd6d771b4ce": {
+          "date": "Mo., 23.11.26, 19:00 - 22:30",
+          "digest": "c64ea69ed740b4e2",
+          "message_id": "1571929216327618753",
           "title": "MTG Standard Weekly"
         },
         "01a135f99d6e79c3b61cc79f63e41f6d": {
@@ -98,7 +98,7 @@
     },
     "one-piece": {
       "initialized": true,
-      "last_run": "2026-11-15T14:32:07Z",
+      "last_run": "2026-11-16T16:46:12Z",
       "seen": {
         "019e973789d379d794129c58636ebc75": {
           "date": "Mi., 18.11.26, 19:00 - 22:00",
@@ -123,23 +123,23 @@
           "digest": "f61d95d47dd0a278",
           "message_id": "1571162134283419659",
           "title": "One Piece TCG OP18 Release Event"
-        },
-        "01a17e0c1b28759a848b3b827da63ff8": {
-          "date": "Sa., 14.11.26, 11:00 - 17:00",
-          "digest": "f70c6aacc2621658",
-          "message_id": "1568622364890103939",
-          "title": "One Piece TCG Pirates Party"
         }
       }
     },
     "pokemon": {
       "initialized": true,
-      "last_run": "2026-11-15T14:31:43Z",
+      "last_run": "2026-11-16T16:45:51Z",
       "seen": {
         "01a034400a5c7ad1a557eaf4f9bdb6cc": {
           "date": "Mo., 16.11.26, 18:30 - 22:30",
-          "digest": "72610e55f29d06f3",
+          "digest": "833a987da7748973",
           "message_id": "1569398641427222690",
+          "title": "Pokémon Weekly Standard"
+        },
+        "01a034400a5c7ad1a557eafb967d846d": {
+          "date": "Mo., 23.11.26, 18:30 - 22:30",
+          "digest": "aac8e1efeea86557",
+          "message_id": "1571929273298845851",
           "title": "Pokémon Weekly Standard"
         },
         "01a03441f92c7af2b0aa062e422294fc": {
@@ -147,12 +147,6 @@
           "digest": "9cc953837764a20f",
           "message_id": "1570089463743250476",
           "title": "Pokémon Weekly Standard"
-        },
-        "01a0ce12270c71048e93e6c759ead9c4": {
-          "date": "Sa., 14.11.26, 11:00 - 18:00",
-          "digest": "5a11eaf4e55e91a5",
-          "message_id": "1568622263182426152",
-          "title": "Pokémon League Cup"
         },
         "01a0ed10344270efbbc374535d7f7d93": {
           "date": "Sa., 21.11.26, 11:00 - 17:00",
@@ -170,7 +164,7 @@
     },
     "riftbound": {
       "initialized": true,
-      "last_run": "2026-11-15T14:32:19Z",
+      "last_run": "2026-11-16T16:46:23Z",
       "seen": {
         "01a0344c06e67b20af3e48b294b100a0": {
           "date": "Do., 19.11.26, 18:30 - 22:00",
@@ -188,19 +182,13 @@
     },
     "star-wars-unlimited": {
       "initialized": true,
-      "last_run": "2026-11-15T14:31:53Z",
+      "last_run": "2026-11-16T16:45:57Z",
       "seen": {
         "01a03450f08f7971a366663defa8fbf0": {
           "date": "Do., 19.11.26, 19:00 - 22:30",
           "digest": "70381772f7773c4e",
           "message_id": "1570464742248554547",
           "title": "SWU Premier Weekly"
-        },
-        "01a05babcc7879c8a6ddd00b1f07dc44": {
-          "date": "So., 15.11.26, 11:00 - 16:00",
-          "digest": "a726b93ed46daa31",
-          "message_id": "1568989597856178177",
-          "title": "SWU Draft"
         },
         "01a05babcc797e0f8f68b7a776787cda": {
           "date": "So., 22.11.26, 11:00 - 16:00",
@@ -212,12 +200,12 @@
     },
     "unterhaltung": {
       "initialized": true,
-      "last_run": "2026-11-15T14:32:25Z",
+      "last_run": "2026-11-16T16:46:29Z",
       "seen": {}
     },
     "yu-gi-oh": {
       "initialized": true,
-      "last_run": "2026-11-15T14:32:00Z",
+      "last_run": "2026-11-16T16:46:02Z",
       "seen": {
         "01a0343415267eff93b1899a480517b9": {
           "date": "So., 15.11.26, 12:00 - 18:00",
