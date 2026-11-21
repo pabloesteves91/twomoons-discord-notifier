@@ -2,7 +2,7 @@
   "categories": {
     "cyberpunk": {
       "initialized": true,
-      "last_run": "2026-11-20T15:55:56Z",
+      "last_run": "2026-11-21T15:06:32Z",
       "seen": {
         "01a1b69ccba4723a96c25d57c5557c4a": {
           "date": "Fr., 20.11.26, 19:00 - 22:30",
@@ -20,7 +20,7 @@
     },
     "flesh-blood": {
       "initialized": true,
-      "last_run": "2026-11-20T15:55:48Z",
+      "last_run": "2026-11-21T15:06:24Z",
       "seen": {
         "01a03443df147abcacd5f1ad87ce6988": {
           "date": "Mi., 25.11.26, 19:00 - 22:30",
@@ -50,24 +50,12 @@
     },
     "lorcana": {
       "initialized": true,
-      "last_run": "2026-11-20T15:55:33Z",
+      "last_run": "2026-11-21T15:06:12Z",
       "seen": {
-        "01a0ed5d11397171a950d4e837621ee3": {
-          "date": "Do., 19.11.26, 18:30 - 22:30",
-          "digest": "6bf896b8c88c959d",
-          "message_id": "1570464809840025783",
-          "title": "Lorcana Core Weekly"
-        },
         "01a0ed5d113a7f6aa39e7f967ec5edd5": {
           "date": "Do., 26.11.26, 18:30 - 22:30",
           "digest": "764b1a0a9d17dc28",
           "message_id": "1573009607880605817",
-          "title": "Lorcana Core Weekly"
-        },
-        "01a0ed5e28a677bca1e9d51296a64125": {
-          "date": "Do., 19.11.26, 19:00 - 22:00",
-          "digest": "6a92e5e89d50fb16",
-          "message_id": "1570464822502367334",
           "title": "Lorcana Core Weekly"
         },
         "01a0ed5e28a77a06bb921544fe04bbe4": {
@@ -80,7 +68,7 @@
     },
     "magic": {
       "initialized": true,
-      "last_run": "2026-11-20T15:55:09Z",
+      "last_run": "2026-11-21T15:05:45Z",
       "seen": {
         "019ff4df44b072bc8447f5dee85f73e6": {
           "date": "Fr., 20.11.26, 18:00 - 22:00",
@@ -114,7 +102,7 @@
         },
         "01a135f99d707b0c8df6ad669200b94d": {
           "date": "Fr., 27.11.26, 18:30 - 22:30",
-          "digest": "83559ea9b41b0734",
+          "digest": "7821a15cfcaa2a0d",
           "message_id": "1573366070293565512",
           "title": "MTG Star Trek Draft FNM"
         },
@@ -128,7 +116,7 @@
     },
     "one-piece": {
       "initialized": true,
-      "last_run": "2026-11-20T15:55:38Z",
+      "last_run": "2026-11-21T15:06:21Z",
       "seen": {
         "019e973789d470f39b666fa3e1914f46": {
           "date": "Mi., 25.11.26, 19:00 - 22:00",
@@ -162,15 +150,21 @@
         },
         "01a17d6c0190757baae986be22db765a": {
           "date": "Mi., 25.11.26, 19:00 - 22:00",
-          "digest": "34976e1be9d27cec",
+          "digest": "db4bff6e24674ad0",
           "message_id": "1572645466993070162",
           "title": "One Piece TCG OP18 Release Event"
+        },
+        "01a1a1df4ce479b0a05edf5f91f012da": {
+          "date": "Sa., 28.11.26, 11:00 - 17:00",
+          "digest": "eb69c080ef25bf03",
+          "message_id": "1573716184195670149",
+          "title": "One Piece TCG Pirates Party"
         }
       }
     },
     "pokemon": {
       "initialized": true,
-      "last_run": "2026-11-20T15:55:20Z",
+      "last_run": "2026-11-21T15:05:49Z",
       "seen": {
         "01a034400a5c7ad1a557eafb967d846d": {
           "date": "Mo., 23.11.26, 18:30 - 22:30",
@@ -200,14 +194,8 @@
     },
     "riftbound": {
       "initialized": true,
-      "last_run": "2026-11-20T15:55:52Z",
+      "last_run": "2026-11-21T15:06:30Z",
       "seen": {
-        "01a0344c06e67b20af3e48b294b100a0": {
-          "date": "Do., 19.11.26, 18:30 - 22:00",
-          "digest": "24e141ee075722af",
-          "message_id": "1570464876810338338",
-          "title": "Riftbound Constructed Weekly"
-        },
         "01a0344c06e67b20af3e48b9818f1093": {
           "date": "Do., 26.11.26, 18:30 - 22:00",
           "digest": "77f306cce9106f96",
@@ -224,14 +212,8 @@
     },
     "star-wars-unlimited": {
       "initialized": true,
-      "last_run": "2026-11-20T15:55:23Z",
+      "last_run": "2026-11-21T15:05:59Z",
       "seen": {
-        "01a03450f08f7971a366663defa8fbf0": {
-          "date": "Do., 19.11.26, 19:00 - 22:30",
-          "digest": "70381772f7773c4e",
-          "message_id": "1570464742248554547",
-          "title": "SWU Premier Weekly"
-        },
         "01a03450f08f7971a3666644ba6728b1": {
           "date": "Do., 26.11.26, 19:00 - 22:30",
           "digest": "992502d01ce123b8",
@@ -243,28 +225,34 @@
           "digest": "e411096c3bb209a8",
           "message_id": "1571533178332520525",
           "title": "SWU Draft"
+        },
+        "01a134356d0e7ea78aa3b2a4a813cc30": {
+          "date": "Sa., 28.11.26, 11:00 - So., 29.11.26, 18:00",
+          "digest": "65a88d30d57d38e2",
+          "message_id": "1573716084819763292",
+          "title": "TwoMoons SWU Championship 2026"
+        },
+        "TwoMoons SWU Championship 2026|Sa., 28.11.26, 11:00 - 29.11.26, 18:00": {
+          "date": "Sa., 28.11.26, 11:00 - 29.11.26, 18:00",
+          "digest": "0f1b7164db17b884",
+          "message_id": "1573716100368048149",
+          "title": "TwoMoons SWU Championship 2026"
         }
       }
     },
     "unterhaltung": {
       "initialized": true,
-      "last_run": "2026-11-20T15:55:57Z",
+      "last_run": "2026-11-21T15:06:33Z",
       "seen": {}
     },
     "yu-gi-oh": {
       "initialized": true,
-      "last_run": "2026-11-20T15:55:29Z",
+      "last_run": "2026-11-21T15:06:05Z",
       "seen": {
         "01a0343415267eff93b189a1d3016153": {
           "date": "So., 22.11.26, 12:00 - 18:00",
           "digest": "761b0e0145430073",
           "message_id": "1571533220363632701",
-          "title": "Yu-Gi-Oh Advanced Weekly"
-        },
-        "01a03436a20175158e01e731def459d2": {
-          "date": "Do., 19.11.26, 19:00 - 22:30",
-          "digest": "9d268705c614e8f1",
-          "message_id": "1570464776902025349",
           "title": "Yu-Gi-Oh Advanced Weekly"
         },
         "01a03436a20175158e01e738a1cd63db": {
